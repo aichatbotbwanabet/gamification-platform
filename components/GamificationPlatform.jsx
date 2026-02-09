@@ -54,6 +54,22 @@ const IMAGES = {
   questMap: `${IMG_BASE}/quest-map.jpg`,
 };
 
+// Wheel-specific premium assets
+const WHEEL_IMAGES = {
+  frame: `${IMG_BASE}/wheel/wheel-gold-frame.jpg`,
+  pointer: `${IMG_BASE}/wheel/wheel-pointer-arrow.jpg`,
+  spinBtn: `${IMG_BASE}/wheel/wheel-spin-button.jpg`,
+  diamond: `${IMG_BASE}/wheel/prize-diamond.jpg`,
+  coinsStack: `${IMG_BASE}/wheel/prize-coins-stack.jpg`,
+  xpStar: `${IMG_BASE}/wheel/prize-xp-star.jpg`,
+  magicKey: `${IMG_BASE}/wheel/prize-magic-key.jpg`,
+  emeralds: `${IMG_BASE}/wheel/prize-emeralds.jpg`,
+  clover: `${IMG_BASE}/wheel/prize-clover.jpg`,
+  coinsPile: `${IMG_BASE}/wheel/prize-coins-pile.jpg`,
+  magnet: `${IMG_BASE}/wheel/prize-magnet.jpg`,
+  ring: `${IMG_BASE}/wheel/prize-ring.jpg`,
+};
+
 // ============================================================================
 // TUTORIALS - Help content for each feature
 // ============================================================================
@@ -196,15 +212,15 @@ const TUTORIALS = {
 // WHEEL SEGMENTS - Prize wheel configuration
 // ============================================================================
 const WHEEL_SEGMENTS = [
-  { id: 1, label: '1 Diamond', prize: { diamonds: 1 }, icon: '💎', color: '#a855f7' },
-  { id: 2, label: '10 Coins', prize: { kwacha: 10 }, icon: '🪙', color: '#fbbf24' },
-  { id: 3, label: '10 XP', prize: { xp: 10 }, icon: '⭐', color: '#ec4899' },
-  { id: 4, label: '150 XP', prize: { xp: 150 }, icon: '🔑', color: '#22c55e' },
-  { id: 5, label: '2 Gems', prize: { gems: 2 }, icon: '💚', color: '#10b981' },
-  { id: 6, label: '100C+100XP', prize: { xp: 100, kwacha: 100 }, icon: '🍀', color: '#f97316' },
-  { id: 7, label: '200 Coins', prize: { kwacha: 200 }, icon: '🪙', color: '#eab308' },
-  { id: 8, label: '350 Coins', prize: { kwacha: 350 }, icon: '🧲', color: '#14b8a6' },
-  { id: 9, label: '100 Coins', prize: { kwacha: 100 }, icon: '💍', color: '#f43f5e' },
+  { id: 1, label: '1 Diamond', prize: { diamonds: 1 }, icon: '💎', image: 'diamond', color: '#a855f7' },
+  { id: 2, label: '10 Coins', prize: { kwacha: 10 }, icon: '🪙', image: 'coinsStack', color: '#fbbf24' },
+  { id: 3, label: '10 XP', prize: { xp: 10 }, icon: '⭐', image: 'xpStar', color: '#ec4899' },
+  { id: 4, label: '150 XP', prize: { xp: 150 }, icon: '🔑', image: 'magicKey', color: '#22c55e' },
+  { id: 5, label: '2 Gems', prize: { gems: 2 }, icon: '💚', image: 'emeralds', color: '#10b981' },
+  { id: 6, label: '100C+100XP', prize: { xp: 100, kwacha: 100 }, icon: '🍀', image: 'clover', color: '#f97316' },
+  { id: 7, label: '200 Coins', prize: { kwacha: 200 }, icon: '🪙', image: 'coinsPile', color: '#eab308' },
+  { id: 8, label: '350 Coins', prize: { kwacha: 350 }, icon: '🧲', image: 'magnet', color: '#14b8a6' },
+  { id: 9, label: '100 Coins', prize: { kwacha: 100 }, icon: '💍', image: 'ring', color: '#f43f5e' },
 ];
 
 // ============================================================================
@@ -393,18 +409,34 @@ function TutorialModal({ tutorialKey, onClose }) {
 }
 
 // ============================================================================
-// WHEEL GAME COMPONENT
+// WHEEL GAME COMPONENT - Premium Edition
 // ============================================================================
 function WheelGame({ onClose, onWin, playsLeft }) {
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
   const [result, setResult] = useState(null);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
+  const [pointerBouncing, setPointerBouncing] = useState(false);
+  const [sparkles, setSparkles] = useState([]);
+  const [wheelConfetti, setWheelConfetti] = useState(false);
   
   const spin = () => {
     if (spinning || playsLeft <= 0) return;
     setSpinning(true);
     setResult(null);
+    setPointerBouncing(true);
+    
+    // Generate sparkle particles during spin
+    const sparkleInterval = setInterval(() => {
+      setSparkles(prev => [...prev.slice(-12), {
+        id: Date.now() + Math.random(),
+        x: 50 + (Math.random() - 0.5) * 40,
+        y: 50 + (Math.random() - 0.5) * 40,
+        sx: (Math.random() - 0.5) * 60 + 'px',
+        sy: (Math.random() - 0.5) * 60 + 'px',
+      }]);
+    }, 200);
     
     const winIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
     const segment = WHEEL_SEGMENTS[winIndex];
@@ -415,8 +447,15 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     setRotation(r => r + (spins * 360) + (360 - targetAngle) + 90);
     
     setTimeout(() => {
+      clearInterval(sparkleInterval);
+      setSparkles([]);
       setSpinning(false);
+      setPointerBouncing(false);
       setResult(segment);
+      setShowFlash(true);
+      setWheelConfetti(true);
+      setTimeout(() => setShowFlash(false), 400);
+      setTimeout(() => setWheelConfetti(false), 3000);
     }, 5000);
   };
 
@@ -424,61 +463,156 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
       {showTutorial && <TutorialModal tutorialKey="wheel" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+      {/* Screen Flash on Win */}
+      {showFlash && (
+        <div className="fixed inset-0 z-[75] pointer-events-none" style={{
+          background: 'radial-gradient(circle, rgba(251,191,36,0.5) 0%, rgba(168,85,247,0.3) 50%, transparent 80%)',
+          animation: 'screenFlash 0.4s ease-out forwards',
+        }} />
+      )}
+      
+      {/* Wheel Confetti - Full screen, 60 particles */}
+      {wheelConfetti && (
+        <div className="fixed inset-0 pointer-events-none z-[74] overflow-hidden">
+          {Array.from({ length: 60 }, (_, i) => {
+            const colors = ['#fbbf24', '#a855f7', '#ec4899', '#22c55e', '#3b82f6', '#f97316', '#ef4444', '#14b8a6'];
+            const shapes = ['circle', 'rect', 'star'];
+            const shape = shapes[i % 3];
+            const size = 6 + Math.random() * 10;
+            const drift = (Math.random() - 0.5) * 120;
+            const delay = Math.random() * 0.8;
+            const duration = 2.2 + Math.random() * 1.5;
+            
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${5 + Math.random() * 90}%`,
+                  top: '-20px',
+                  width: shape === 'rect' ? size * 0.6 : size,
+                  height: shape === 'star' ? size * 0.4 : size,
+                  backgroundColor: colors[i % colors.length],
+                  borderRadius: shape === 'circle' ? '50%' : shape === 'star' ? '1px' : '2px',
+                  '--drift': `${drift}px`,
+                  animation: `confettiFall ${duration}s ${delay}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
+                  boxShadow: `0 0 4px ${colors[i % colors.length]}40`,
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+      
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in shadow-2xl shadow-purple-900/50">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
+          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
             <HelpCircle className="w-6 h-6 text-purple-400" />
           </button>
-          <h2 className="text-2xl font-bold">🎡 Wheel of Fortune</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            <span className="text-3xl">🎡</span> Wheel of Fortune
+          </h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all hover:rotate-90 duration-300">
             <X className="w-6 h-6" />
           </button>
         </div>
         
         {/* Free Spins Badge */}
-        <div className="text-center mb-4">
-          <span className={`px-4 py-2 rounded-full font-bold ${playsLeft > 0 ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
+        <div className="text-center mb-5">
+          <span className={`px-5 py-2.5 rounded-full font-bold text-lg inline-flex items-center gap-2 ${playsLeft > 0 ? 'bg-green-500/20 text-green-400 border border-green-500/30 glow-pulse' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
             {playsLeft > 0 ? `🎁 ${playsLeft} Free Spins` : '❌ No Free Spins'}
           </span>
         </div>
         
-        {/* Wheel */}
-        <div className="relative w-72 h-72 mx-auto mb-6">
-          {/* Decorative Lights */}
-          <div className="absolute inset-[-12px]">
+        {/* Wheel Container */}
+        <div className="relative w-80 h-80 mx-auto mb-6">
+          
+          {/* Gold Frame Overlay */}
+          <div className="absolute inset-[-18px] z-30 pointer-events-none">
+            <img 
+              src={WHEEL_IMAGES.frame} 
+              alt="" 
+              className="w-full h-full object-contain drop-shadow-2xl"
+              style={{ filter: 'drop-shadow(0 0 12px rgba(251,191,36,0.4))' }}
+            />
+          </div>
+          
+          {/* Animated Light Dots around frame */}
+          <div className="absolute inset-[-22px] z-30 pointer-events-none">
             {[...Array(16)].map((_, i) => (
               <div
                 key={i}
-                className={`absolute w-3 h-3 rounded-full ${spinning ? 'animate-pulse' : ''}`}
+                className="absolute w-2.5 h-2.5 rounded-full"
                 style={{
                   background: i % 2 === 0 ? '#fbbf24' : '#ec4899',
-                  boxShadow: `0 0 8px ${i % 2 === 0 ? '#fbbf24' : '#ec4899'}`,
-                  left: `${50 + 46 * Math.cos((i * 22.5 - 90) * Math.PI / 180)}%`,
-                  top: `${50 + 46 * Math.sin((i * 22.5 - 90) * Math.PI / 180)}%`,
+                  boxShadow: `0 0 8px 2px ${i % 2 === 0 ? 'rgba(251,191,36,0.8)' : 'rgba(236,72,153,0.8)'}`,
+                  left: `${50 + 50 * Math.cos((i * 22.5 - 90) * Math.PI / 180)}%`,
+                  top: `${50 + 50 * Math.sin((i * 22.5 - 90) * Math.PI / 180)}%`,
                   transform: 'translate(-50%, -50%)',
+                  animation: spinning 
+                    ? `lightPulse ${0.3 + (i % 3) * 0.15}s ease-in-out infinite ${i * 0.05}s` 
+                    : 'none',
+                  opacity: spinning ? 1 : 0.6,
+                  transition: 'opacity 0.3s',
                 }}
               />
             ))}
           </div>
           
-          {/* Pointer */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-2 z-20">
-            <div 
-              className="w-0 h-0 border-l-[18px] border-l-transparent border-r-[18px] border-r-transparent border-t-[30px] border-t-yellow-400" 
-              style={{ filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.4))' }} 
-            />
+          {/* Pointer Arrow */}
+          <div 
+            className="absolute top-[-28px] left-1/2 z-40 w-14 h-14"
+            style={{ 
+              transform: 'translateX(-50%)',
+              animation: pointerBouncing ? 'pointerBounce 0.15s ease-in-out infinite' : 'none',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
+            }}
+          >
+            <img src={WHEEL_IMAGES.pointer} alt="" className="w-full h-full object-contain" style={{ transform: 'rotate(180deg)' }} />
           </div>
+          
+          {/* Sparkle Particles during spin */}
+          {sparkles.map(s => (
+            <div
+              key={s.id}
+              className="absolute w-2 h-2 rounded-full bg-yellow-400 z-30 pointer-events-none"
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                '--sx': s.sx,
+                '--sy': s.sy,
+                animation: 'sparkleFloat 0.6s ease-out forwards',
+                boxShadow: '0 0 6px #fbbf24, 0 0 12px #fbbf24',
+              }}
+            />
+          ))}
           
           {/* Spinning Wheel */}
           <div 
-            className="absolute inset-3 rounded-full overflow-hidden shadow-2xl" 
+            className="absolute inset-3 rounded-full overflow-hidden" 
             style={{ 
               transform: `rotate(${rotation}deg)`, 
-              transition: spinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.18, 1)' : 'none' 
+              transition: spinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.18, 1)' : 'none',
+              boxShadow: spinning 
+                ? '0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.2), inset 0 0 20px rgba(0,0,0,0.3)' 
+                : '0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3)',
             }}
           >
             <svg viewBox="0 0 200 200" className="w-full h-full">
+              <defs>
+                {WHEEL_SEGMENTS.map((seg, i) => {
+                  const angle = 360 / WHEEL_SEGMENTS.length;
+                  const midAngle = i * angle - 90 + angle / 2;
+                  const imgX = 100 + 62 * Math.cos((midAngle * Math.PI) / 180);
+                  const imgY = 100 + 62 * Math.sin((midAngle * Math.PI) / 180);
+                  return (
+                    <pattern key={`p-${seg.id}`} id={`prize-${seg.id}`} x={imgX - 14} y={imgY - 14} width="28" height="28" patternUnits="userSpaceOnUse">
+                      <image href={WHEEL_IMAGES[seg.image]} width="28" height="28" preserveAspectRatio="xMidYMid slice" />
+                    </pattern>
+                  );
+                })}
+              </defs>
               {WHEEL_SEGMENTS.map((seg, i) => {
                 const angle = 360 / WHEEL_SEGMENTS.length;
                 const startAngle = i * angle - 90;
@@ -492,8 +626,8 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                   y: 100 + 100 * Math.sin((endAngle * Math.PI) / 180) 
                 };
                 const midAngle = startAngle + angle / 2;
-                const iconX = 100 + 60 * Math.cos((midAngle * Math.PI) / 180);
-                const iconY = 100 + 60 * Math.sin((midAngle * Math.PI) / 180);
+                const iconX = 100 + 62 * Math.cos((midAngle * Math.PI) / 180);
+                const iconY = 100 + 62 * Math.sin((midAngle * Math.PI) / 180);
                 
                 return (
                   <g key={seg.id}>
@@ -501,45 +635,86 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                       d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
                       fill={seg.color} 
                       stroke="#1a1333" 
-                      strokeWidth="2" 
+                      strokeWidth="1.5" 
                     />
-                    <text 
-                      x={iconX} 
-                      y={iconY} 
-                      textAnchor="middle" 
-                      dominantBaseline="middle" 
-                      fontSize="24" 
+                    {/* Dark gradient overlay for depth */}
+                    <path 
+                      d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
+                      fill="url(#segGrad)" 
+                      opacity="0.3"
+                    />
+                    {/* Prize icon image */}
+                    <image
+                      href={WHEEL_IMAGES[seg.image]}
+                      x={iconX - 16}
+                      y={iconY - 16}
+                      width="32"
+                      height="32"
                       transform={`rotate(${midAngle + 90}, ${iconX}, ${iconY})`}
-                    >
-                      {seg.icon}
-                    </text>
+                      style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}
+                      preserveAspectRatio="xMidYMid slice"
+                    />
                   </g>
                 );
               })}
-              <circle cx="100" cy="100" r="25" fill="#1a1333" stroke="#fbbf24" strokeWidth="4" />
+              {/* Center gradient overlay */}
+              <defs>
+                <radialGradient id="segGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#000" stopOpacity="0.4" />
+                  <stop offset="70%" stopColor="#000" stopOpacity="0" />
+                  <stop offset="100%" stopColor="#000" stopOpacity="0.15" />
+                </radialGradient>
+              </defs>
+              {/* Center hub */}
+              <circle cx="100" cy="100" r="28" fill="#1a1333" stroke="#fbbf24" strokeWidth="3" />
+              <circle cx="100" cy="100" r="24" fill="url(#hubGrad)" />
+              <defs>
+                <radialGradient id="hubGrad">
+                  <stop offset="0%" stopColor="#2d2250" />
+                  <stop offset="100%" stopColor="#1a1333" />
+                </radialGradient>
+              </defs>
             </svg>
           </div>
           
-          {/* Spin Button */}
+          {/* SPIN Button - Image overlay */}
           <button 
             type="button" 
             onClick={spin} 
             disabled={spinning || playsLeft <= 0} 
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[72px] h-[72px] rounded-full font-black text-lg z-10 transition-all ${spinning || playsLeft <= 0 ? 'bg-gray-600' : 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 hover:scale-110 hover:shadow-lg hover:shadow-orange-500/50 active:scale-95'}`}
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76px] h-[76px] rounded-full z-10 transition-all duration-300 ${
+              spinning || playsLeft <= 0 
+                ? 'opacity-50 grayscale' 
+                : 'hover:scale-110 hover:shadow-lg hover:shadow-orange-500/50 active:scale-90'
+            }`}
+            style={{ filter: spinning ? 'none' : 'drop-shadow(0 4px 12px rgba(251,191,36,0.5))' }}
           >
-            {spinning ? <RotateCcw className="w-7 h-7 mx-auto animate-spin" /> : 'SPIN'}
+            {spinning ? (
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center">
+                <RotateCcw className="w-8 h-8 animate-spin text-white" />
+              </div>
+            ) : (
+              <img src={WHEEL_IMAGES.spinBtn} alt="SPIN" className="w-full h-full object-contain rounded-full" />
+            )}
           </button>
         </div>
         
         {/* Result */}
         {result && (
-          <div className="text-center p-5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/50 anim-scale-in">
-            <div className="text-6xl mb-3 anim-float">{result.icon}</div>
-            <div className="text-2xl font-black text-yellow-400 mb-4">{result.label}</div>
+          <div 
+            className="text-center p-6 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-2xl border border-green-500/50"
+            style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
+          >
+            <div className="w-24 h-24 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
+              <img src={WHEEL_IMAGES[result.image]} alt="" className="w-full h-full object-contain drop-shadow-lg" />
+            </div>
+            <div className="text-3xl font-black text-yellow-400 mb-4" style={{ textShadow: '0 0 20px rgba(251,191,36,0.5)' }}>
+              {result.label}
+            </div>
             <button 
               type="button" 
               onClick={() => { onWin(result.prize, result.label); setResult(null); }} 
-              className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold text-lg shadow-lg"
+              className="px-10 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold text-lg shadow-lg shadow-green-500/30 btn-glow transition-all hover:scale-105 active:scale-95"
             >
               🎉 Claim Prize!
             </button>
@@ -1176,6 +1351,34 @@ export default function GamificationPlatform() {
       @keyframes progressFill {
         from { width: 0%; }
       }
+      @keyframes pointerBounce {
+        0%, 100% { transform: translateX(-50%) translateY(-2px) rotate(0deg); }
+        50% { transform: translateX(-50%) translateY(4px) rotate(2deg); }
+      }
+      @keyframes screenFlash {
+        0% { opacity: 0.7; }
+        100% { opacity: 0; }
+      }
+      @keyframes resultZoom {
+        0% { opacity: 0; transform: scale(0.3) rotate(-10deg); }
+        60% { transform: scale(1.1) rotate(2deg); }
+        100% { opacity: 1; transform: scale(1) rotate(0deg); }
+      }
+      @keyframes sparkleFloat {
+        0% { opacity: 1; transform: translate(0, 0) scale(1); }
+        100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); }
+      }
+      @keyframes confettiFall {
+        0% { opacity: 1; transform: translateY(0) translateX(0) rotate(0deg) scale(1); }
+        25% { transform: translateY(25vh) translateX(var(--drift)) rotate(180deg) scale(0.95); }
+        50% { transform: translateY(50vh) translateX(calc(var(--drift) * -0.5)) rotate(360deg) scale(0.9); }
+        75% { transform: translateY(75vh) translateX(var(--drift)) rotate(540deg) scale(0.8); }
+        100% { opacity: 0; transform: translateY(105vh) translateX(calc(var(--drift) * -1)) rotate(720deg) scale(0.5); }
+      }
+      @keyframes lightPulse {
+        0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      }
       
       .anim-fade-up { animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
       .anim-fade-in { animation: fadeIn 0.4s ease both; }
@@ -1306,25 +1509,36 @@ export default function GamificationPlatform() {
 
   return (
     <div className="flex h-screen bg-[#0f0a1f] text-white overflow-hidden">
-      {/* Confetti Burst */}
+      {/* Confetti Burst - Full screen premium */}
       {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-[200]">
-          {Array.from({ length: 20 }, (_, i) => (
-            <div
-              key={i}
-              className="absolute"
-              style={{
-                left: `${40 + Math.random() * 20}%`,
-                top: '35%',
-                width: 8 + Math.random() * 6,
-                height: 8 + Math.random() * 6,
-                backgroundColor: ['#fbbf24', '#a855f7', '#ec4899', '#22c55e', '#3b82f6', '#f97316'][i % 6],
-                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-                animation: `confettiDrop ${0.8 + Math.random() * 0.6}s ${Math.random() * 0.3}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
-                transform: `translateX(${(Math.random() - 0.5) * 120}px)`,
-              }}
-            />
-          ))}
+        <div className="fixed inset-0 pointer-events-none z-[200] overflow-hidden">
+          {Array.from({ length: 50 }, (_, i) => {
+            const colors = ['#fbbf24', '#a855f7', '#ec4899', '#22c55e', '#3b82f6', '#f97316', '#ef4444', '#14b8a6'];
+            const shapes = ['circle', 'rect', 'star'];
+            const shape = shapes[i % 3];
+            const size = 6 + Math.random() * 10;
+            const drift = (Math.random() - 0.5) * 100;
+            const delay = Math.random() * 0.5;
+            const duration = 1.8 + Math.random() * 1.2;
+            
+            return (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${10 + Math.random() * 80}%`,
+                  top: '-15px',
+                  width: shape === 'rect' ? size * 0.5 : size,
+                  height: shape === 'star' ? size * 0.4 : size,
+                  backgroundColor: colors[i % colors.length],
+                  borderRadius: shape === 'circle' ? '50%' : shape === 'star' ? '1px' : '2px',
+                  '--drift': `${drift}px`,
+                  animation: `confettiFall ${duration}s ${delay}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
+                  boxShadow: `0 0 3px ${colors[i % colors.length]}40`,
+                }}
+              />
+            );
+          })}
         </div>
       )}
 
