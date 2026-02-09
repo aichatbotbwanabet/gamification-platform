@@ -1454,27 +1454,30 @@ export default function GamificationPlatform() {
               <Menu className="w-6 h-6" />
             </button>
             
-            {/* Currency Display */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 px-5 py-3 bg-[#231a40] rounded-2xl border border-yellow-500/30">
-                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-10 h-10 object-contain" />
+            {/* Spacer for centering on desktop */}
+            <div className="hidden md:block w-32"></div>
+
+            {/* Currency Display - Centered */}
+            <div className="flex items-center justify-center gap-6 flex-1 md:flex-none">
+              <div className="flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
+                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-14 h-14 object-contain" />
                 <div>
-                  <div className="font-bold text-xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
-                  <div className="text-xs text-gray-400">Coins</div>
+                  <div className="font-black text-3xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
+                  <div className="text-sm text-gray-400">Coins</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 px-5 py-3 bg-[#231a40] rounded-2xl border border-green-500/30">
-                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-10 h-10 object-contain" />
+              <div className="flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-green-500/30 shadow-lg shadow-green-500/10">
+                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-14 h-14 object-contain" />
                 <div>
-                  <div className="font-bold text-xl text-green-400">{user.gems}</div>
-                  <div className="text-xs text-gray-400">Gems</div>
+                  <div className="font-black text-3xl text-green-400">{user.gems}</div>
+                  <div className="text-sm text-gray-400">Gems</div>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-3 px-5 py-3 bg-[#231a40] rounded-2xl border border-blue-500/30">
-                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-10 h-10 object-contain" />
+              <div className="hidden sm:flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
+                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-14 h-14 object-contain" />
                 <div>
-                  <div className="font-bold text-xl text-blue-400">{user.diamonds}</div>
-                  <div className="text-xs text-gray-400">Diamonds</div>
+                  <div className="font-black text-3xl text-blue-400">{user.diamonds}</div>
+                  <div className="text-sm text-gray-400">Diamonds</div>
                 </div>
               </div>
             </div>
