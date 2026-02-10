@@ -408,6 +408,7 @@ function TutorialModal({ tutorialKey, onClose }) {
   );
 }
 
+
 // ============================================================================
 // WHEEL GAME COMPONENT - Premium Edition
 // ============================================================================
@@ -418,8 +419,10 @@ function WheelGame({ onClose, onWin, playsLeft }) {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [pointerBouncing, setPointerBouncing] = useState(false);
-  const [sparkles, setSparkles] = useState([]);
   const [wheelConfetti, setWheelConfetti] = useState(false);
+  
+  const NUM = WHEEL_SEGMENTS.length;
+  const SEG_ANGLE = 360 / NUM;
   
   const spin = () => {
     if (spinning || playsLeft <= 0) return;
@@ -427,28 +430,14 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     setResult(null);
     setPointerBouncing(true);
     
-    // Generate sparkle particles during spin
-    const sparkleInterval = setInterval(() => {
-      setSparkles(prev => [...prev.slice(-12), {
-        id: Date.now() + Math.random(),
-        x: 50 + (Math.random() - 0.5) * 40,
-        y: 50 + (Math.random() - 0.5) * 40,
-        sx: (Math.random() - 0.5) * 60 + 'px',
-        sy: (Math.random() - 0.5) * 60 + 'px',
-      }]);
-    }, 200);
-    
-    const winIndex = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
+    const winIndex = Math.floor(Math.random() * NUM);
     const segment = WHEEL_SEGMENTS[winIndex];
-    const segmentAngle = 360 / WHEEL_SEGMENTS.length;
-    const targetAngle = (winIndex * segmentAngle) + (segmentAngle / 2);
+    const targetAngle = (winIndex * SEG_ANGLE) + (SEG_ANGLE / 2);
     const spins = 6 + Math.floor(Math.random() * 3);
     
     setRotation(r => r + (spins * 360) + (360 - targetAngle) + 90);
     
     setTimeout(() => {
-      clearInterval(sparkleInterval);
-      setSparkles([]);
       setSpinning(false);
       setPointerBouncing(false);
       setResult(segment);
@@ -471,34 +460,25 @@ function WheelGame({ onClose, onWin, playsLeft }) {
         }} />
       )}
       
-      {/* Wheel Confetti - Full screen, 60 particles */}
+      {/* Win Confetti */}
       {wheelConfetti && (
         <div className="fixed inset-0 pointer-events-none z-[74] overflow-hidden">
           {Array.from({ length: 60 }, (_, i) => {
             const colors = ['#fbbf24', '#a855f7', '#ec4899', '#22c55e', '#3b82f6', '#f97316', '#ef4444', '#14b8a6'];
-            const shapes = ['circle', 'rect', 'star'];
-            const shape = shapes[i % 3];
+            const shape = ['circle', 'rect', 'star'][i % 3];
             const size = 6 + Math.random() * 10;
-            const drift = (Math.random() - 0.5) * 120;
-            const delay = Math.random() * 0.8;
-            const duration = 2.2 + Math.random() * 1.5;
-            
             return (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: `${5 + Math.random() * 90}%`,
-                  top: '-20px',
-                  width: shape === 'rect' ? size * 0.6 : size,
-                  height: shape === 'star' ? size * 0.4 : size,
-                  backgroundColor: colors[i % colors.length],
-                  borderRadius: shape === 'circle' ? '50%' : shape === 'star' ? '1px' : '2px',
-                  '--drift': `${drift}px`,
-                  animation: `confettiFall ${duration}s ${delay}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
-                  boxShadow: `0 0 4px ${colors[i % colors.length]}40`,
-                }}
-              />
+              <div key={i} style={{
+                position: 'absolute',
+                left: `${5 + Math.random() * 90}%`,
+                top: '-20px',
+                width: shape === 'rect' ? size * 0.6 : size,
+                height: shape === 'star' ? size * 0.4 : size,
+                backgroundColor: colors[i % colors.length],
+                borderRadius: shape === 'circle' ? '50%' : '2px',
+                '--drift': `${(Math.random() - 0.5) * 120}px`,
+                animation: `confettiFall ${2.2 + Math.random() * 1.5}s ${Math.random() * 0.8}s cubic-bezier(0.25, 0.46, 0.45, 0.94) both`,
+              }} />
             );
           })}
         </div>
@@ -525,221 +505,186 @@ function WheelGame({ onClose, onWin, playsLeft }) {
           </span>
         </div>
         
-        {/* Wheel Container */}
-        <div className="relative w-80 h-80 mx-auto mb-6">
+        {/* === THE WHEEL === */}
+        <div className="relative mx-auto mb-6" style={{ width: 300, height: 300 }}>
           
-          {/* Premium CSS Frame - outer gold ring */}
+          {/* STATIC FRAME LAYER (does not rotate) */}
+          <svg viewBox="0 0 300 300" className="absolute inset-0 w-full h-full z-20 pointer-events-none" style={{ overflow: 'visible' }}>
+            <defs>
+              <linearGradient id="wg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#ffd700" />
+                <stop offset="25%" stopColor="#b8860b" />
+                <stop offset="50%" stopColor="#ffd700" />
+                <stop offset="75%" stopColor="#daa520" />
+                <stop offset="100%" stopColor="#ffd700" />
+              </linearGradient>
+              <linearGradient id="wg2" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#daa520" />
+                <stop offset="50%" stopColor="#ffd700" />
+                <stop offset="100%" stopColor="#b8860b" />
+              </linearGradient>
+              <filter id="gldGlow" x="-15%" y="-15%" width="130%" height="130%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="pegGlow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            
+            {/* Outer gold ring with glow */}
+            <circle cx="150" cy="150" r="147" fill="none" stroke="url(#wg1)" strokeWidth="7" filter="url(#gldGlow)" />
+            {/* Dark channel */}
+            <circle cx="150" cy="150" r="141" fill="none" stroke="#0f0a1f" strokeWidth="8" />
+            {/* Inner gold trim */}
+            <circle cx="150" cy="150" r="136" fill="none" stroke="url(#wg2)" strokeWidth="2.5" />
+            
+            {/* Decorative pegs with animated lights */}
+            {[...Array(18)].map((_, i) => {
+              const a = i * 20 - 90;
+              const bx = 150 + 141 * Math.cos(a * Math.PI / 180);
+              const by = 150 + 141 * Math.sin(a * Math.PI / 180);
+              const colors = ['#fbbf24', '#ec4899', '#a855f7'];
+              const c = colors[i % 3];
+              return (
+                <g key={`p${i}`}>
+                  <circle cx={bx} cy={by} r="7" fill="#15112a" stroke="url(#wg2)" strokeWidth="1.5" />
+                  <circle cx={bx} cy={by} r="4" fill={c} filter="url(#pegGlow)">
+                    {spinning && (
+                      <animate attributeName="opacity" values={i % 2 === 0 ? '1;0.2;1' : '0.2;1;0.2'} dur={`${0.3 + (i % 4) * 0.1}s`} repeatCount="indefinite" />
+                    )}
+                  </circle>
+                </g>
+              );
+            })}
+          </svg>
+          
+          {/* Pointer (HTML element for reliable animation) */}
           <div 
-            className="absolute inset-[-14px] rounded-full pointer-events-none z-10"
-            style={{
-              background: 'conic-gradient(from 0deg, #b8860b, #ffd700, #daa520, #ffd700, #b8860b, #ffd700, #daa520, #ffd700, #b8860b)',
-              padding: '6px',
-              boxShadow: '0 0 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,215,0,0.15), inset 0 0 20px rgba(255,215,0,0.3)',
-            }}
-          >
-            <div className="w-full h-full rounded-full" style={{ background: '#1a1333' }}>
-              {/* Inner gold ring */}
-              <div 
-                className="absolute inset-[4px] rounded-full"
-                style={{
-                  border: '3px solid',
-                  borderImage: 'linear-gradient(135deg, #ffd700, #b8860b, #ffd700) 1',
-                  borderRadius: '50%',
-                  borderColor: '#daa520',
-                  boxShadow: 'inset 0 0 8px rgba(255,215,0,0.3)',
-                }}
-              />
-            </div>
-          </div>
-          
-          {/* Animated Light Dots around frame */}
-          <div className="absolute inset-[-20px] z-20 pointer-events-none">
-            {[...Array(16)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-3 h-3 rounded-full"
-                style={{
-                  background: i % 2 === 0 ? '#fbbf24' : '#ec4899',
-                  boxShadow: `0 0 8px 3px ${i % 2 === 0 ? 'rgba(251,191,36,0.9)' : 'rgba(236,72,153,0.9)'}`,
-                  left: `${50 + 52 * Math.cos((i * 22.5 - 90) * Math.PI / 180)}%`,
-                  top: `${50 + 52 * Math.sin((i * 22.5 - 90) * Math.PI / 180)}%`,
-                  transform: 'translate(-50%, -50%)',
-                  animation: spinning 
-                    ? `lightPulse ${0.3 + (i % 3) * 0.15}s ease-in-out infinite ${i * 0.05}s` 
-                    : 'none',
-                  opacity: spinning ? 1 : 0.7,
-                  transition: 'opacity 0.3s',
-                }}
-              />
-            ))}
-          </div>
-          
-          {/* Pointer Arrow - CSS golden pointer */}
-          <div 
-            className="absolute top-[-20px] left-1/2 z-40"
+            className="absolute z-30"
             style={{ 
-              transform: 'translateX(-50%)',
+              top: -6, left: '50%', transform: 'translateX(-50%)',
               animation: pointerBouncing ? 'pointerBounce 0.15s ease-in-out infinite' : 'none',
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.6))',
             }}
           >
-            <div style={{
-              width: 0,
-              height: 0,
-              borderLeft: '16px solid transparent',
-              borderRight: '16px solid transparent',
-              borderTop: '28px solid #ffd700',
-              position: 'relative',
-            }}>
-              {/* Inner triangle for 3D effect */}
-              <div style={{
-                position: 'absolute',
-                width: 0,
-                height: 0,
-                borderLeft: '10px solid transparent',
-                borderRight: '10px solid transparent',
-                borderTop: '18px solid #b8860b',
-                top: '-26px',
-                left: '-10px',
-              }} />
-              {/* Red gem at top */}
-              <div style={{
-                position: 'absolute',
-                width: '10px',
-                height: '10px',
-                background: 'radial-gradient(circle at 35% 35%, #ff4444, #cc0000)',
-                borderRadius: '2px',
-                top: '-34px',
-                left: '-5px',
-                transform: 'rotate(45deg)',
-                boxShadow: '0 0 6px rgba(255,0,0,0.6)',
-              }} />
-            </div>
+            <svg width="36" height="30" viewBox="0 0 36 30" style={{ filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.5))' }}>
+              <defs>
+                <linearGradient id="ptrGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ffd700" />
+                  <stop offset="50%" stopColor="#b8860b" />
+                  <stop offset="100%" stopColor="#ffd700" />
+                </linearGradient>
+              </defs>
+              <polygon points="18,28 3,2 33,2" fill="url(#ptrGold)" stroke="#8b6914" strokeWidth="1" />
+              <polygon points="18,22 9,5 27,5" fill="#ffd700" opacity="0.5" />
+              <circle cx="18" cy="7" r="4.5" fill="#dc2626" stroke="#ffd700" strokeWidth="1.2" />
+              <circle cx="16.5" cy="5.5" r="1.5" fill="#ff8888" opacity="0.6" />
+            </svg>
           </div>
           
-          {/* Sparkle Particles during spin */}
-          {sparkles.map(s => (
-            <div
-              key={s.id}
-              className="absolute w-2 h-2 rounded-full bg-yellow-400 z-30 pointer-events-none"
-              style={{
-                left: `${s.x}%`,
-                top: `${s.y}%`,
-                '--sx': s.sx,
-                '--sy': s.sy,
-                animation: 'sparkleFloat 0.6s ease-out forwards',
-                boxShadow: '0 0 6px #fbbf24, 0 0 12px #fbbf24',
-              }}
-            />
-          ))}
-          
-          {/* Spinning Wheel */}
+          {/* SPINNING WHEEL LAYER */}
           <div 
-            className="absolute inset-1 rounded-full overflow-hidden" 
+            className="absolute rounded-full overflow-hidden"
             style={{ 
+              top: 16, left: 16, right: 16, bottom: 16,
               transform: `rotate(${rotation}deg)`, 
               transition: spinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.18, 1)' : 'none',
-              boxShadow: spinning 
-                ? '0 0 30px rgba(168,85,247,0.4), 0 0 60px rgba(168,85,247,0.2), inset 0 0 20px rgba(0,0,0,0.3)' 
-                : '0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3)',
             }}
           >
-            {/* SVG Segments (colors only) */}
-            <svg viewBox="0 0 200 200" className="w-full h-full absolute inset-0">
+            {/* Colored segments */}
+            <svg viewBox="0 0 200 200" className="w-full h-full">
               <defs>
-                <radialGradient id="segGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
-                  <stop offset="60%" stopColor="#000" stopOpacity="0" />
+                <radialGradient id="segD" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#000" stopOpacity="0.2" />
+                  <stop offset="55%" stopColor="#000" stopOpacity="0" />
                   <stop offset="100%" stopColor="#000" stopOpacity="0.12" />
                 </radialGradient>
-                <radialGradient id="hubGrad">
-                  <stop offset="0%" stopColor="#2d2250" />
-                  <stop offset="100%" stopColor="#1a1333" />
-                </radialGradient>
+                <linearGradient id="segShine" x1="30%" y1="0%" x2="70%" y2="100%">
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.1" />
+                  <stop offset="50%" stopColor="#fff" stopOpacity="0" />
+                  <stop offset="100%" stopColor="#000" stopOpacity="0.06" />
+                </linearGradient>
               </defs>
               {WHEEL_SEGMENTS.map((seg, i) => {
-                const angle = 360 / WHEEL_SEGMENTS.length;
-                const startAngle = i * angle - 90;
-                const endAngle = startAngle + angle;
-                const start = { 
-                  x: 100 + 100 * Math.cos((startAngle * Math.PI) / 180), 
-                  y: 100 + 100 * Math.sin((startAngle * Math.PI) / 180) 
-                };
-                const end = { 
-                  x: 100 + 100 * Math.cos((endAngle * Math.PI) / 180), 
-                  y: 100 + 100 * Math.sin((endAngle * Math.PI) / 180) 
-                };
+                const sA = i * SEG_ANGLE - 90;
+                const eA = sA + SEG_ANGLE;
+                const s = { x: 100 + 100 * Math.cos(sA * Math.PI / 180), y: 100 + 100 * Math.sin(sA * Math.PI / 180) };
+                const e = { x: 100 + 100 * Math.cos(eA * Math.PI / 180), y: 100 + 100 * Math.sin(eA * Math.PI / 180) };
                 return (
                   <g key={seg.id}>
-                    <path 
-                      d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
-                      fill={seg.color} 
-                      stroke="#1a1333" 
-                      strokeWidth="1.5" 
-                    />
-                    <path 
-                      d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
-                      fill="url(#segGrad)" 
-                      opacity="0.3"
-                    />
+                    <path d={`M 100 100 L ${s.x} ${s.y} A 100 100 0 0 1 ${e.x} ${e.y} Z`} fill={seg.color} stroke="#0f0a1f" strokeWidth="1" />
+                    <path d={`M 100 100 L ${s.x} ${s.y} A 100 100 0 0 1 ${e.x} ${e.y} Z`} fill="url(#segD)" />
                   </g>
                 );
               })}
-              <circle cx="100" cy="100" r="28" fill="#1a1333" stroke="#fbbf24" strokeWidth="3" />
-              <circle cx="100" cy="100" r="24" fill="url(#hubGrad)" />
+              {/* Divider lines */}
+              {WHEEL_SEGMENTS.map((_, i) => {
+                const a = i * SEG_ANGLE - 90;
+                return <line key={`d${i}`} x1="100" y1="100" x2={100 + 99 * Math.cos(a * Math.PI / 180)} y2={100 + 99 * Math.sin(a * Math.PI / 180)} stroke="#0f0a1f" strokeWidth="2" opacity="0.4" />;
+              })}
+              {/* Shine overlay */}
+              <circle cx="100" cy="100" r="99" fill="url(#segShine)" />
             </svg>
             
-            {/* Prize Icon Images (HTML img overlays, inside rotating container) */}
+            {/* Prize images */}
             {WHEEL_SEGMENTS.map((seg, i) => {
-              const angle = 360 / WHEEL_SEGMENTS.length;
-              const midAngle = i * angle - 90 + angle / 2;
-              const radius = 0.31; // proportion of container (62/200)
-              const iconX = 50 + radius * 100 * Math.cos((midAngle * Math.PI) / 180);
-              const iconY = 50 + radius * 100 * Math.sin((midAngle * Math.PI) / 180);
+              const mid = i * SEG_ANGLE - 90 + SEG_ANGLE / 2;
+              const ix = 50 + 32 * Math.cos(mid * Math.PI / 180);
+              const iy = 50 + 32 * Math.sin(mid * Math.PI / 180);
               return (
                 <img
-                  key={`icon-${seg.id}`}
+                  key={`ic-${seg.id}`}
                   src={WHEEL_IMAGES[seg.image]}
                   alt={seg.label}
-                  className="absolute w-10 h-10 object-contain pointer-events-none"
+                  className="absolute pointer-events-none"
                   style={{
-                    left: `${iconX}%`,
-                    top: `${iconY}%`,
-                    transform: `translate(-50%, -50%) rotate(${midAngle + 90}deg)`,
-                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))',
+                    width: 36, height: 36,
+                    left: `${ix}%`, top: `${iy}%`,
+                    transform: `translate(-50%, -50%) rotate(${mid + 90}deg)`,
+                    filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))',
+                    objectFit: 'contain',
                   }}
                 />
               );
             })}
           </div>
           
-          {/* SPIN Button */}
-          <button 
-            type="button" 
-            onClick={spin} 
-            disabled={spinning || playsLeft <= 0} 
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[78px] h-[78px] rounded-full z-10 transition-all duration-300 font-black text-lg ${
-              spinning || playsLeft <= 0 
-                ? 'opacity-50 grayscale' 
-                : 'hover:scale-110 hover:shadow-lg hover:shadow-orange-500/50 active:scale-90'
-            }`}
-            style={{ 
-              background: spinning || playsLeft <= 0 
-                ? 'linear-gradient(135deg, #4b5563, #374151)' 
-                : 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)',
-              boxShadow: spinning || playsLeft <= 0 
-                ? 'none'
-                : '0 4px 16px rgba(251,191,36,0.5), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.2)',
-              border: '3px solid #ffd700',
-              textShadow: '0 2px 4px rgba(0,0,0,0.4)',
-            }}
-          >
-            {spinning ? (
-              <RotateCcw className="w-8 h-8 mx-auto animate-spin text-white" />
-            ) : (
-              <span className="text-white text-xl tracking-wider">SPIN</span>
-            )}
-          </button>
+          {/* CENTER HUB (non-rotating) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20" style={{ width: 76, height: 76 }}>
+            <svg viewBox="0 0 76 76" className="w-full h-full">
+              <defs>
+                <radialGradient id="hubM" cx="38%" cy="35%">
+                  <stop offset="0%" stopColor="#ffd700" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="85%" stopColor="#d97706" />
+                  <stop offset="100%" stopColor="#92400e" />
+                </radialGradient>
+                <radialGradient id="hubH" cx="35%" cy="30%">
+                  <stop offset="0%" stopColor="#fff" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+              <circle cx="38" cy="38" r="37" fill="none" stroke="url(#wg1)" strokeWidth="3" filter="url(#gldGlow)" />
+              <circle cx="38" cy="38" r="34" fill="url(#hubM)" />
+              <circle cx="38" cy="38" r="34" fill="url(#hubH)" />
+              <circle cx="38" cy="38" r="28" fill="none" stroke="#92400e" strokeWidth="0.8" opacity="0.4" />
+            </svg>
+            <button 
+              type="button" 
+              onClick={spin} 
+              disabled={spinning || playsLeft <= 0} 
+              className={`absolute inset-0 rounded-full flex items-center justify-center transition-all duration-200 ${
+                spinning || playsLeft <= 0 ? 'opacity-60 cursor-not-allowed' : 'hover:scale-110 active:scale-90 cursor-pointer'
+              }`}
+            >
+              {spinning ? (
+                <RotateCcw className="w-7 h-7 animate-spin text-white drop-shadow-lg" />
+              ) : (
+                <span className="text-white font-black text-lg tracking-wider" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.6)' }}>SPIN</span>
+              )}
+            </button>
+          </div>
         </div>
         
         {/* Result */}
@@ -748,7 +693,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
             className="text-center p-6 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-2xl border border-green-500/50"
             style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
           >
-            <div className="w-24 h-24 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
+            <div className="w-20 h-20 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
               <img src={WHEEL_IMAGES[result.image]} alt="" className="w-full h-full object-contain drop-shadow-lg" />
             </div>
             <div className="text-3xl font-black text-yellow-400 mb-4" style={{ textShadow: '0 0 20px rgba(251,191,36,0.5)' }}>
