@@ -2489,10 +2489,10 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
 // MAIN APP COMPONENT
 // ============================================================================
 // ============================================================================
-// CLASSIC QUIZ COMPONENT
+// CLASSIC QUIZ COMPONENT — PREMIUM UI
 // ============================================================================
 function ClassicQuizGame({ onClose, onWin, closing }) {
-  const [phase, setPhase] = useState('category'); // category, playing, result
+  const [phase, setPhase] = useState('category');
   const [category, setCategory] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex] = useState(0);
@@ -2503,7 +2503,16 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
   const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(0);
   const [skipUsed, setSkipUsed] = useState(false);
   const [eliminated, setEliminated] = useState([]);
+  const [streak, setStreak] = useState(0);
   const timerRef = useRef(null);
+
+  const optionLetters = ['A', 'B', 'C', 'D'];
+  const optionColors = [
+    { bg: 'from-rose-600/30 to-pink-700/20', border: 'border-rose-500/40', glow: 'shadow-rose-500/20', letter: 'bg-rose-500', hover: 'hover:border-rose-400/60 hover:shadow-rose-500/30' },
+    { bg: 'from-blue-600/30 to-cyan-700/20', border: 'border-blue-500/40', glow: 'shadow-blue-500/20', letter: 'bg-blue-500', hover: 'hover:border-blue-400/60 hover:shadow-blue-500/30' },
+    { bg: 'from-amber-600/30 to-yellow-700/20', border: 'border-amber-500/40', glow: 'shadow-amber-500/20', letter: 'bg-amber-500', hover: 'hover:border-amber-400/60 hover:shadow-amber-500/30' },
+    { bg: 'from-emerald-600/30 to-green-700/20', border: 'border-emerald-500/40', glow: 'shadow-emerald-500/20', letter: 'bg-emerald-500', hover: 'hover:border-emerald-400/60 hover:shadow-emerald-500/30' },
+  ];
 
   const startQuiz = (catId) => {
     setCategory(catId);
@@ -2519,6 +2528,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
           if (t <= 1) {
             clearInterval(timerRef.current);
             setShowAnswer(true);
+            setStreak(0);
             setTimeout(() => nextQuestion(), 1500);
             return 0;
           }
@@ -2535,7 +2545,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
     setSelected(opt);
     setShowAnswer(true);
     const correct = opt === questions[qIndex].a;
-    if (correct) setScore(s => s + 1);
+    if (correct) { setScore(s => s + 1); setStreak(s => s + 1); } else { setStreak(0); }
     setTimeout(() => nextQuestion(), 1200);
   };
 
@@ -2574,113 +2584,189 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
 
   const q = questions[qIndex];
   const finalCoins = score * 10 + (score >= 10 ? 500 : score >= 7 ? 150 : score >= 5 ? 50 : 0);
+  const timerPct = (timer / 15) * 100;
+  const circumference = 2 * Math.PI * 22;
 
   return (
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-2xl">🧠</div>
-          <h2 className="font-bold text-lg">Classic Quiz</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
-        </div>
-
-        {/* Category Selection */}
-        {phase === 'category' && (
-          <div className="space-y-3">
-            <p className="text-gray-400 text-center mb-4">Pick a category:</p>
-            {TRIVIA_CATEGORIES.map(cat => (
-              <button key={cat.id} type="button" onClick={() => startQuiz(cat.id)}
-                className={`w-full p-4 rounded-xl bg-gradient-to-r ${cat.color} hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 font-bold text-lg`}>
-                <span className="text-2xl">{cat.icon}</span> {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Playing */}
-        {phase === 'playing' && q && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-gray-400">Q{qIndex + 1}/10</span>
-              <div className="flex items-center gap-1">
-                {Array.from({length: 10}, (_, i) => (
-                  <div key={i} className={`w-2 h-2 rounded-full ${i < qIndex ? (i < score ? 'bg-green-500' : 'bg-red-500') : i === qIndex ? 'bg-purple-400 animate-pulse' : 'bg-gray-700'}`} />
-                ))}
+      <div className={`bg-gradient-to-b from-[#1e1445] via-[#150e2e] to-[#0a0618] rounded-3xl max-w-md w-full border border-purple-500/20 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header with glow */}
+        <div className="relative px-6 pt-5 pb-4">
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-600/10 to-transparent" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                <span className="text-lg">🧠</span>
               </div>
-              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 5 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-purple-500/30 text-purple-300'}`}>
-                {timer}s
+              <div>
+                <h2 className="font-black text-lg tracking-tight">Classic Quiz</h2>
+                {phase === 'playing' && <span className="text-xs text-purple-400">{TRIVIA_CATEGORIES.find(c => c.id === category)?.name}</span>}
               </div>
             </div>
-            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
-              <p className="font-bold text-center">{q.q}</p>
-            </div>
-            <div className="grid grid-cols-1 gap-2 mb-4">
-              {q.options.map((opt, i) => {
-                if (eliminated.includes(opt)) return (
-                  <div key={i} className="p-3 rounded-xl bg-gray-800/30 text-gray-600 line-through text-center text-sm">
-                    {opt}
-                  </div>
-                );
-                const isCorrect = opt === q.a;
-                const isSelected = opt === selected;
-                let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
-                if (showAnswer) {
-                  if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
-                  else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
-                  else bg = 'bg-[#231a40] border border-purple-900/20 opacity-50';
-                }
-                return (
-                  <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
-                    className={`p-3 rounded-xl font-medium text-sm transition-all ${bg}`}>
-                    {opt} {showAnswer && isCorrect && ' ✅'} {showAnswer && isSelected && !isCorrect && ' ❌'}
-                  </button>
-                );
-              })}
-            </div>
-            {/* Lifelines */}
-            <div className="flex gap-2">
-              <button type="button" onClick={useFiftyFifty} disabled={fiftyFiftyUsed >= 2 || showAnswer}
-                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 ${fiftyFiftyUsed >= 2 || showAnswer ? 'bg-gray-800 text-gray-600' : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30'}`}>
-                🔀 50/50 <span className="text-xs opacity-60">({2 - fiftyFiftyUsed})</span> <span className="text-xs">1💚</span>
-              </button>
-              <button type="button" onClick={useSkip} disabled={skipUsed || showAnswer}
-                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 ${skipUsed || showAnswer ? 'bg-gray-800 text-gray-600' : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'}`}>
-                ⏭️ Skip <span className="text-xs opacity-60">({skipUsed ? 0 : 1})</span> <span className="text-xs">2💚</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Results */}
-        {phase === 'result' && (
-          <div className="text-center">
-            <div className="text-6xl mb-3">{score >= 8 ? '🏆' : score >= 5 ? '⭐' : '👏'}</div>
-            <div className="text-3xl font-black mb-1">{score}/10</div>
-            <div className="text-gray-400 mb-4">{score >= 8 ? 'Amazing!' : score >= 5 ? 'Good job!' : 'Keep practicing!'}</div>
-            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
-              <div className="text-yellow-400 font-bold text-xl">🪙 +{finalCoins} Coins</div>
-              {score >= 7 && <div className="text-green-400 text-sm mt-1">Bonus: +{score >= 10 ? 500 : 150} for {score >= 10 ? 'perfect' : 'great'} score!</div>}
-            </div>
-            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
-              Done
+            <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-all">
+              <X className="w-4 h-4" />
             </button>
           </div>
-        )}
+        </div>
+
+        <div className="px-6 pb-6">
+          {/* Category Selection */}
+          {phase === 'category' && (
+            <div>
+              <p className="text-gray-400 text-center text-sm mb-5">Choose your category</p>
+              <div className="grid grid-cols-2 gap-3">
+                {TRIVIA_CATEGORIES.map(cat => (
+                  <button key={cat.id} type="button" onClick={() => startQuiz(cat.id)}
+                    className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] active:scale-95">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 group-hover:opacity-40 transition-opacity`} />
+                    <div className="relative p-5 text-center border border-white/10 rounded-2xl group-hover:border-white/20">
+                      <div className="text-4xl mb-2 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 8px rgba(168,85,247,0.4))' }}>{cat.icon}</div>
+                      <div className="font-bold text-sm">{cat.name}</div>
+                      <div className="text-xs text-gray-500 mt-1">15 questions</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Playing */}
+          {phase === 'playing' && q && (
+            <div>
+              {/* Score bar + Timer */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-bold text-purple-300">Question {qIndex + 1}/10</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-bold text-green-400">{score} correct</span>
+                      {streak >= 2 && <span className="text-xs text-orange-400 animate-pulse">🔥{streak}</span>}
+                    </div>
+                  </div>
+                  <div className="h-2 bg-[#1a1333] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500 ease-out" style={{
+                      width: `${((qIndex + 1) / 10) * 100}%`,
+                      background: 'linear-gradient(90deg, #a855f7, #ec4899, #f97316)'
+                    }} />
+                  </div>
+                </div>
+                {/* Circular Timer */}
+                <div className="relative w-14 h-14 flex-shrink-0">
+                  <svg className="w-14 h-14 -rotate-90" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r="22" fill="none" stroke="#1a1333" strokeWidth="3" />
+                    <circle cx="24" cy="24" r="22" fill="none"
+                      stroke={timer <= 5 ? '#ef4444' : timer <= 10 ? '#f59e0b' : '#a855f7'}
+                      strokeWidth="3" strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={circumference - (timerPct / 100) * circumference}
+                      style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
+                    />
+                  </svg>
+                  <div className={`absolute inset-0 flex items-center justify-center font-black text-lg ${timer <= 5 ? 'text-red-400' : 'text-white'}`}>
+                    {timer}
+                  </div>
+                </div>
+              </div>
+
+              {/* Question Card */}
+              <div className="relative mb-4">
+                <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-purple-500/30 rounded-2xl blur-sm" />
+                <div className="relative bg-[#1a1333] rounded-2xl p-5">
+                  <p className="font-bold text-center leading-relaxed">{q.q}</p>
+                </div>
+              </div>
+
+              {/* Answer Options - Colored Bars */}
+              <div className="space-y-2.5 mb-4">
+                {q.options.map((opt, i) => {
+                  if (eliminated.includes(opt)) return (
+                    <div key={i} className="relative h-12 rounded-xl bg-gray-900/50 border border-gray-800/50 flex items-center px-4 opacity-30">
+                      <span className="w-7 h-7 rounded-lg bg-gray-700 flex items-center justify-center font-black text-xs mr-3">{optionLetters[i]}</span>
+                      <span className="text-gray-600 line-through text-sm">{opt}</span>
+                    </div>
+                  );
+                  const isCorrect = opt === q.a;
+                  const isSelected = opt === selected;
+                  const c = optionColors[i];
+                  let classes, inner;
+                  if (showAnswer && isCorrect) {
+                    classes = 'bg-gradient-to-r from-green-600/30 to-emerald-600/20 border-green-400/60 shadow-lg shadow-green-500/20';
+                    inner = 'bg-green-500';
+                  } else if (showAnswer && isSelected && !isCorrect) {
+                    classes = 'bg-gradient-to-r from-red-600/30 to-red-700/20 border-red-400/60 shadow-lg shadow-red-500/20';
+                    inner = 'bg-red-500';
+                  } else if (showAnswer) {
+                    classes = `bg-gradient-to-r ${c.bg} ${c.border} opacity-40`;
+                    inner = c.letter;
+                  } else {
+                    classes = `bg-gradient-to-r ${c.bg} ${c.border} ${c.hover} shadow-md ${c.glow}`;
+                    inner = c.letter;
+                  }
+                  return (
+                    <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+                      className={`relative w-full h-13 rounded-xl border flex items-center px-4 py-3 transition-all duration-200 ${!showAnswer ? 'hover:scale-[1.01] active:scale-[0.98]' : ''} ${classes}`}>
+                      <span className={`w-7 h-7 rounded-lg ${inner} flex items-center justify-center font-black text-xs mr-3 shadow-md flex-shrink-0`}>{optionLetters[i]}</span>
+                      <span className="font-semibold text-sm flex-1 text-left">{opt}</span>
+                      {showAnswer && isCorrect && <span className="text-green-400 text-lg ml-2">✓</span>}
+                      {showAnswer && isSelected && !isCorrect && <span className="text-red-400 text-lg ml-2">✗</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Lifelines */}
+              <div className="flex gap-2">
+                <button type="button" onClick={useFiftyFifty} disabled={fiftyFiftyUsed >= 2 || showAnswer}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${fiftyFiftyUsed >= 2 || showAnswer ? 'bg-gray-900/50 text-gray-600 border border-gray-800/30' : 'bg-gradient-to-r from-blue-600/20 to-cyan-600/20 text-blue-300 border border-blue-500/30 hover:border-blue-400/50 shadow-md shadow-blue-500/10 hover:shadow-blue-500/20'}`}>
+                  <span className="text-base">🔀</span> 50/50 <span className="opacity-50">({2 - fiftyFiftyUsed})</span>
+                </button>
+                <button type="button" onClick={useSkip} disabled={skipUsed || showAnswer}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${skipUsed || showAnswer ? 'bg-gray-900/50 text-gray-600 border border-gray-800/30' : 'bg-gradient-to-r from-amber-600/20 to-yellow-600/20 text-amber-300 border border-amber-500/30 hover:border-amber-400/50 shadow-md shadow-amber-500/10 hover:shadow-amber-500/20'}`}>
+                  <span className="text-base">⏭️</span> Skip <span className="opacity-50">({skipUsed ? 0 : 1})</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {phase === 'result' && (
+            <div className="text-center py-2">
+              <div className="relative inline-block mb-4">
+                <div className="text-7xl" style={{ filter: 'drop-shadow(0 0 20px rgba(168,85,247,0.5))' }}>
+                  {score >= 8 ? '🏆' : score >= 5 ? '⭐' : '👏'}
+                </div>
+                <div className="absolute -inset-4 bg-purple-500/10 rounded-full blur-2xl" />
+              </div>
+              <div className="text-4xl font-black mb-1 bg-gradient-to-r from-purple-400 via-pink-400 to-amber-400 bg-clip-text text-transparent">{score}/10</div>
+              <div className="text-gray-400 mb-5">{score >= 8 ? 'Outstanding!' : score >= 5 ? 'Well done!' : 'Keep practicing!'}</div>
+              <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 rounded-2xl p-4 mb-5">
+                <div className="text-yellow-400 font-black text-2xl mb-1">🪙 +{finalCoins}</div>
+                <div className="text-yellow-400/60 text-xs">Coins earned</div>
+                {score >= 7 && <div className="text-emerald-400 text-sm mt-2 font-bold">🎉 Bonus: +{score >= 10 ? 500 : 150} for {score >= 10 ? 'perfect' : 'great'} score!</div>}
+              </div>
+              <button type="button" onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
+                Continue
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 // ============================================================================
-// SPEED ROUND COMPONENT
+// SPEED ROUND COMPONENT — PREMIUM UI
 // ============================================================================
 function SpeedRoundGame({ onClose, onWin, closing }) {
-  const [phase, setPhase] = useState('ready'); // ready, playing, result
+  const [phase, setPhase] = useState('ready');
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [timer, setTimer] = useState(60);
   const [feedback, setFeedback] = useState(null);
+  const [combo, setCombo] = useState(0);
   const timerRef = useRef(null);
   const scoreRef = useRef(0);
 
@@ -2713,6 +2799,9 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
     if (correct) {
       setScore(s => s + 1);
       scoreRef.current += 1;
+      setCombo(c => c + 1);
+    } else {
+      setCombo(0);
     }
     setFeedback(correct ? 'correct' : 'wrong');
     setTimeout(() => {
@@ -2725,85 +2814,171 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
       } else {
         setQIndex(i => i + 1);
       }
-    }, 400);
+    }, 350);
   };
 
   const finalScore = score;
   const finalCoins = finalScore * 5 + (finalScore >= 20 ? 500 : finalScore >= 15 ? 200 : 0);
+  const timerPct = (timer / 60) * 100;
+  const circumference = 2 * Math.PI * 38;
 
   return (
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-2xl">⚡</div>
-          <h2 className="font-bold text-lg">Speed Round</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
-        </div>
-
-        {phase === 'ready' && (
-          <div className="text-center">
-            <div className="text-6xl mb-4">⚡</div>
-            <p className="text-gray-400 mb-2">20 True/False questions</p>
-            <p className="text-sm text-gray-500 mb-6">You have 60 seconds!</p>
-            <button type="button" onClick={startGame}
-              className="w-full py-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all">
-              Start!
-            </button>
-          </div>
-        )}
-
-        {phase === 'playing' && questions[qIndex] && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-gray-400">{qIndex + 1}/20</span>
-              <span className="text-lg font-bold text-green-400">{score} ✓</span>
-              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-yellow-500/30 text-yellow-300'}`}>
-                ⏱️ {timer}s
+      <div className={`bg-gradient-to-b from-[#1e1445] via-[#150e2e] to-[#0a0618] rounded-3xl max-w-md w-full border border-yellow-500/20 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div className="relative px-6 pt-5 pb-4">
+          <div className="absolute inset-0 bg-gradient-to-b from-yellow-600/10 to-transparent" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                <span className="text-lg">⚡</span>
+              </div>
+              <div>
+                <h2 className="font-black text-lg tracking-tight">Speed Round</h2>
+                {phase === 'playing' && <span className="text-xs text-yellow-400">True or False</span>}
               </div>
             </div>
-            <div className="h-1.5 bg-[#231a40] rounded-full mb-4 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-300" style={{ width: `${((qIndex) / 20) * 100}%` }} />
-            </div>
-            <div className={`bg-[#231a40] rounded-xl p-5 mb-6 min-h-[100px] flex items-center justify-center transition-all ${feedback === 'correct' ? 'ring-2 ring-green-500' : feedback === 'wrong' ? 'ring-2 ring-red-500' : ''}`}>
-              <p className="font-bold text-center text-sm leading-relaxed">{questions[qIndex].statement}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => answer(true)}
-                className="py-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-xl font-bold text-green-400 text-lg transition-all hover:scale-[1.02] active:scale-95">
-                ✅ TRUE
-              </button>
-              <button type="button" onClick={() => answer(false)}
-                className="py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl font-bold text-red-400 text-lg transition-all hover:scale-[1.02] active:scale-95">
-                ❌ FALSE
-              </button>
-            </div>
-          </div>
-        )}
-
-        {phase === 'result' && (
-          <div className="text-center">
-            <div className="text-6xl mb-3">{finalScore >= 15 ? '🏆' : finalScore >= 10 ? '⚡' : '👏'}</div>
-            <div className="text-3xl font-black mb-1">{finalScore}/20</div>
-            <div className="text-gray-400 mb-4">{finalScore >= 15 ? 'Lightning fast!' : finalScore >= 10 ? 'Quick thinker!' : 'Keep trying!'}</div>
-            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
-              <div className="text-yellow-400 font-bold text-xl">🪙 +{finalCoins} Coins</div>
-              {finalScore >= 15 && <div className="text-green-400 text-sm mt-1">Speed bonus: +{finalScore >= 20 ? 500 : 200}!</div>}
-            </div>
-            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
-              Done
+            <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-all">
+              <X className="w-4 h-4" />
             </button>
           </div>
-        )}
+        </div>
+
+        <div className="px-6 pb-6">
+          {/* Ready Screen */}
+          {phase === 'ready' && (
+            <div className="text-center py-4">
+              <div className="relative inline-block mb-6">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-yellow-500/20 to-orange-600/20 border border-yellow-500/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 40px rgba(234,179,8,0.15), inset 0 0 30px rgba(234,179,8,0.1)' }}>
+                  <span className="text-6xl" style={{ filter: 'drop-shadow(0 0 12px rgba(234,179,8,0.5))' }}>⚡</span>
+                </div>
+              </div>
+              <h3 className="text-xl font-black mb-2">20 Questions. 60 Seconds.</h3>
+              <p className="text-gray-400 text-sm mb-2">Read each statement and decide:</p>
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <span className="px-4 py-2 rounded-xl bg-green-500/15 border border-green-500/30 text-green-400 font-bold text-sm">✓ TRUE</span>
+                <span className="text-gray-600">or</span>
+                <span className="px-4 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 font-bold text-sm">✗ FALSE</span>
+              </div>
+              <button type="button" onClick={startGame}
+                className="w-full py-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-orange-500/30">
+                GO!
+              </button>
+            </div>
+          )}
+
+          {/* Playing */}
+          {phase === 'playing' && questions[qIndex] && (
+            <div>
+              {/* Timer + Stats Row */}
+              <div className="flex items-center gap-4 mb-4">
+                {/* Circular Timer */}
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                    <circle cx="40" cy="40" r="38" fill="none" stroke="#1a1333" strokeWidth="4" />
+                    <circle cx="40" cy="40" r="38" fill="none"
+                      stroke={timer <= 10 ? '#ef4444' : timer <= 20 ? '#f59e0b' : '#eab308'}
+                      strokeWidth="4" strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={circumference - (timerPct / 100) * circumference}
+                      style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
+                    />
+                  </svg>
+                  <div className={`absolute inset-0 flex flex-col items-center justify-center ${timer <= 10 ? 'text-red-400' : 'text-yellow-400'}`}>
+                    <span className="font-black text-2xl leading-none">{timer}</span>
+                    <span className="text-[10px] opacity-60">sec</span>
+                  </div>
+                </div>
+                {/* Stats */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">Progress</span>
+                    <span className="text-xs font-bold text-yellow-400">{qIndex + 1}/20</span>
+                  </div>
+                  <div className="h-2 bg-[#1a1333] rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-300" style={{
+                      width: `${((qIndex + 1) / 20) * 100}%`,
+                      background: 'linear-gradient(90deg, #eab308, #f97316, #ef4444)'
+                    }} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-400 font-black text-lg">{score}</span>
+                      <span className="text-xs text-gray-500">correct</span>
+                    </div>
+                    {combo >= 2 && (
+                      <span className="px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-bold animate-pulse">
+                        🔥 {combo}x combo
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Statement Card */}
+              <div className={`relative mb-6 transition-all duration-200 ${feedback === 'correct' ? 'scale-[0.98]' : feedback === 'wrong' ? 'scale-[0.98]' : ''}`}>
+                <div className={`absolute -inset-[1px] rounded-2xl blur-sm transition-all duration-200 ${feedback === 'correct' ? 'bg-green-500/40' : feedback === 'wrong' ? 'bg-red-500/40' : 'bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20'}`} />
+                <div className={`relative bg-[#1a1333] rounded-2xl p-6 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
+                  {feedback === 'correct' && <div className="absolute top-3 right-3 text-green-400 font-bold text-sm animate-pulse">✓ Correct!</div>}
+                  {feedback === 'wrong' && <div className="absolute top-3 right-3 text-red-400 font-bold text-sm animate-pulse">✗ Wrong!</div>}
+                  <p className="font-bold text-center leading-relaxed">{questions[qIndex].statement}</p>
+                </div>
+              </div>
+
+              {/* TRUE / FALSE Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => answer(true)}
+                  className="group relative py-5 rounded-2xl font-black text-xl transition-all hover:scale-[1.03] active:scale-95 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/25 to-emerald-600/15 border border-green-500/40 rounded-2xl group-hover:border-green-400/60" />
+                  <div className="absolute inset-0 bg-green-500/0 group-hover:bg-green-500/5 transition-colors" />
+                  <div className="relative flex items-center justify-center gap-2 text-green-400">
+                    <span className="text-2xl">✓</span> TRUE
+                  </div>
+                </button>
+                <button type="button" onClick={() => answer(false)}
+                  className="group relative py-5 rounded-2xl font-black text-xl transition-all hover:scale-[1.03] active:scale-95 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/25 to-rose-600/15 border border-red-500/40 rounded-2xl group-hover:border-red-400/60" />
+                  <div className="absolute inset-0 bg-red-500/0 group-hover:bg-red-500/5 transition-colors" />
+                  <div className="relative flex items-center justify-center gap-2 text-red-400">
+                    <span className="text-2xl">✗</span> FALSE
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Results */}
+          {phase === 'result' && (
+            <div className="text-center py-2">
+              <div className="relative inline-block mb-4">
+                <div className="text-7xl" style={{ filter: 'drop-shadow(0 0 20px rgba(234,179,8,0.5))' }}>
+                  {finalScore >= 15 ? '⚡' : finalScore >= 10 ? '🎯' : '👏'}
+                </div>
+              </div>
+              <div className="text-4xl font-black mb-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 bg-clip-text text-transparent">{finalScore}/20</div>
+              <div className="text-gray-400 mb-5">{finalScore >= 15 ? 'Lightning fast!' : finalScore >= 10 ? 'Quick thinker!' : 'Keep trying!'}</div>
+              <div className="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 rounded-2xl p-4 mb-5">
+                <div className="text-yellow-400 font-black text-2xl mb-1">🪙 +{finalCoins}</div>
+                <div className="text-yellow-400/60 text-xs">Coins earned</div>
+                {finalScore >= 15 && <div className="text-emerald-400 text-sm mt-2 font-bold">⚡ Speed bonus: +{finalScore >= 20 ? 500 : 200}!</div>}
+              </div>
+              <button type="button" onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-orange-500/25">
+                Continue
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
 // ============================================================================
-// STREAK TRIVIA COMPONENT
+// STREAK TRIVIA COMPONENT — PREMIUM UI
 // ============================================================================
 function StreakTriviaGame({ onClose, onWin, closing }) {
-  const [phase, setPhase] = useState('ready'); // ready, playing, result
+  const [phase, setPhase] = useState('ready');
   const [didCashOut, setDidCashOut] = useState(false);
   const [question, setQuestion] = useState(null);
   const [streak, setStreak] = useState(0);
@@ -2812,6 +2987,13 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
   const [timer, setTimer] = useState(15);
   const [maxStreak, setMaxStreak] = useState(0);
   const timerRef = useRef(null);
+
+  const barColors = [
+    { bg: 'from-rose-600/30 to-pink-700/20', border: 'border-rose-500/40', dot: 'bg-rose-500', hover: 'hover:border-rose-400/60', glow: 'shadow-rose-500/15' },
+    { bg: 'from-blue-600/30 to-indigo-700/20', border: 'border-blue-500/40', dot: 'bg-blue-500', hover: 'hover:border-blue-400/60', glow: 'shadow-blue-500/15' },
+    { bg: 'from-amber-600/30 to-yellow-700/20', border: 'border-amber-500/40', dot: 'bg-amber-500', hover: 'hover:border-amber-400/60', glow: 'shadow-amber-500/15' },
+    { bg: 'from-teal-600/30 to-emerald-700/20', border: 'border-teal-500/40', dot: 'bg-teal-500', hover: 'hover:border-teal-400/60', glow: 'shadow-teal-500/15' },
+  ];
 
   const loadQuestion = () => {
     setQuestion(getRandomQuestion());
@@ -2823,6 +3005,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
   const startGame = () => {
     setPhase('playing');
     setStreak(0);
+    setDidCashOut(false);
     loadQuestion();
   };
 
@@ -2832,7 +3015,6 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
         setTimer(t => {
           if (t <= 1) {
             clearInterval(timerRef.current);
-            // Time out = wrong
             setShowAnswer(true);
             setTimeout(() => endGame(), 1200);
             return 0;
@@ -2869,96 +3051,201 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
   };
 
   const endGame = () => {
-    // Lost - no winnings
     setPhase('result');
   };
 
   const currentPrize = streak * 25;
+  const timerPct = (timer / 15) * 100;
+  const circumference = 2 * Math.PI * 22;
+
+  // Streak tier coloring
+  const streakColor = streak >= 8 ? 'text-red-400' : streak >= 5 ? 'text-orange-400' : streak >= 3 ? 'text-yellow-400' : 'text-gray-400';
+  const streakGlow = streak >= 5 ? 'drop-shadow(0 0 8px rgba(239,68,68,0.5))' : streak >= 3 ? 'drop-shadow(0 0 6px rgba(234,179,8,0.4))' : 'none';
 
   return (
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-2xl">🏆</div>
-          <h2 className="font-bold text-lg">Streak Trivia</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
+      <div className={`bg-gradient-to-b from-[#1e1445] via-[#150e2e] to-[#0a0618] rounded-3xl max-w-md w-full border border-red-500/20 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        
+        {/* Header */}
+        <div className="relative px-6 pt-5 pb-4">
+          <div className="absolute inset-0 bg-gradient-to-b from-red-600/10 to-transparent" />
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center shadow-lg shadow-red-500/30">
+                <span className="text-lg">🔥</span>
+              </div>
+              <div>
+                <h2 className="font-black text-lg tracking-tight">Streak Trivia</h2>
+                {phase === 'playing' && <span className="text-xs text-orange-400">Answer or Cash Out!</span>}
+              </div>
+            </div>
+            <button type="button" onClick={onClose} className="w-9 h-9 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-all">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
-        {phase === 'ready' && (
-          <div className="text-center">
-            <div className="text-6xl mb-4">🏆</div>
-            <p className="text-gray-400 mb-2">Answer questions in a row</p>
-            <p className="text-sm text-gray-500 mb-2">Cash out anytime to keep your coins</p>
-            <p className="text-sm text-yellow-400 mb-6">Wrong answer = lose everything!</p>
-            <button type="button" onClick={startGame}
-              className="w-full py-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all">
-              Start Streak!
-            </button>
-          </div>
-        )}
-
-        {phase === 'playing' && question && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-orange-400">🔥 Streak: {streak}</span>
+        <div className="px-6 pb-6">
+          {/* Ready Screen */}
+          {phase === 'ready' && (
+            <div className="text-center py-4">
+              <div className="relative inline-block mb-5">
+                <div className="w-28 h-28 rounded-full bg-gradient-to-br from-red-500/20 to-orange-600/20 border border-red-500/30 flex items-center justify-center mx-auto" style={{ boxShadow: '0 0 40px rgba(239,68,68,0.15), inset 0 0 30px rgba(239,68,68,0.1)' }}>
+                  <span className="text-6xl" style={{ filter: 'drop-shadow(0 0 12px rgba(239,68,68,0.5))' }}>🔥</span>
+                </div>
               </div>
-              <div className="text-yellow-400 font-bold text-sm">🪙 {currentPrize}</div>
-              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 5 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-purple-500/30 text-purple-300'}`}>
-                {timer}s
+              <h3 className="text-xl font-black mb-3">How Far Can You Go?</h3>
+              <div className="space-y-2 mb-6 text-sm">
+                <div className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
+                  <span className="text-xl">🪙</span>
+                  <span className="text-gray-300">Earn <span className="text-yellow-400 font-bold">25 Coins</span> per correct answer</span>
+                </div>
+                <div className="flex items-center gap-3 bg-white/5 rounded-xl p-3">
+                  <span className="text-xl">💰</span>
+                  <span className="text-gray-300"><span className="text-green-400 font-bold">Cash out</span> anytime to keep coins</span>
+                </div>
+                <div className="flex items-center gap-3 bg-red-500/10 rounded-xl p-3 border border-red-500/20">
+                  <span className="text-xl">💥</span>
+                  <span className="text-gray-300">Wrong answer = <span className="text-red-400 font-bold">lose everything!</span></span>
+                </div>
               </div>
-            </div>
-            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
-              <p className="font-bold text-center text-sm">{question.q}</p>
-            </div>
-            <div className="grid grid-cols-1 gap-2 mb-4">
-              {question.options.map((opt, i) => {
-                const isCorrect = opt === question.a;
-                const isSelected = opt === selected;
-                let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
-                if (showAnswer) {
-                  if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
-                  else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
-                  else bg = 'bg-[#231a40] border border-purple-900/20 opacity-50';
-                }
-                return (
-                  <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
-                    className={`p-3 rounded-xl font-medium text-sm transition-all ${bg}`}>
-                    {opt} {showAnswer && isCorrect && ' ✅'} {showAnswer && isSelected && !isCorrect && ' ❌'}
-                  </button>
-                );
-              })}
-            </div>
-            {streak > 0 && !showAnswer && (
-              <button type="button" onClick={cashOut}
-                className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/30">
-                💰 Cash Out ({currentPrize} Coins)
+              <button type="button" onClick={startGame}
+                className="w-full py-4 bg-gradient-to-r from-red-500 to-orange-600 rounded-xl font-black text-lg hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-red-500/30">
+                Start Streak!
               </button>
-            )}
-          </div>
-        )}
-
-        {phase === 'result' && (
-          <div className="text-center">
-            <div className="text-6xl mb-3">{streak >= 5 ? '🏆' : streak >= 3 ? '⭐' : selected && selected !== question?.a ? '💥' : '👏'}</div>
-            <div className="text-3xl font-black mb-1">Streak: {maxStreak || streak}</div>
-            <div className="text-gray-400 mb-4">
-              {didCashOut ? `You cashed out with ${currentPrize} Coins!` : 'Lost your streak! 0 Coins.'}
             </div>
-            {didCashOut && currentPrize > 0 && (
-              <div className="bg-[#231a40] rounded-xl p-4 mb-4">
-                <div className="text-yellow-400 font-bold text-xl">🪙 +{currentPrize} Coins</div>
+          )}
+
+          {/* Playing */}
+          {phase === 'playing' && question && (
+            <div>
+              {/* Streak Bar */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`flex items-center gap-1.5 font-black ${streakColor}`} style={{ filter: streakGlow }}>
+                      <span className="text-lg">🔥</span>
+                      <span className="text-xl">{streak}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-yellow-500/15 px-3 py-1 rounded-full border border-yellow-500/20">
+                      <span className="text-sm">🪙</span>
+                      <span className="text-yellow-400 font-black text-sm">{currentPrize}</span>
+                    </div>
+                  </div>
+                  {/* Streak Milestones */}
+                  <div className="flex gap-1">
+                    {Array.from({length: 10}, (_, i) => (
+                      <div key={i} className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${i < streak ? (i < 3 ? 'bg-yellow-500' : i < 5 ? 'bg-orange-500' : i < 8 ? 'bg-red-500' : 'bg-rose-400') : 'bg-gray-800'}`} 
+                        style={i < streak ? { boxShadow: `0 0 4px ${i < 3 ? '#eab308' : i < 5 ? '#f97316' : '#ef4444'}` } : {}} />
+                    ))}
+                  </div>
+                </div>
+                {/* Timer */}
+                <div className="relative w-14 h-14 flex-shrink-0">
+                  <svg className="w-14 h-14 -rotate-90" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r="22" fill="none" stroke="#1a1333" strokeWidth="3" />
+                    <circle cx="24" cy="24" r="22" fill="none"
+                      stroke={timer <= 5 ? '#ef4444' : timer <= 10 ? '#f59e0b' : '#f97316'}
+                      strokeWidth="3" strokeLinecap="round"
+                      strokeDasharray={circumference}
+                      strokeDashoffset={circumference - (timerPct / 100) * circumference}
+                      style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
+                    />
+                  </svg>
+                  <div className={`absolute inset-0 flex items-center justify-center font-black text-lg ${timer <= 5 ? 'text-red-400' : 'text-white'}`}>
+                    {timer}
+                  </div>
+                </div>
               </div>
-            )}
-            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
-              Done
-            </button>
-          </div>
-        )}
+
+              {/* Question */}
+              <div className="relative mb-4">
+                <div className="absolute -inset-[1px] bg-gradient-to-r from-orange-500/20 via-red-500/20 to-orange-500/20 rounded-2xl blur-sm" />
+                <div className="relative bg-[#1a1333] rounded-2xl p-5">
+                  <p className="font-bold text-center leading-relaxed">{question.q}</p>
+                </div>
+              </div>
+
+              {/* Colored Answer Bars */}
+              <div className="space-y-2.5 mb-4">
+                {question.options.map((opt, i) => {
+                  const isCorrect = opt === question.a;
+                  const isSelected = opt === selected;
+                  const c = barColors[i];
+                  let classes, dotClass;
+                  if (showAnswer && isCorrect) {
+                    classes = 'bg-gradient-to-r from-green-600/30 to-emerald-600/20 border-green-400/60 shadow-lg shadow-green-500/20';
+                    dotClass = 'bg-green-500';
+                  } else if (showAnswer && isSelected && !isCorrect) {
+                    classes = 'bg-gradient-to-r from-red-600/30 to-red-700/20 border-red-400/60 shadow-lg shadow-red-500/20';
+                    dotClass = 'bg-red-500';
+                  } else if (showAnswer) {
+                    classes = `bg-gradient-to-r ${c.bg} ${c.border} opacity-40`;
+                    dotClass = c.dot;
+                  } else {
+                    classes = `bg-gradient-to-r ${c.bg} ${c.border} ${c.hover} shadow-md ${c.glow}`;
+                    dotClass = c.dot;
+                  }
+                  return (
+                    <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+                      className={`relative w-full rounded-xl border flex items-center px-4 py-3.5 transition-all duration-200 ${!showAnswer ? 'hover:scale-[1.01] active:scale-[0.98]' : ''} ${classes}`}>
+                      <span className={`w-3 h-3 rounded-full ${dotClass} mr-3 flex-shrink-0 shadow-sm`} />
+                      <span className="font-semibold text-sm flex-1 text-left">{opt}</span>
+                      {showAnswer && isCorrect && <span className="text-green-400 font-bold ml-2">✓</span>}
+                      {showAnswer && isSelected && !isCorrect && <span className="text-red-400 font-bold ml-2">✗</span>}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Cash Out Button */}
+              {streak > 0 && !showAnswer && (
+                <button type="button" onClick={cashOut}
+                  className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-black text-base hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/30 flex items-center justify-center gap-2"
+                  style={{ boxShadow: '0 0 20px rgba(34,197,94,0.25), 0 4px 12px rgba(0,0,0,0.3)' }}>
+                  <span className="text-lg">💰</span> Cash Out — {currentPrize} Coins
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Results */}
+          {phase === 'result' && (
+            <div className="text-center py-2">
+              <div className="relative inline-block mb-4">
+                <div className="text-7xl" style={{ filter: didCashOut ? 'drop-shadow(0 0 20px rgba(34,197,94,0.5))' : 'drop-shadow(0 0 20px rgba(239,68,68,0.5))' }}>
+                  {didCashOut ? '💰' : '💥'}
+                </div>
+              </div>
+              <div className={`text-4xl font-black mb-1 ${didCashOut ? 'bg-gradient-to-r from-green-400 to-emerald-400' : 'bg-gradient-to-r from-red-400 to-orange-400'} bg-clip-text text-transparent`}>
+                Streak: {maxStreak || streak}
+              </div>
+              <div className="text-gray-400 mb-5">
+                {didCashOut ? 'Smart move! Coins secured.' : 'Your streak was broken!'}
+              </div>
+              {didCashOut && currentPrize > 0 && (
+                <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-2xl p-4 mb-5">
+                  <div className="text-green-400 font-black text-2xl mb-1">🪙 +{currentPrize}</div>
+                  <div className="text-green-400/60 text-xs">Coins secured</div>
+                </div>
+              )}
+              {!didCashOut && (
+                <div className="bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-2xl p-4 mb-5">
+                  <div className="text-red-400 font-bold text-lg mb-1">0 Coins</div>
+                  <div className="text-red-400/60 text-xs">Better luck next time!</div>
+                </div>
+              )}
+              <button type="button" onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
+                Continue
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 
 // ============================================================================
 // DAILY CHALLENGE COMPONENT (inline card for Overview)
