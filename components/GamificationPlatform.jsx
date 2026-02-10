@@ -131,6 +131,54 @@ const TUTORIALS = {
     prizes: ['Each correct: +25 Coins', '5 streak: 125 Coins total', 'Cash out anytime!'],
     tips: ['Cards near 1 or 13 are easier', '7 is 50/50 - risky!', 'Know when to cash out'],
   },
+  plinko: {
+    title: '🔮 Plinko Drop',
+    subtitle: 'Drop the ball and watch it bounce!',
+    image: 'slotMachine',
+    steps: [
+      { icon: '👆', title: 'Choose Position', desc: 'Slide the bar to choose where to drop the ball.' },
+      { icon: '🔮', title: 'Drop & Watch', desc: 'The ball bounces off pegs unpredictably toward prize slots.' },
+      { icon: '💰', title: 'Win Big', desc: 'Edge slots pay 500 Coins! Center slots pay 5-10 Coins.' },
+    ],
+    prizes: ['Edge slots: 500 Coins 🎯', 'Near edge: 50 Coins', 'Center: 5-25 Coins'],
+    tips: ['Edge drops are risky but rewarding', 'Center drops are safer but lower', '5 FREE drops daily'],
+  },
+  tapfrenzy: {
+    title: '⚡ Tap Frenzy',
+    subtitle: 'How fast can you tap?',
+    image: 'target',
+    steps: [
+      { icon: '⚡', title: 'Start Game', desc: 'Press START and get ready to tap!' },
+      { icon: '👆', title: 'Tap Targets', desc: 'Coins, gems, and stars appear — tap them for points!' },
+      { icon: '💣', title: 'Avoid Bombs', desc: 'Bombs subtract 3 points — tap carefully!' },
+    ],
+    prizes: ['30+ points: 300 Coins 🏆', '20+ points: 200 Coins', '10+ points: 100 Coins'],
+    tips: ['Gems are worth 3 points', 'Green gems are worth 5!', 'You only have 10 seconds'],
+  },
+  stopclock: {
+    title: '⏱️ Stop the Clock',
+    subtitle: 'Test your reflexes!',
+    image: 'brainQuiz',
+    steps: [
+      { icon: '🎯', title: 'See Target', desc: 'A random target number appears (0-99).' },
+      { icon: '⏱️', title: 'Watch the Clock', desc: 'Numbers spin rapidly around the dial.' },
+      { icon: '🛑', title: 'Stop!', desc: 'Hit STOP as close to the target as possible!' },
+    ],
+    prizes: ['Exact match: 1000 Coins! 🎯', 'Within ±5: 200 Coins', 'Within ±10: 100 Coins'],
+    tips: ['Watch the rhythm of the numbers', 'Anticipate slightly ahead', 'Exact match is legendary!'],
+  },
+  treasure: {
+    title: '🗺️ Treasure Hunt',
+    subtitle: 'Pick wisely, avoid traps!',
+    image: 'treasureChest',
+    steps: [
+      { icon: '👆', title: 'Pick 3 Tiles', desc: 'Choose 3 tiles from the 5×5 grid.' },
+      { icon: '🪙', title: 'Find Treasure', desc: 'Coins (25), Gems (75), or the Crown (500)!' },
+      { icon: '💀', title: 'Watch for Traps', desc: 'Hit a skull and the hunt ends immediately!' },
+    ],
+    prizes: ['Crown 👑: 500 Coins!', 'Gem 💎: 75 Coins', 'Coin 🪙: 25 Coins'],
+    tips: ['5 traps hide among 25 tiles', 'You keep coins found before a trap', 'Corner tiles can be lucky!'],
+  },
   daily: {
     title: '🎁 Daily Rewards',
     subtitle: 'Login every day for bigger prizes!',
@@ -242,14 +290,81 @@ const VIP_TIERS = [
   { name: 'Diamond', min: 50000, icon: '💎', cashback: 3 },
 ];
 
-const MISSIONS = [
-  { id: 'retail', name: 'Retail Therapy', desc: 'Make a purchase in the store', target: 1, reward: { kwacha: 50 }, xp: 25, image: 'shoppingBags' },
-  { id: 'deposit', name: 'Time to Deposit!', desc: 'Make a deposit', target: 1, reward: { kwacha: 100, gems: 5 }, xp: 50, image: 'creditCards', hot: true },
-  { id: 'firstBet', name: 'Place Your Bet', desc: 'Place your first bet', target: 1, reward: { kwacha: 30 }, xp: 15, image: 'betMission' },
-  { id: 'bet10', name: 'Regular Player', desc: 'Place 10 bets', target: 10, reward: { kwacha: 75 }, xp: 40, image: 'betMission' },
-  { id: 'win5', name: 'Winner Winner!', desc: 'Win 5 bets', target: 5, reward: { kwacha: 150, gems: 10 }, xp: 60, image: 'winTrophy', hot: true },
-  { id: 'spinWheel', name: 'Lucky Spinner', desc: 'Spin the wheel 3 times', target: 3, reward: { kwacha: 50 }, xp: 30, image: 'wheel' },
+// ============================================================================
+// MISSION DATA - Daily Pool, Weekly, Permanent
+// ============================================================================
+
+// Daily missions pool (8 random picked each day from 18)
+const DAILY_MISSION_POOL = [
+  // Easy (6)
+  { id: 'd_spin', name: 'Quick Spin', desc: 'Spin the wheel once', difficulty: 'easy', target: 1, type: 'gamePlay', gameId: 'wheel', reward: { kwacha: 50 }, xp: 25, image: 'wheel', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_scratch', name: 'Scratch It', desc: 'Play a scratch card', difficulty: 'easy', target: 1, type: 'gamePlay', gameId: 'scratch', reward: { kwacha: 50 }, xp: 25, image: 'scratchCard', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_dice', name: 'Roll the Dice', desc: 'Play Lucky Dice once', difficulty: 'easy', target: 1, type: 'gamePlay', gameId: 'dice', reward: { kwacha: 50 }, xp: 25, image: 'dice', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_plinko', name: 'Drop Zone', desc: 'Play Plinko once', difficulty: 'easy', target: 1, type: 'gamePlay', gameId: 'plinko', reward: { kwacha: 50 }, xp: 25, image: 'slotMachine', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_bet1', name: 'First Bet Today', desc: 'Place a bet today', difficulty: 'easy', target: 1, type: 'bets', reward: { kwacha: 75 }, xp: 30, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict' },
+  { id: 'd_daily', name: 'Daily Collector', desc: 'Claim your daily reward', difficulty: 'easy', target: 1, type: 'dailyClaim', reward: { kwacha: 50 }, xp: 20, image: 'dailyGift', cta: 'daily', ctaLabel: 'Go to Daily' },
+  // Medium (6)
+  { id: 'd_hopper', name: 'Game Hopper', desc: 'Play 3 different games', difficulty: 'medium', target: 3, type: 'uniqueGames', reward: { kwacha: 150 }, xp: 50, image: 'memoryCards', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_bet5', name: 'Bet Builder', desc: 'Place 5 bets', difficulty: 'medium', target: 5, type: 'bets', reward: { kwacha: 200 }, xp: 60, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict' },
+  { id: 'd_coins200', name: 'Coin Collector', desc: 'Win 200 Coins from games', difficulty: 'medium', target: 200, type: 'coinsWon', reward: { kwacha: 150 }, xp: 50, image: 'treasureChest', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_tap15', name: 'Tap Master', desc: 'Score 15+ in Tap Frenzy', difficulty: 'medium', target: 15, type: 'tapScore', reward: { kwacha: 200 }, xp: 60, image: 'target', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_treasure', name: 'Treasure Seeker', desc: 'Survive Treasure Hunt (no trap)', difficulty: 'medium', target: 1, type: 'treasureSurvive', reward: { kwacha: 175 }, xp: 50, image: 'treasureChest', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_memory', name: 'Memory Pro', desc: 'Beat Memory Match in under 16 moves', difficulty: 'medium', target: 1, type: 'memoryFast', reward: { kwacha: 200 }, xp: 60, image: 'memoryCards', cta: 'minigames', ctaLabel: 'Go to Games' },
+  // Hard (6)
+  { id: 'd_streak3', name: 'Hot Streak', desc: 'Win 3 bets in a row', difficulty: 'hard', target: 3, type: 'winStreak', reward: { kwacha: 400, gems: 5 }, xp: 100, image: 'winTrophy', cta: 'predict', ctaLabel: 'Go to Predict' },
+  { id: 'd_tap25', name: 'Tap Frenzy Pro', desc: 'Score 25+ in Tap Frenzy', difficulty: 'hard', target: 25, type: 'tapScore', reward: { kwacha: 350, gems: 5 }, xp: 100, image: 'target', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_clock3', name: 'Clock Master', desc: 'Stop within ±3 of target', difficulty: 'hard', target: 1, type: 'clockClose', reward: { kwacha: 350, gems: 5 }, xp: 100, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_bet10', name: 'High Roller', desc: 'Place 10 bets in one day', difficulty: 'hard', target: 10, type: 'bets', reward: { kwacha: 400, gems: 8 }, xp: 120, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict' },
+  { id: 'd_jackpot', name: 'Jackpot Hunter', desc: 'Find the 👑 in Treasure Hunt', difficulty: 'hard', target: 1, type: 'treasureJackpot', reward: { kwacha: 500, gems: 5 }, xp: 100, image: 'crown', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_marathon', name: 'Game Marathon', desc: 'Play 6 different games', difficulty: 'hard', target: 6, type: 'uniqueGames', reward: { kwacha: 400, gems: 10 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
 ];
+
+// Weekly missions (5, reset every Monday)
+const WEEKLY_MISSIONS = [
+  { id: 'w_warrior', name: 'Weekly Warrior', desc: 'Complete 20 daily missions this week', difficulty: 'medium', target: 20, type: 'dailyMissionsDone', reward: { kwacha: 500, gems: 10 }, xp: 100, image: 'medal', cta: 'missions', ctaLabel: 'View Missions' },
+  { id: 'w_spender', name: 'Big Spender', desc: 'Spend 500 Coins in the store', difficulty: 'medium', target: 500, type: 'coinsSpent', reward: { kwacha: 300, gems: 5 }, xp: 75, image: 'shoppingBags', cta: 'store', ctaLabel: 'Go to Store' },
+  { id: 'w_wins10', name: 'Winning Week', desc: 'Win 10 bets this week', difficulty: 'hard', target: 10, type: 'weeklyWins', reward: { kwacha: 600, gems: 15 }, xp: 150, image: 'winTrophy', cta: 'predict', ctaLabel: 'Go to Predict' },
+  { id: 'w_explorer', name: 'Game Explorer', desc: 'Play all 9 minigames this week', difficulty: 'hard', target: 9, type: 'uniqueGamesWeekly', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'w_xp500', name: 'XP Grinder', desc: 'Earn 500 XP this week', difficulty: 'hard', target: 500, type: 'weeklyXP', reward: { kwacha: 400, gems: 10 }, xp: 100, image: 'crown', cta: 'overview', ctaLabel: 'View Progress' },
+];
+
+// Permanent missions (always available, one-time completion)
+const PERMANENT_MISSIONS = [
+  { id: 'retail', name: 'Retail Therapy', desc: 'Make a purchase in the store', difficulty: 'easy', target: 1, type: 'storePurchase', reward: { kwacha: 1000 }, xp: 1000, image: 'shoppingBags', cta: 'store', ctaLabel: 'Go to Store', tips: ['Browse the store for free spins, bets, and merch', 'Spending coins here also counts toward Weekly missions'] },
+  { id: 'deposit', name: 'Time to Deposit!', desc: 'Make a deposit', difficulty: 'easy', target: 1, type: 'deposits', reward: { kwacha: 100, gems: 5 }, xp: 50, image: 'creditCards', hot: true, cta: 'overview', ctaLabel: 'Deposit Now', tips: ['Any deposit amount counts', 'Higher deposits unlock VIP tiers'] },
+  { id: 'firstBet', name: 'Place Your Bet', desc: 'Place your first bet', difficulty: 'easy', target: 1, type: 'bets', reward: { kwacha: 30 }, xp: 15, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict', tips: ['Pick any match to bet on', 'Featured matches pay more XP'] },
+  { id: 'bet10', name: 'Regular Player', desc: 'Place 10 bets', difficulty: 'medium', target: 10, type: 'bets', reward: { kwacha: 75 }, xp: 40, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict', tips: ['Bet on multiple matches', 'Each bet earns XP too'] },
+  { id: 'win5', name: 'Winner Winner!', desc: 'Win 5 bets', difficulty: 'hard', target: 5, type: 'wins', reward: { kwacha: 150, gems: 10 }, xp: 60, image: 'winTrophy', hot: true, cta: 'predict', ctaLabel: 'Go to Predict', tips: ['Research teams before betting', 'Featured matches have higher payouts'] },
+  { id: 'spinWheel', name: 'Lucky Spinner', desc: 'Spin the wheel 3 times', difficulty: 'easy', target: 3, type: 'wheelSpins', reward: { kwacha: 50 }, xp: 30, image: 'wheel', cta: 'minigames', ctaLabel: 'Go to Games', tips: ['You get 3 free spins daily', 'Extra spins cost 50 Coins'] },
+];
+
+// Seeded random: picks 8 daily missions based on date (2 easy, 3 medium, 3 hard)
+const getDailyMissions = () => {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const seededRandom = (s) => { let x = Math.sin(s) * 10000; return x - Math.floor(x); };
+  
+  const easy = DAILY_MISSION_POOL.filter(m => m.difficulty === 'easy');
+  const medium = DAILY_MISSION_POOL.filter(m => m.difficulty === 'medium');
+  const hard = DAILY_MISSION_POOL.filter(m => m.difficulty === 'hard');
+  
+  const pick = (arr, count, offset) => {
+    const shuffled = [...arr].sort((a, b) => seededRandom(seed + offset + arr.indexOf(a)) - seededRandom(seed + offset + arr.indexOf(b)));
+    return shuffled.slice(0, count);
+  };
+  
+  return [...pick(easy, 2, 1), ...pick(medium, 3, 100), ...pick(hard, 3, 200)];
+};
+
+const DIFFICULTY_CONFIG = {
+  easy: { label: 'Easy', color: 'bg-green-500', textColor: 'text-green-400', borderColor: 'border-green-500/30' },
+  medium: { label: 'Medium', color: 'bg-yellow-500', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/30' },
+  hard: { label: 'Hard', color: 'bg-red-500', textColor: 'text-red-400', borderColor: 'border-red-500/30' },
+};
+
+// Keep MISSIONS as alias for backward compatibility with overview
+const MISSIONS = PERMANENT_MISSIONS;
+
 
 const MINIGAMES = [
   { id: 'wheel', name: 'Wheel of Fortune', desc: 'Spin to win amazing prizes!', free: 3, cost: 50, image: 'wheel' },
@@ -257,6 +372,10 @@ const MINIGAMES = [
   { id: 'dice', name: 'Lucky Dice', desc: 'Roll the dice for rewards!', free: 5, cost: 20, image: 'dice' },
   { id: 'memory', name: 'Memory Match', desc: 'Match pairs to win!', free: 3, cost: 30, image: 'memoryCards' },
   { id: 'highlow', name: 'Higher or Lower', desc: 'Guess the next card!', free: 5, cost: 15, image: 'playingCards' },
+  { id: 'plinko', name: 'Plinko Drop', desc: 'Drop the ball for big prizes!', free: 5, cost: 25, image: 'slotMachine', isNew: true },
+  { id: 'tapfrenzy', name: 'Tap Frenzy', desc: 'Tap targets in 10 seconds!', free: 5, cost: 20, image: 'target', isNew: true },
+  { id: 'stopclock', name: 'Stop the Clock', desc: 'Stop at the right moment!', free: 5, cost: 20, image: 'brainQuiz', isNew: true },
+  { id: 'treasure', name: 'Treasure Hunt', desc: 'Find prizes, avoid traps!', free: 3, cost: 30, image: 'treasureChest', isNew: true },
 ];
 
 const STORE_ITEMS = [
@@ -399,6 +518,136 @@ function TutorialModal({ tutorialKey, onClose }) {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================================
+// MISSION DETAIL MODAL
+// ============================================================================
+function MissionDetailModal({ mission, progress, done, onClose, onNavigate }) {
+  const diff = DIFFICULTY_CONFIG[mission.difficulty];
+  
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 anim-scale-in">
+        {/* Header Image */}
+        <div className="relative h-44 overflow-hidden">
+          <img src={IMAGES[mission.image]} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+          
+          {/* Difficulty ribbon - top right corner */}
+          <div className={`absolute top-0 right-6 ${diff.color} px-3 py-1.5 rounded-b-lg font-bold text-sm shadow-lg`}>
+            {diff.label}
+          </div>
+          
+          {/* HOT badge */}
+          {mission.hot && !done && (
+            <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 rounded-lg text-sm font-bold shadow-lg">
+              🔥 HOT
+            </span>
+          )}
+          
+          {/* Done overlay */}
+          {done && (
+            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
+                <Check className="w-10 h-10" />
+              </div>
+            </div>
+          )}
+          
+          {/* Close button */}
+          <button 
+            type="button" 
+            onClick={onClose} 
+            className="absolute top-3 right-3 p-2 bg-black/50 hover:bg-black/70 rounded-full z-10 transition-all hover:rotate-90 duration-300"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6">
+          {/* Title & Description */}
+          <h2 className="text-2xl font-bold mb-1">{mission.name}</h2>
+          <p className="text-gray-400 mb-4">{mission.desc}</p>
+          
+          {/* Progress */}
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm text-gray-400">Progress</span>
+              <span className={`text-sm font-bold ${done ? 'text-green-400' : 'text-purple-300'}`}>
+                {done ? '✅ Complete!' : `${Math.min(progress, mission.target)} / ${mission.target}`}
+              </span>
+            </div>
+            <div className="h-3 bg-[#231a40] rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`}
+                style={{ width: `${Math.min(100, (progress / mission.target) * 100)}%` }}
+              />
+            </div>
+          </div>
+          
+          {/* Rewards */}
+          <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+            <div className="text-sm text-gray-400 mb-2 font-semibold">Rewards</div>
+            <div className="flex items-center gap-4 flex-wrap">
+              {mission.reward.kwacha && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">🪙</span>
+                  <span className="text-yellow-400 font-bold text-lg">{mission.reward.kwacha}</span>
+                  <span className="text-gray-500 text-sm">Coins</span>
+                </div>
+              )}
+              {mission.reward.gems && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">💚</span>
+                  <span className="text-green-400 font-bold text-lg">{mission.reward.gems}</span>
+                  <span className="text-gray-500 text-sm">Gems</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg">⚡</span>
+                <span className="text-purple-400 font-bold text-lg">{mission.xp}</span>
+                <span className="text-gray-500 text-sm">XP</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Tips */}
+          {mission.tips && mission.tips.length > 0 && (
+            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+              <div className="text-sm text-gray-400 mb-2 font-semibold">💡 Tips</div>
+              <div className="space-y-1.5">
+                {mission.tips.map((tip, i) => (
+                  <div key={i} className="text-sm text-gray-300 flex items-start gap-2">
+                    <span className="text-purple-400 mt-0.5">•</span>
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {/* CTA Button */}
+          {!done && mission.cta && (
+            <button 
+              type="button" 
+              onClick={() => { onNavigate(mission.cta); onClose(); }}
+              className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold text-lg transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2"
+            >
+              {mission.ctaLabel || 'Go'} <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+          
+          {done && (
+            <div className="text-center py-3 text-green-400 font-bold text-lg">
+              ✅ Mission Complete!
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1307,12 +1556,766 @@ function HighLowGame({ onClose, onWin }) {
 }
 
 // ============================================================================
+// PLINKO DROP GAME
+// ============================================================================
+function PlinkoGame({ onClose, onWin }) {
+  const [balls, setBalls] = useState([]);
+  const [dropping, setDropping] = useState(false);
+  const [result, setResult] = useState(null);
+  const [dropX, setDropX] = useState(50);
+  const [showTutorial, setShowTutorial] = useState(false);
+  
+  const ROWS = 8;
+  const SLOTS = [500, 50, 25, 10, 5, 10, 25, 50, 500];
+  const SLOT_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#22c55e', '#eab308', '#f97316', '#ef4444'];
+  
+  const drop = () => {
+    if (dropping) return;
+    setDropping(true);
+    setResult(null);
+    
+    // Simulate ball path through pegs
+    let x = dropX;
+    const path = [{ x, y: 0 }];
+    
+    for (let row = 1; row <= ROWS; row++) {
+      // Each peg deflects left or right with slight bias toward center
+      const bias = (50 - x) * 0.02;
+      x += (Math.random() + bias > 0.5 ? 1 : -1) * (100 / (SLOTS.length));
+      x = Math.max(5, Math.min(95, x));
+      path.push({ x, y: row * (100 / (ROWS + 1)) });
+    }
+    
+    // Determine which slot the ball lands in
+    const slotWidth = 100 / SLOTS.length;
+    const slotIndex = Math.min(SLOTS.length - 1, Math.floor(x / slotWidth));
+    const prize = SLOTS[slotIndex];
+    
+    // Animate ball
+    const ballId = Date.now();
+    let step = 0;
+    
+    const interval = setInterval(() => {
+      if (step < path.length) {
+        setBalls([{ id: ballId, x: path[step].x, y: path[step].y + 8 }]);
+        step++;
+      } else {
+        clearInterval(interval);
+        setBalls([{ id: ballId, x: path[path.length - 1].x, y: 95 }]);
+        setResult({ slot: slotIndex, prize });
+        setDropping(false);
+        if (prize > 0) onWin(prize);
+      }
+    }, 150);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+      {showTutorial && <TutorialModal tutorialKey="plinko" onClose={() => setShowTutorial(false)} />}
+      
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
+            <HelpCircle className="w-6 h-6 text-purple-400" />
+          </button>
+          <h2 className="text-2xl font-bold">🔮 Plinko Drop</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Drop position selector */}
+        <div className="mb-3">
+          <p className="text-center text-sm text-gray-400 mb-2">Slide to choose drop position</p>
+          <input 
+            type="range" min="15" max="85" value={dropX} 
+            onChange={(e) => setDropX(Number(e.target.value))}
+            disabled={dropping}
+            className="w-full accent-purple-500"
+          />
+        </div>
+        
+        {/* Plinko Board */}
+        <div className="relative bg-[#0a0618] rounded-2xl border border-purple-500/20 overflow-hidden" style={{ height: 340 }}>
+          {/* Drop indicator */}
+          <div className="absolute top-0 w-4 h-4 rounded-full bg-yellow-400 -translate-x-1/2 z-10"
+            style={{ left: `${dropX}%`, boxShadow: '0 0 12px rgba(251,191,36,0.8)' }}
+          />
+          
+          {/* Pegs */}
+          {Array.from({ length: ROWS }, (_, row) => {
+            const pegsInRow = row + 3;
+            const rowY = ((row + 1) / (ROWS + 1)) * 100;
+            return Array.from({ length: pegsInRow }, (_, col) => {
+              const pegX = ((col + 1) / (pegsInRow + 1)) * 100;
+              return (
+                <div
+                  key={`peg-${row}-${col}`}
+                  className="absolute w-2.5 h-2.5 rounded-full"
+                  style={{
+                    left: `${pegX}%`, top: `${rowY}%`,
+                    transform: 'translate(-50%, -50%)',
+                    background: 'radial-gradient(circle at 35% 35%, #c084fc, #7c3aed)',
+                    boxShadow: '0 0 6px rgba(168,85,247,0.5)',
+                  }}
+                />
+              );
+            });
+          })}
+          
+          {/* Balls */}
+          {balls.map(ball => (
+            <div
+              key={ball.id}
+              className="absolute w-5 h-5 rounded-full z-10"
+              style={{
+                left: `${ball.x}%`, top: `${ball.y}%`,
+                transform: 'translate(-50%, -50%)',
+                background: 'radial-gradient(circle at 35% 35%, #fde047, #f59e0b)',
+                boxShadow: '0 0 12px rgba(251,191,36,0.8), 0 2px 6px rgba(0,0,0,0.4)',
+                transition: 'left 0.12s ease-out, top 0.12s ease-out',
+              }}
+            />
+          ))}
+          
+          {/* Prize Slots at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 flex">
+            {SLOTS.map((prize, i) => (
+              <div
+                key={i}
+                className={`flex-1 text-center py-2 font-bold text-xs border-x border-purple-900/50 transition-all duration-300 ${result?.slot === i ? 'scale-110 z-10' : ''}`}
+                style={{
+                  background: result?.slot === i 
+                    ? `${SLOT_COLORS[i]}` 
+                    : `${SLOT_COLORS[i]}40`,
+                  boxShadow: result?.slot === i ? `0 0 20px ${SLOT_COLORS[i]}80` : 'none',
+                  color: result?.slot === i ? '#fff' : SLOT_COLORS[i],
+                }}
+              >
+                {prize}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Drop Button / Result */}
+        {result ? (
+          <div className="text-center mt-4 anim-scale-in">
+            <div className="text-4xl mb-2">{result.prize >= 100 ? '🎉' : result.prize >= 25 ? '👍' : '🪙'}</div>
+            <div className="text-2xl font-black text-yellow-400 mb-3">+{result.prize} Coins!</div>
+            <button 
+              type="button" 
+              onClick={() => { setResult(null); setBalls([]); }} 
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold"
+            >
+              Drop Again 🔮
+            </button>
+          </div>
+        ) : (
+          <button 
+            type="button" 
+            onClick={drop} 
+            disabled={dropping}
+            className={`w-full mt-4 py-4 rounded-xl font-bold text-lg transition-all ${dropping ? 'bg-gray-600' : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/30 hover:scale-[1.02] active:scale-95'}`}
+          >
+            {dropping ? '⏳ Dropping...' : '🔮 Drop Ball!'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// TAP FRENZY GAME
+// ============================================================================
+function TapFrenzyGame({ onClose, onWin }) {
+  const [gameState, setGameState] = useState('ready'); // ready, playing, done
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(10);
+  const [targets, setTargets] = useState([]);
+  const [taps, setTaps] = useState([]);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const timerRef = useRef(null);
+  const targetRef = useRef(null);
+  
+  const startGame = () => {
+    setGameState('playing');
+    setScore(0);
+    setTimeLeft(10);
+    setTaps([]);
+    spawnTarget();
+    
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          clearTimeout(targetRef.current);
+          setGameState('done');
+          setTargets([]);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+  };
+  
+  const spawnTarget = () => {
+    const types = [
+      { emoji: '🪙', points: 1, size: 48, color: '#fbbf24' },
+      { emoji: '💎', points: 3, size: 40, color: '#a855f7' },
+      { emoji: '⭐', points: 2, size: 44, color: '#3b82f6' },
+      { emoji: '💚', points: 5, size: 36, color: '#22c55e' },
+      { emoji: '💣', points: -3, size: 42, color: '#ef4444' },
+    ];
+    const weights = [40, 15, 25, 10, 10];
+    const rand = Math.random() * 100;
+    let sum = 0;
+    let type = types[0];
+    for (let i = 0; i < types.length; i++) {
+      sum += weights[i];
+      if (rand < sum) { type = types[i]; break; }
+    }
+    
+    const target = {
+      id: Date.now(),
+      x: 10 + Math.random() * 75,
+      y: 10 + Math.random() * 65,
+      ...type,
+    };
+    setTargets([target]);
+    
+    targetRef.current = setTimeout(() => {
+      setTargets(prev => prev.filter(t => t.id !== target.id));
+      spawnTarget();
+    }, 800 + Math.random() * 600);
+  };
+  
+  const tapTarget = (target, e) => {
+    e.stopPropagation();
+    setScore(s => Math.max(0, s + target.points));
+    setTaps(prev => [...prev.slice(-8), { id: Date.now(), x: target.x, y: target.y, points: target.points }]);
+    setTargets(prev => prev.filter(t => t.id !== target.id));
+    clearTimeout(targetRef.current);
+    spawnTarget();
+  };
+  
+  useEffect(() => {
+    if (gameState === 'done') {
+      const prize = score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
+      if (prize > 0) onWin(prize);
+    }
+    return () => { clearInterval(timerRef.current); clearTimeout(targetRef.current); };
+  }, [gameState]);
+
+  const getPrize = () => score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
+
+  return (
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+      {showTutorial && <TutorialModal tutorialKey="tapfrenzy" onClose={() => setShowTutorial(false)} />}
+      
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
+            <HelpCircle className="w-6 h-6 text-purple-400" />
+          </button>
+          <h2 className="text-2xl font-bold">⚡ Tap Frenzy</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Score & Timer */}
+        {gameState !== 'ready' && (
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-xl font-bold">Score: <span className="text-yellow-400">{score}</span></div>
+            <div className={`text-xl font-bold px-4 py-1 rounded-full ${timeLeft <= 3 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-purple-500/30 text-purple-300'}`}>
+              ⏱️ {timeLeft}s
+            </div>
+          </div>
+        )}
+        
+        {/* Game Area */}
+        <div 
+          className="relative rounded-2xl border border-purple-500/20 overflow-hidden"
+          style={{ height: 350, background: 'radial-gradient(ellipse at center, #1a1333 0%, #0a0618 100%)' }}
+        >
+          {gameState === 'ready' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-6xl mb-4">⚡</div>
+              <p className="text-gray-400 text-center mb-2 px-4">Tap coins & gems as fast as you can! Avoid bombs 💣</p>
+              <p className="text-sm text-gray-500 mb-6">You have 10 seconds</p>
+              <button 
+                type="button" 
+                onClick={startGame}
+                className="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 rounded-xl font-bold text-lg shadow-lg shadow-orange-500/30 hover:scale-105 active:scale-95 transition-all"
+              >
+                ⚡ START!
+              </button>
+            </div>
+          )}
+          
+          {gameState === 'playing' && (
+            <>
+              {/* Targets */}
+              {targets.map(t => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={(e) => tapTarget(t, e)}
+                  className="absolute transition-transform duration-100 hover:scale-125 active:scale-75 anim-scale-in"
+                  style={{
+                    left: `${t.x}%`, top: `${t.y}%`,
+                    fontSize: t.size,
+                    filter: `drop-shadow(0 0 8px ${t.color})`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  {t.emoji}
+                </button>
+              ))}
+              
+              {/* Tap score popups */}
+              {taps.map(tap => (
+                <div
+                  key={tap.id}
+                  className="absolute font-bold text-lg pointer-events-none"
+                  style={{
+                    left: `${tap.x}%`, top: `${tap.y - 5}%`,
+                    color: tap.points > 0 ? '#22c55e' : '#ef4444',
+                    animation: 'sparkleFloat 0.5s ease-out forwards',
+                    '--sx': '0px', '--sy': '-40px',
+                  }}
+                >
+                  {tap.points > 0 ? `+${tap.points}` : tap.points}
+                </div>
+              ))}
+            </>
+          )}
+          
+          {gameState === 'done' && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center anim-scale-in">
+              <div className="text-6xl mb-3">{score >= 20 ? '🏆' : score >= 10 ? '⭐' : '👏'}</div>
+              <div className="text-4xl font-black text-yellow-400 mb-2">{score} Points</div>
+              <div className="text-xl text-green-400 font-bold mb-6">+{getPrize()} Coins!</div>
+              <button 
+                type="button" 
+                onClick={() => { setGameState('ready'); setScore(0); setTimeLeft(10); }}
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold"
+              >
+                Play Again ⚡
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// STOP THE CLOCK GAME
+// ============================================================================
+function StopClockGame({ onClose, onWin }) {
+  const [gameState, setGameState] = useState('ready'); // ready, spinning, stopped
+  const [currentNum, setCurrentNum] = useState(0);
+  const [targetNum, setTargetNum] = useState(null);
+  const [stoppedNum, setStoppedNum] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const intervalRef = useRef(null);
+  
+  const startSpin = () => {
+    const target = Math.floor(Math.random() * 100);
+    setTargetNum(target);
+    setGameState('spinning');
+    setStoppedNum(null);
+    
+    let num = 0;
+    intervalRef.current = setInterval(() => {
+      num = (num + 1) % 100;
+      setCurrentNum(num);
+    }, 40);
+  };
+  
+  const stopSpin = () => {
+    clearInterval(intervalRef.current);
+    setStoppedNum(currentNum);
+    setGameState('stopped');
+    
+    const diff = Math.abs(currentNum - targetNum);
+    const minDiff = Math.min(diff, 100 - diff);
+    const prize = minDiff === 0 ? 1000 : minDiff <= 2 ? 500 : minDiff <= 5 ? 200 : minDiff <= 10 ? 100 : minDiff <= 20 ? 50 : 0;
+    if (prize > 0) onWin(prize);
+  };
+  
+  useEffect(() => {
+    return () => clearInterval(intervalRef.current);
+  }, []);
+  
+  const getDiff = () => {
+    if (stoppedNum === null || targetNum === null) return null;
+    const diff = Math.abs(stoppedNum - targetNum);
+    return Math.min(diff, 100 - diff);
+  };
+  
+  const getPrize = () => {
+    const d = getDiff();
+    if (d === null) return 0;
+    return d === 0 ? 1000 : d <= 2 ? 500 : d <= 5 ? 200 : d <= 10 ? 100 : d <= 20 ? 50 : 0;
+  };
+  
+  // Calculate dial rotation (0-99 mapped to 0-360 degrees)
+  const dialRotation = (currentNum / 100) * 360;
+
+  return (
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+      {showTutorial && <TutorialModal tutorialKey="stopclock" onClose={() => setShowTutorial(false)} />}
+      
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
+            <HelpCircle className="w-6 h-6 text-purple-400" />
+          </button>
+          <h2 className="text-2xl font-bold">⏱️ Stop the Clock</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Target display */}
+        {targetNum !== null && (
+          <div className="text-center mb-4">
+            <span className="text-gray-400">Target: </span>
+            <span className="text-2xl font-black text-green-400">{String(targetNum).padStart(2, '0')}</span>
+          </div>
+        )}
+        
+        {/* Clock Display */}
+        <div className="relative w-56 h-56 mx-auto mb-6">
+          {/* Outer ring */}
+          <svg viewBox="0 0 200 200" className="w-full h-full">
+            <defs>
+              <linearGradient id="clockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#a855f7" />
+                <stop offset="100%" stopColor="#ec4899" />
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="96" fill="none" stroke="#231a40" strokeWidth="6" />
+            <circle cx="100" cy="100" r="96" fill="none" stroke="url(#clockGrad)" strokeWidth="3" opacity="0.6" />
+            
+            {/* Tick marks */}
+            {Array.from({ length: 20 }, (_, i) => {
+              const a = (i * 18 - 90) * Math.PI / 180;
+              const r1 = 86, r2 = 93;
+              return (
+                <line key={i}
+                  x1={100 + r1 * Math.cos(a)} y1={100 + r1 * Math.sin(a)}
+                  x2={100 + r2 * Math.cos(a)} y2={100 + r2 * Math.sin(a)}
+                  stroke={i % 5 === 0 ? '#a855f7' : '#4b3a6e'} strokeWidth={i % 5 === 0 ? 2.5 : 1.5}
+                />
+              );
+            })}
+            
+            {/* Target marker */}
+            {targetNum !== null && (() => {
+              const ta = ((targetNum / 100) * 360 - 90) * Math.PI / 180;
+              return (
+                <circle cx={100 + 82 * Math.cos(ta)} cy={100 + 82 * Math.sin(ta)} r="5" fill="#22c55e" opacity="0.8">
+                  <animate attributeName="r" values="5;7;5" dur="1s" repeatCount="indefinite" />
+                </circle>
+              );
+            })()}
+            
+            {/* Spinning needle */}
+            {gameState !== 'ready' && (() => {
+              const na = (dialRotation - 90) * Math.PI / 180;
+              return (
+                <line
+                  x1="100" y1="100"
+                  x2={100 + 70 * Math.cos(na)} y2={100 + 70 * Math.sin(na)}
+                  stroke="#fbbf24" strokeWidth="3" strokeLinecap="round"
+                />
+              );
+            })()}
+            
+            {/* Center dot */}
+            <circle cx="100" cy="100" r="8" fill="#1a1333" stroke="#fbbf24" strokeWidth="2" />
+          </svg>
+          
+          {/* Number display */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`text-5xl font-black tabular-nums ${gameState === 'spinning' ? 'text-white' : stoppedNum !== null ? (getDiff() <= 5 ? 'text-green-400' : 'text-yellow-400') : 'text-gray-500'}`}>
+              {String(gameState === 'ready' ? '00' : currentNum).padStart(2, '0')}
+            </div>
+          </div>
+        </div>
+        
+        {/* Buttons / Result */}
+        {gameState === 'ready' && (
+          <button 
+            type="button" 
+            onClick={startSpin}
+            className="w-full py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/30 hover:scale-[1.02] active:scale-95 transition-all"
+          >
+            ⏱️ Start Clock!
+          </button>
+        )}
+        
+        {gameState === 'spinning' && (
+          <button 
+            type="button" 
+            onClick={stopSpin}
+            className="w-full py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 shadow-lg shadow-red-500/30 hover:scale-[1.02] active:scale-95 transition-all animate-pulse"
+          >
+            🛑 STOP!
+          </button>
+        )}
+        
+        {gameState === 'stopped' && (
+          <div className="text-center anim-scale-in">
+            <div className="flex items-center justify-center gap-6 mb-3">
+              <div className="text-center">
+                <div className="text-sm text-gray-400">Target</div>
+                <div className="text-3xl font-black text-green-400">{String(targetNum).padStart(2, '0')}</div>
+              </div>
+              <div className="text-2xl text-gray-500">vs</div>
+              <div className="text-center">
+                <div className="text-sm text-gray-400">You</div>
+                <div className="text-3xl font-black text-yellow-400">{String(stoppedNum).padStart(2, '0')}</div>
+              </div>
+            </div>
+            <div className="text-lg text-gray-300 mb-2">Off by {getDiff()}</div>
+            <div className={`text-2xl font-black mb-4 ${getPrize() >= 200 ? 'text-green-400' : getPrize() > 0 ? 'text-yellow-400' : 'text-gray-400'}`}>
+              {getPrize() > 0 ? `🎉 +${getPrize()} Coins!` : 'Too far! Try again'}
+            </div>
+            <button 
+              type="button" 
+              onClick={() => { setGameState('ready'); setCurrentNum(0); setTargetNum(null); setStoppedNum(null); }}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold"
+            >
+              Try Again ⏱️
+            </button>
+          </div>
+        )}
+        
+        {/* Prize table */}
+        {gameState === 'ready' && (
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="bg-green-500/10 rounded-lg p-2 border border-green-500/20">
+              <div className="text-green-400 font-bold">Exact</div>
+              <div className="text-white font-bold">1000</div>
+            </div>
+            <div className="bg-yellow-500/10 rounded-lg p-2 border border-yellow-500/20">
+              <div className="text-yellow-400 font-bold">±5</div>
+              <div className="text-white font-bold">200</div>
+            </div>
+            <div className="bg-purple-500/10 rounded-lg p-2 border border-purple-500/20">
+              <div className="text-purple-400 font-bold">±10</div>
+              <div className="text-white font-bold">100</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// TREASURE HUNT GAME
+// ============================================================================
+function TreasureHuntGame({ onClose, onWin }) {
+  const [board, setBoard] = useState([]);
+  const [flipped, setFlipped] = useState([]);
+  const [gameState, setGameState] = useState('playing'); // playing, won, lost
+  const [picksLeft, setPicksLeft] = useState(3);
+  const [collected, setCollected] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(false);
+  
+  // Initialize board on mount
+  useEffect(() => {
+    generateBoard();
+  }, []);
+  
+  const generateBoard = () => {
+    // 5x5 grid = 25 tiles
+    // 8 prizes (coins), 5 gems (bigger prize), 3 traps (skull), 9 empty
+    const items = [
+      ...Array(8).fill({ type: 'coins', emoji: '🪙', value: 25 }),
+      ...Array(4).fill({ type: 'gem', emoji: '💎', value: 75 }),
+      ...Array(1).fill({ type: 'jackpot', emoji: '👑', value: 500 }),
+      ...Array(5).fill({ type: 'trap', emoji: '💀', value: 0 }),
+      ...Array(7).fill({ type: 'empty', emoji: '💨', value: 0 }),
+    ];
+    
+    // Shuffle
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    
+    setBoard(items);
+    setFlipped([]);
+    setPicksLeft(3);
+    setCollected(0);
+    setGameState('playing');
+  };
+  
+  const flipTile = (index) => {
+    if (flipped.includes(index) || gameState !== 'playing' || picksLeft <= 0) return;
+    
+    const tile = board[index];
+    setFlipped(prev => [...prev, index]);
+    setPicksLeft(p => p - 1);
+    
+    if (tile.type === 'trap') {
+      // Hit a trap - game over!
+      setGameState('lost');
+      // Reveal all tiles after short delay
+      setTimeout(() => {
+        setFlipped(board.map((_, i) => i));
+      }, 500);
+      // Still give partial winnings
+      if (collected > 0) onWin(collected);
+      return;
+    }
+    
+    const newTotal = collected + tile.value;
+    setCollected(newTotal);
+    
+    // Check if last pick
+    if (picksLeft <= 1) {
+      setGameState('won');
+      if (newTotal > 0) onWin(newTotal);
+      // Reveal all tiles after short delay
+      setTimeout(() => {
+        setFlipped(board.map((_, i) => i));
+      }, 800);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+      {showTutorial && <TutorialModal tutorialKey="treasure" onClose={() => setShowTutorial(false)} />}
+      
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+        <div className="flex items-center justify-between mb-4">
+          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
+            <HelpCircle className="w-6 h-6 text-purple-400" />
+          </button>
+          <h2 className="text-2xl font-bold">🗺️ Treasure Hunt</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        
+        {/* Status bar */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400">Picks:</span>
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className={`w-6 h-6 rounded-full flex items-center justify-center text-sm ${i < picksLeft ? 'bg-yellow-500/30 text-yellow-400' : 'bg-gray-700/50 text-gray-600'}`}>
+                {i < picksLeft ? '👆' : '·'}
+              </div>
+            ))}
+          </div>
+          <div className="text-lg font-bold">
+            Loot: <span className="text-yellow-400">{collected}</span> 🪙
+          </div>
+        </div>
+        
+        {/* Game Board */}
+        <div className="grid grid-cols-5 gap-2 mb-4">
+          {board.map((tile, i) => {
+            const isFlipped = flipped.includes(i);
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => flipTile(i)}
+                disabled={isFlipped || gameState !== 'playing'}
+                className={`aspect-square rounded-xl text-2xl flex items-center justify-center transition-all duration-300 ${
+                  isFlipped
+                    ? tile.type === 'trap' 
+                      ? 'bg-red-500/30 border border-red-500/50 scale-95' 
+                      : tile.type === 'jackpot'
+                        ? 'bg-yellow-500/30 border border-yellow-500/50'
+                        : tile.type === 'gem'
+                          ? 'bg-purple-500/30 border border-purple-500/50'
+                          : tile.value > 0 
+                            ? 'bg-green-500/20 border border-green-500/40'
+                            : 'bg-gray-700/30 border border-gray-600/30 opacity-50'
+                    : gameState === 'playing'
+                      ? 'bg-[#231a40] border border-purple-500/20 hover:bg-[#2d2250] hover:scale-105 hover:border-purple-400/40 active:scale-90 cursor-pointer'
+                      : 'bg-[#231a40] border border-purple-500/10 opacity-40'
+                }`}
+              >
+                {isFlipped ? (
+                  <span className="anim-scale-in">{tile.emoji}</span>
+                ) : (
+                  <span className="text-purple-500/40 text-lg">?</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Result */}
+        {gameState === 'lost' && (
+          <div className="text-center p-4 bg-red-500/10 rounded-2xl border border-red-500/30 anim-scale-in">
+            <div className="text-4xl mb-2">💀</div>
+            <div className="text-xl font-bold text-red-400 mb-1">Trap!</div>
+            <div className="text-gray-400 mb-3">
+              {collected > 0 ? `Saved ${collected} Coins before the trap!` : 'No coins collected'}
+            </div>
+            <button 
+              type="button" 
+              onClick={generateBoard}
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold"
+            >
+              Try Again 🗺️
+            </button>
+          </div>
+        )}
+        
+        {gameState === 'won' && (
+          <div className="text-center p-4 bg-green-500/10 rounded-2xl border border-green-500/30 anim-scale-in">
+            <div className="text-4xl mb-2">{collected >= 200 ? '🏆' : collected >= 75 ? '⭐' : '🪙'}</div>
+            <div className="text-2xl font-black text-yellow-400 mb-1">+{collected} Coins!</div>
+            <div className="text-gray-400 mb-3">You survived the hunt!</div>
+            <button 
+              type="button" 
+              onClick={generateBoard}
+              className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold"
+            >
+              Hunt Again 🗺️
+            </button>
+          </div>
+        )}
+        
+        {/* Legend */}
+        {gameState === 'playing' && (
+          <div className="flex justify-center gap-4 text-xs text-gray-500">
+            <span>🪙 25</span>
+            <span>💎 75</span>
+            <span>👑 500</span>
+            <span>💀 Trap!</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
 export default function GamificationPlatform() {
   const [tab, setTab] = useState('overview');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
+  const [missionSubTab, setMissionSubTab] = useState('daily');
+  const [selectedMission, setSelectedMission] = useState(null);
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [notif, setNotif] = useState(null);
   const [notifLeaving, setNotifLeaving] = useState(false);
@@ -1463,8 +2466,8 @@ export default function GamificationPlatform() {
 
   const [user, setUser] = useState({
     avatar: '😎',
-    kwacha: 500,
-    gems: 10,
+    kwacha: 0,
+    gems: 0,
     diamonds: 0,
     xp: 0,
     deposits: 0,
@@ -1478,7 +2481,7 @@ export default function GamificationPlatform() {
     dailyDay: 1,
     dailyClaimed: false,
     referrals: 0,
-    gamePlays: { wheel: 3, scratch: 5, dice: 5, memory: 3, highlow: 5 },
+    gamePlays: { wheel: 3, scratch: 5, dice: 5, memory: 3, highlow: 5, plinko: 5, tapfrenzy: 5, stopclock: 5, treasure: 3 },
   });
 
   const level = getLevel(user.xp);
@@ -1647,6 +2650,60 @@ export default function GamificationPlatform() {
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
           }} 
+        />
+      )}
+
+
+      {activeGame === 'plinko' && (
+        <PlinkoGame 
+          onClose={() => setActiveGame(null)} 
+          onWin={(n) => {
+            addCoins(n);
+            showNotif(\`🎉 +\${n} Coins!\`);
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+          }} 
+        />
+      )}
+      {activeGame === 'tapfrenzy' && (
+        <TapFrenzyGame 
+          onClose={() => setActiveGame(null)} 
+          onWin={(n) => {
+            addCoins(n);
+            showNotif(\`🎉 +\${n} Coins!\`);
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+          }} 
+        />
+      )}
+      {activeGame === 'stopclock' && (
+        <StopClockGame 
+          onClose={() => setActiveGame(null)} 
+          onWin={(n) => {
+            addCoins(n);
+            showNotif(\`🎉 +\${n} Coins!\`);
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+          }} 
+        />
+      )}
+      {activeGame === 'treasure' && (
+        <TreasureHuntGame 
+          onClose={() => setActiveGame(null)} 
+          onWin={(n) => {
+            addCoins(n);
+            showNotif(\`🎉 +\${n} Coins!\`);
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+          }} 
+        />
+      )}
+
+
+      {/* Mission Detail Modal */}
+      {selectedMission && (
+        <MissionDetailModal
+          mission={selectedMission}
+          progress={user.missionProgress[selectedMission.id] || 0}
+          done={user.missionsComplete.includes(selectedMission.id)}
+          onClose={() => setSelectedMission(null)}
+          onNavigate={(tabId) => setTab(tabId)}
         />
       )}
 
@@ -2061,12 +3118,17 @@ export default function GamificationPlatform() {
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {MISSIONS.filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <div key={m.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group">
+                  {[...getDailyMissions(), ...PERMANENT_MISSIONS].filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
+                    <button key={m.id} type="button" onClick={() => setSelectedMission(m)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group text-left">
                       <div className="relative h-40 overflow-hidden">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        {m.difficulty && (
+                          <div className={`absolute top-0 right-4 ${DIFFICULTY_CONFIG[m.difficulty].color} px-2 py-1 rounded-b-lg text-xs font-bold shadow-md`}>
+                            {DIFFICULTY_CONFIG[m.difficulty].label}
+                          </div>
+                        )}
                         {m.hot && (
-                          <span className="absolute top-3 right-3 px-2 py-1 bg-red-500 rounded text-sm font-bold">
+                          <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 rounded-lg text-sm font-bold">
                             🔥 HOT
                           </span>
                         )}
@@ -2081,7 +3143,7 @@ export default function GamificationPlatform() {
                           )}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -2153,6 +3215,11 @@ export default function GamificationPlatform() {
                           {user.gamePlays[game.id]} FREE
                         </span>
                       )}
+                      {game.isNew && (
+                        <span className="absolute top-3 left-14 px-2 py-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full text-xs font-bold animate-pulse">
+                          NEW
+                        </span>
+                      )}
                       <button 
                         type="button" 
                         onClick={() => setActiveTutorial(game.id)} 
@@ -2187,7 +3254,7 @@ export default function GamificationPlatform() {
                 <img src={IMAGES.target} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
                   <h1 className="text-2xl font-bold">Missions</h1>
-                  <p className="text-gray-400">{user.missionsComplete.length}/{MISSIONS.length} completed</p>
+                  <p className="text-gray-400">Complete missions for rewards!</p>
                 </div>
                 <button 
                   type="button" 
@@ -2197,46 +3264,224 @@ export default function GamificationPlatform() {
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {MISSIONS.map(m => {
-                  const done = user.missionsComplete.includes(m.id);
-                  const progress = user.missionProgress[m.id] || 0;
-                  return (
-                    <div key={m.id} className={`bg-[#1a1333] rounded-2xl overflow-hidden border hover-lift group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'} transition-all duration-300`}>
-                      <div className="relative h-40 overflow-hidden">
-                        <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        {m.hot && !done && (
-                          <span className="absolute top-3 right-3 px-2 py-1 bg-red-500 rounded text-sm font-bold">
-                            🔥 HOT
-                          </span>
-                        )}
-                        {done && (
-                          <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                            <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
-                              <Check className="w-10 h-10" />
-                            </div>
-                          </div>
-                        )}
+              
+              {/* Mission Sub-Tabs */}
+              <div className="flex gap-2 bg-[#0f0a1f] rounded-xl p-1">
+                {[
+                  { id: 'daily', label: '🔄 Daily', count: getDailyMissions().length },
+                  { id: 'weekly', label: '📅 Weekly', count: WEEKLY_MISSIONS.length },
+                  { id: 'permanent', label: '🏆 Permanent', count: PERMANENT_MISSIONS.length },
+                ].map(st => (
+                  <button
+                    key={st.id}
+                    type="button"
+                    onClick={() => setMissionSubTab(st.id)}
+                    className={`flex-1 py-2.5 rounded-lg font-bold text-sm transition-all ${
+                      missionSubTab === st.id 
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 shadow-lg' 
+                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    {st.label}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Daily Missions */}
+              {missionSubTab === 'daily' && (() => {
+                const dailyMissions = getDailyMissions();
+                const completedCount = dailyMissions.filter(m => user.missionsComplete.includes(m.id)).length;
+                const allDone = completedCount === dailyMissions.length;
+                
+                return (
+                  <div className="space-y-4">
+                    {/* Daily progress bar */}
+                    <div className="bg-[#1a1333] rounded-2xl p-4 border border-purple-900/30">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-bold">Daily Progress</span>
+                        <span className="text-sm text-gray-400">{completedCount}/{dailyMissions.length} done</span>
                       </div>
-                      <div className="p-4">
-                        <div className="font-bold text-lg mb-1">{m.name}</div>
-                        <div className="text-sm text-gray-400 mb-3">{m.desc}</div>
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="text-yellow-400 font-bold">🪙 {m.reward.kwacha}</span>
-                          {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
-                          <span className="text-purple-400 font-bold">⚡ {m.xp} XP</span>
+                      <div className="h-3 bg-[#231a40] rounded-full overflow-hidden mb-3">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" 
+                          style={{ width: `${(completedCount / dailyMissions.length) * 100}%` }} 
+                        />
+                      </div>
+                      {/* Bonus chest reward for completing all */}
+                      <div className={`flex items-center justify-between p-3 rounded-xl border ${allDone ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-[#231a40] border-purple-900/20'}`}>
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{allDone ? '🎁' : '🔒'}</span>
+                          <div>
+                            <div className="font-bold text-sm">Daily Bonus Chest</div>
+                            <div className="text-xs text-gray-400">Complete all 8 missions</div>
+                          </div>
                         </div>
-                        <div className="h-2 bg-[#231a40] rounded-full overflow-hidden">
-                          <div 
-                            className={`h-full rounded-full progress-animated ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`} 
-                            style={{ width: `${(progress / m.target) * 100}%` }} 
-                          />
+                        <div className="text-right text-sm">
+                          <span className="text-yellow-400 font-bold">500 🪙</span>
+                          <span className="text-green-400 font-bold ml-2">10 💚</span>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                    
+                    {/* Mission cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {dailyMissions.map(m => {
+                        const done = user.missionsComplete.includes(m.id);
+                        const progress = user.missionProgress[m.id] || 0;
+                        const diff = DIFFICULTY_CONFIG[m.difficulty];
+                        return (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => setSelectedMission(m)}
+                            className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                          >
+                            <div className="relative h-28 overflow-hidden">
+                              <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+                              {/* Difficulty ribbon */}
+                              <div className={`absolute top-0 right-4 ${diff.color} px-2 py-1 rounded-b-lg text-xs font-bold shadow-md`}>
+                                {diff.label}
+                              </div>
+                              {done && (
+                                <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                                    <Check className="w-6 h-6" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-3">
+                              <div className="font-bold text-sm mb-0.5 truncate">{m.name}</div>
+                              <div className="text-xs text-gray-400 mb-2 truncate">{m.desc}</div>
+                              <div className="flex items-center gap-2 text-xs mb-2">
+                                <span className="text-yellow-400 font-bold">🪙 {m.reward.kwacha}</span>
+                                {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
+                                <span className="text-purple-400 font-bold">⚡ {m.xp}</span>
+                              </div>
+                              <div className="h-1.5 bg-[#231a40] rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`} 
+                                  style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
+                                />
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+              
+              {/* Weekly Missions */}
+              {missionSubTab === 'weekly' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {WEEKLY_MISSIONS.map(m => {
+                    const done = user.missionsComplete.includes(m.id);
+                    const progress = user.missionProgress[m.id] || 0;
+                    const diff = DIFFICULTY_CONFIG[m.difficulty];
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setSelectedMission(m)}
+                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                      >
+                        <div className="relative h-36 overflow-hidden">
+                          <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+                          <div className={`absolute top-0 right-4 ${diff.color} px-2.5 py-1.5 rounded-b-lg text-xs font-bold shadow-md`}>
+                            {diff.label}
+                          </div>
+                          {done && (
+                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                              <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center">
+                                <Check className="w-8 h-8" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <div className="font-bold text-lg mb-0.5">{m.name}</div>
+                          <div className="text-sm text-gray-400 mb-3">{m.desc}</div>
+                          <div className="flex items-center gap-3 mb-3 text-sm">
+                            <span className="text-yellow-400 font-bold">🪙 {m.reward.kwacha}</span>
+                            {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
+                            <span className="text-purple-400 font-bold">⚡ {m.xp}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs text-gray-500">{Math.min(progress, m.target)}/{m.target}</span>
+                          </div>
+                          <div className="h-2 bg-[#231a40] rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`} 
+                              style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
+                            />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              
+              {/* Permanent Missions */}
+              {missionSubTab === 'permanent' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {PERMANENT_MISSIONS.map(m => {
+                    const done = user.missionsComplete.includes(m.id);
+                    const progress = user.missionProgress[m.id] || 0;
+                    const diff = DIFFICULTY_CONFIG[m.difficulty];
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => setSelectedMission(m)}
+                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                      >
+                        <div className="relative h-40 overflow-hidden">
+                          <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+                          <div className={`absolute top-0 right-4 ${diff.color} px-2.5 py-1.5 rounded-b-lg text-xs font-bold shadow-md`}>
+                            {diff.label}
+                          </div>
+                          {m.hot && !done && (
+                            <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 rounded-lg text-sm font-bold">
+                              🔥 HOT
+                            </span>
+                          )}
+                          {done && (
+                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                              <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center">
+                                <Check className="w-8 h-8" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <div className="font-bold text-lg mb-0.5">{m.name}</div>
+                          <div className="text-sm text-gray-400 mb-3">{m.desc}</div>
+                          <div className="flex items-center gap-3 mb-3 text-sm">
+                            <span className="text-yellow-400 font-bold">🪙 {m.reward.kwacha}</span>
+                            {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
+                            <span className="text-purple-400 font-bold">⚡ {m.xp}</span>
+                          </div>
+                          <div className="flex justify-between items-center mb-1.5">
+                            <span className="text-xs text-gray-500">{Math.min(progress, m.target)}/{m.target}</span>
+                          </div>
+                          <div className="h-2 bg-[#231a40] rounded-full overflow-hidden">
+                            <div 
+                              className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`} 
+                              style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
+                            />
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
