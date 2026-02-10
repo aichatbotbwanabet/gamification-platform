@@ -3055,11 +3055,11 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
             </button>
           );
         })}
+        </div>
       </div>
     </div>
   );
 }
-
 
 export default function GamificationPlatform() {
   const [tab, setTab] = useState('overview');
