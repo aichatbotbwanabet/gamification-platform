@@ -532,8 +532,8 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate }) {
   const diff = DIFFICULTY_CONFIG[mission.difficulty];
   
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in">
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 anim-scale-in">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in" onClick={onClose}>
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 anim-scale-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header Image */}
         <div className="relative h-44 overflow-hidden">
           <img src={IMAGES[mission.image]} alt="" className="w-full h-full object-cover" />
@@ -553,9 +553,9 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate }) {
           
           {/* Done overlay */}
           {done && (
-            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
-                <Check className="w-10 h-10" />
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40">
+                <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </div>
             </div>
           )}
@@ -3334,8 +3334,16 @@ export default function GamificationPlatform() {
                             key={m.id}
                             type="button"
                             onClick={() => setSelectedMission(m)}
-                            className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                            className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                           >
+                            {/* Full-card completed overlay */}
+                            {done && (
+                              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
+                                <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40">
+                                  <Check className="w-8 h-8 text-white" strokeWidth={3} />
+                                </div>
+                              </div>
+                            )}
                             <div className="relative h-28 overflow-hidden">
                               <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                               <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
@@ -3343,13 +3351,6 @@ export default function GamificationPlatform() {
                               <div className={`absolute top-0 right-4 ${diff.color} px-2 py-1 rounded-b-lg text-xs font-bold shadow-md`}>
                                 {diff.label}
                               </div>
-                              {done && (
-                                <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                                  <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                                    <Check className="w-6 h-6" />
-                                  </div>
-                                </div>
-                              )}
                             </div>
                             <div className="p-3">
                               <div className="font-bold text-sm mb-0.5 truncate">{m.name}</div>
@@ -3386,21 +3387,21 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
+                        {done && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
+                            <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40">
+                              <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                            </div>
+                          </div>
+                        )}
                         <div className="relative h-36 overflow-hidden">
                           <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
                           <div className={`absolute top-0 right-4 ${diff.color} px-2.5 py-1.5 rounded-b-lg text-xs font-bold shadow-md`}>
                             {diff.label}
                           </div>
-                          {done && (
-                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                              <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center">
-                                <Check className="w-8 h-8" />
-                              </div>
-                            </div>
-                          )}
                         </div>
                         <div className="p-4">
                           <div className="font-bold text-lg mb-0.5">{m.name}</div>
@@ -3438,8 +3439,15 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] group ${done ? 'border-green-500/50' : 'border-purple-900/30 hover:border-purple-500/50'}`}
+                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
+                        {done && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
+                            <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40">
+                              <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                            </div>
+                          </div>
+                        )}
                         <div className="relative h-40 overflow-hidden">
                           <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                           <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
@@ -3450,13 +3458,6 @@ export default function GamificationPlatform() {
                             <span className="absolute top-3 left-3 px-2 py-1 bg-red-500 rounded-lg text-sm font-bold">
                               🔥 HOT
                             </span>
-                          )}
-                          {done && (
-                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                              <div className="w-14 h-14 rounded-full bg-green-500 flex items-center justify-center">
-                                <Check className="w-8 h-8" />
-                              </div>
-                            </div>
                           )}
                         </div>
                         <div className="p-4">
