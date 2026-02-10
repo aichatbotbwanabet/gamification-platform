@@ -418,8 +418,18 @@ function WheelGame({ onClose, onWin, playsLeft }) {
   const [pointerBouncing, setPointerBouncing] = useState(false);
   const [wheelConfetti, setWheelConfetti] = useState(false);
   
-  const NUM = WHEEL_SEGMENTS.length;
-  const SEG_ANGLE = 360 / NUM;
+  const NUM = WHEEL_SEGMENTS.length;         // 9 segments
+  const SEG_ANGLE = 360 / NUM;               // 40° each
+  
+  // SPIN LOGIC — written from scratch
+  // How the wheel works:
+  // - SVG draws segment 0 starting at top (12 o'clock), going clockwise
+  // - Segment i occupies: i*40° to (i+1)*40° clockwise from top
+  // - Pointer is fixed at top (12 o'clock)
+  // - CSS rotate(R) spins wheel R° clockwise
+  // - After rotation R, pointer reads the segment at position (360 - R%360)° from wheel's top
+  // - To land on segment i's CENTER: (360 - R%360) = i*40 + 20
+  //   Therefore: R % 360 = 360 - i*40 - 20 = 340 - i*40
   
   const spin = () => {
     if (spinning || playsLeft <= 0) return;
@@ -427,12 +437,25 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     setResult(null);
     setPointerBouncing(true);
     
+    // 1. Pick random winner
     const winIndex = Math.floor(Math.random() * NUM);
     const segment = WHEEL_SEGMENTS[winIndex];
-    const targetAngle = (winIndex * SEG_ANGLE) + (SEG_ANGLE / 2);
-    const spins = 6 + Math.floor(Math.random() * 3);
     
-    setRotation(r => r + (spins * 360) + (360 - targetAngle));
+    // 2. Calculate where wheel must stop (mod 360)
+    // Add small random offset so it doesn't always land dead center
+    const jitter = (Math.random() - 0.5) * (SEG_ANGLE * 0.6); // stays within segment
+    const targetRemainder = (340 - winIndex * SEG_ANGLE + jitter + 360) % 360;
+    
+    // 3. Calculate total rotation from current position
+    const currentRemainder = rotation % 360;
+    let extraDegrees = targetRemainder - currentRemainder;
+    if (extraDegrees <= 0) extraDegrees += 360;
+    
+    // 4. Add full spins (6-8 full rotations for drama)
+    const fullSpins = (6 + Math.floor(Math.random() * 3)) * 360;
+    const totalRotation = rotation + fullSpins + extraDegrees;
+    
+    setRotation(totalRotation);
     
     setTimeout(() => {
       setSpinning(false);
