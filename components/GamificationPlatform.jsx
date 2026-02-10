@@ -430,8 +430,8 @@ function TutorialModal({ tutorialKey, onClose }) {
   if (!tutorial) return null;
   
   return (
-    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in">
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-lg w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 anim-scale-in">
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in" onClick={onClose}>
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-lg w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 anim-scale-in max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         {/* Header Image */}
         <div className="relative h-44">
           <img src={IMAGES[tutorial.image]} alt="" className="w-full h-full object-cover" />
@@ -753,7 +753,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
         </div>
       )}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in shadow-2xl shadow-purple-900/50">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in shadow-2xl shadow-purple-900/50" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -1087,10 +1087,10 @@ function ScratchGame({ onClose, onWin }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1226,10 +1226,10 @@ function DiceGame({ onClose, onWin }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="dice" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1343,10 +1343,10 @@ function MemoryGame({ onClose, onWin }) {
   const prize = Math.max(300 - moves * 10, 50);
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="memory" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1459,10 +1459,10 @@ function HighLowGame({ onClose, onWin }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="highlow" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1610,10 +1610,10 @@ function PlinkoGame({ onClose, onWin }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="plinko" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1811,10 +1811,10 @@ function TapFrenzyGame({ onClose, onWin }) {
   const getPrize = () => score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="tapfrenzy" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1968,10 +1968,10 @@ function StopClockGame({ onClose, onWin }) {
   const dialRotation = (currentNum / 100) * 360;
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="stopclock" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2194,10 +2194,10 @@ function TreasureHuntGame({ onClose, onWin }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="treasure" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+      <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2709,8 +2709,8 @@ export default function GamificationPlatform() {
 
       {/* Avatar Selector Modal */}
       {showAvatarSelector && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in">
-          <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 anim-fade-in" onClick={() => setShowAvatarSelector(false)}>
+          <div className="bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 anim-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Choose Avatar</h2>
               <button 
@@ -2994,8 +2994,10 @@ export default function GamificationPlatform() {
                       </span>
                     )}
                     {user.dailyClaimed && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Check className="w-12 h-12 text-green-400" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-500/40">
+                          <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -3538,6 +3540,13 @@ export default function GamificationPlatform() {
                         className={`p-3 rounded-2xl text-center transition-all duration-300 ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-purple-600 to-pink-600 glow-pulse shadow-lg shadow-purple-500/50 hover:scale-105' : 'bg-purple-500/20 border-2 border-purple-500/50' : 'bg-[#231a40] border-2 border-gray-700/50'}`}
                       >
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
+                        {isPast && (
+                          <div className="flex justify-center mb-1">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                            </div>
+                          </div>
+                        )}
                         <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
                         {r.gems && <div className="text-xs text-green-400">+{r.gems}g</div>}
                         {r.diamonds && <div className="text-xs text-blue-400">+💎</div>}
