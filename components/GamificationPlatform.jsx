@@ -432,7 +432,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     const targetAngle = (winIndex * SEG_ANGLE) + (SEG_ANGLE / 2);
     const spins = 6 + Math.floor(Math.random() * 3);
     
-    setRotation(r => r + (spins * 360) + (360 - targetAngle) + 90);
+    setRotation(r => r + (spins * 360) + (360 - targetAngle));
     
     setTimeout(() => {
       setSpinning(false);
@@ -664,7 +664,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                   alt={seg.label}
                   className="absolute pointer-events-none"
                   style={{
-                    width: 36, height: 36,
+                    width: 48, height: 48,
                     left: `${ix}%`, top: `${iy}%`,
                     transform: `translate(-50%, -50%) rotate(${mid + 90}deg)`,
                     filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))',
@@ -718,7 +718,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
             className="text-center p-6 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-2xl border border-green-500/50"
             style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
           >
-            <div className="w-20 h-20 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
+            <div className="w-24 h-24 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
               <img src={WHEEL_IMAGES[result.image]} alt="" className="w-full h-full object-contain drop-shadow-lg" />
             </div>
             <div className="text-3xl font-black text-yellow-400 mb-4" style={{ textShadow: '0 0 20px rgba(251,191,36,0.5)' }}>
