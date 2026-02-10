@@ -56,18 +56,15 @@ const IMAGES = {
 
 // Wheel-specific premium assets (served from public/ on Vercel)
 const WHEEL_IMAGES = {
-  frame: `/images/wheel/wheel-gold-frame.jpg`,
-  pointer: `/images/wheel/wheel-pointer-arrow.jpg`,
-  spinBtn: `/images/wheel/wheel-spin-button.jpg`,
-  diamond: `/images/wheel/prize-diamond.jpg`,
-  coinsStack: `/images/wheel/prize-coins-stack.jpg`,
-  xpStar: `/images/wheel/prize-xp-star.jpg`,
-  magicKey: `/images/wheel/prize-magic-key.jpg`,
-  emeralds: `/images/wheel/prize-emeralds.jpg`,
-  clover: `/images/wheel/prize-clover.jpg`,
-  coinsPile: `/images/wheel/prize-coins-pile.jpg`,
-  magnet: `/images/wheel/prize-magnet.jpg`,
-  ring: `/images/wheel/prize-ring.jpg`,
+  diamond: `/images/wheel/prize-diamond.png`,
+  coinsStack: `/images/wheel/prize-coins-stack.png`,
+  xpStar: `/images/wheel/prize-xp-star.png`,
+  magicKey: `/images/wheel/prize-magic-key.png`,
+  emeralds: `/images/wheel/prize-emeralds.png`,
+  clover: `/images/wheel/prize-clover.png`,
+  coinsPile: `/images/wheel/prize-coins-pile.png`,
+  magnet: `/images/wheel/prize-magnet.png`,
+  ring: `/images/wheel/prize-ring.png`,
 };
 
 // ============================================================================
@@ -560,6 +557,34 @@ function WheelGame({ onClose, onWin, playsLeft }) {
             })}
           </svg>
           
+          {/* FLASHING LIGHTS RING - 24 chasing lights */}
+          <div className="absolute inset-[-4px] z-25 pointer-events-none">
+            {[...Array(24)].map((_, i) => {
+              const deg = i * 15 - 90;
+              const x = 50 + 50 * Math.cos(deg * Math.PI / 180);
+              const y = 50 + 50 * Math.sin(deg * Math.PI / 180);
+              const colors = ['#fbbf24', '#ec4899', '#a855f7', '#22c55e', '#3b82f6', '#f97316'];
+              const c = colors[i % colors.length];
+              const delay = (i * 0.12) % 1.8;
+              return (
+                <div
+                  key={`fl-${i}`}
+                  className="absolute rounded-full"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    background: c,
+                    boxShadow: `0 0 6px 2px ${c}, 0 0 12px 4px ${c}50`,
+                    animation: `lightChase 1.8s ${delay}s ease-in-out infinite`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                />
+              );
+            })}
+          </div>
+          
           {/* Pointer (HTML element for reliable animation) */}
           <div 
             className="absolute z-30"
@@ -642,8 +667,8 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                     width: 36, height: 36,
                     left: `${ix}%`, top: `${iy}%`,
                     transform: `translate(-50%, -50%) rotate(${mid + 90}deg)`,
+                    filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))',
                     objectFit: 'contain',
-                    mixBlendMode: 'multiply',
                   }}
                 />
               );
@@ -693,8 +718,8 @@ function WheelGame({ onClose, onWin, playsLeft }) {
             className="text-center p-6 bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 rounded-2xl border border-green-500/50"
             style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}
           >
-            <div className="w-20 h-20 mx-auto mb-3 rounded-full bg-gradient-to-br from-white/90 to-gray-200/90 p-2 shadow-lg shadow-green-500/20" style={{ animation: 'float 2s ease-in-out infinite' }}>
-              <img src={WHEEL_IMAGES[result.image]} alt="" className="w-full h-full object-contain" />
+            <div className="w-20 h-20 mx-auto mb-3" style={{ animation: 'float 2s ease-in-out infinite' }}>
+              <img src={WHEEL_IMAGES[result.image]} alt="" className="w-full h-full object-contain drop-shadow-lg" />
             </div>
             <div className="text-3xl font-black text-yellow-400 mb-4" style={{ textShadow: '0 0 20px rgba(251,191,36,0.5)' }}>
               {result.label}
@@ -1366,6 +1391,11 @@ export default function GamificationPlatform() {
       @keyframes lightPulse {
         0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); }
         50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      }
+      @keyframes lightChase {
+        0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); box-shadow: none; }
+        15%, 35% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
+        50% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); box-shadow: none; }
       }
       
       .anim-fade-up { animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
