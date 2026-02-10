@@ -2659,7 +2659,7 @@ export default function GamificationPlatform() {
           onClose={() => setActiveGame(null)} 
           onWin={(n) => {
             addCoins(n);
-            showNotif(\`🎉 +\${n} Coins!\`);
+            showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
           }} 
         />
@@ -2669,7 +2669,7 @@ export default function GamificationPlatform() {
           onClose={() => setActiveGame(null)} 
           onWin={(n) => {
             addCoins(n);
-            showNotif(\`🎉 +\${n} Coins!\`);
+            showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
           }} 
         />
@@ -2679,7 +2679,7 @@ export default function GamificationPlatform() {
           onClose={() => setActiveGame(null)} 
           onWin={(n) => {
             addCoins(n);
-            showNotif(\`🎉 +\${n} Coins!\`);
+            showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
           }} 
         />
@@ -2689,7 +2689,7 @@ export default function GamificationPlatform() {
           onClose={() => setActiveGame(null)} 
           onWin={(n) => {
             addCoins(n);
-            showNotif(\`🎉 +\${n} Coins!\`);
+            showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
           }} 
         />
