@@ -52,6 +52,12 @@ const IMAGES = {
   welcomeBanner: `${IMG_BASE}/welcome-banner.jpg`,
   target: `${IMG_BASE}/target.jpg`,
   questMap: `${IMG_BASE}/quest-map.jpg`,
+  classicQuiz: `${IMG_BASE}/classic-quiz.jpg`,
+  speedRound: `${IMG_BASE}/speed-round.jpg`,
+  streakTrivia: `${IMG_BASE}/streak-trivia.jpg`,
+  dailyChallenge: `${IMG_BASE}/daily-challenge.jpg`,
+  triviaSports: `${IMG_BASE}/trivia-sports.jpg`,
+  triviaMusic: `${IMG_BASE}/trivia-music.jpg`,
 };
 
 // ============================================================================
@@ -136,9 +142,9 @@ const TRIVIA_CATEGORIES = [
 ];
 
 const TRIVIA_GAMES = [
-  { id: 'classicQuiz', name: 'Classic Quiz', desc: '10 questions, pick a category', icon: '🧠', color: 'from-purple-500 to-indigo-600', free: 3, cost: 30 },
-  { id: 'speedRound', name: 'Speed Round', desc: '20 True/False in 60 seconds', icon: '⚡', color: 'from-yellow-500 to-orange-600', free: 5, cost: 20 },
-  { id: 'streakTrivia', name: 'Streak Trivia', desc: 'Answer or cash out!', icon: '🏆', color: 'from-red-500 to-pink-600', free: 3, cost: 25 },
+  { id: 'classicQuiz', name: 'Classic Quiz', desc: '10 questions, pick a category', icon: '🧠', color: 'from-purple-500 to-indigo-600', free: 3, cost: 30, image: 'classicQuiz' },
+  { id: 'speedRound', name: 'Speed Round', desc: '20 True/False in 60 seconds', icon: '⚡', color: 'from-yellow-500 to-orange-600', free: 5, cost: 20, image: 'speedRound', isNew: true },
+  { id: 'streakTrivia', name: 'Streak Trivia', desc: 'Answer or cash out!', icon: '🏆', color: 'from-red-500 to-pink-600', free: 3, cost: 25, image: 'streakTrivia' },
 ];
 
 // Get shuffled questions for a category
@@ -485,10 +491,10 @@ const DAILY_MISSION_POOL = [
   { id: 'd_jackpot', name: 'Jackpot Hunter', desc: 'Find the 👑 in Treasure Hunt', difficulty: 'hard', target: 1, type: 'treasureJackpot', reward: { kwacha: 500, gems: 5 }, xp: 100, image: 'crown', cta: 'minigames', ctaLabel: 'Go to Games' },
   { id: 'd_marathon', name: 'Game Marathon', desc: 'Play 6 different games', difficulty: 'hard', target: 6, type: 'uniqueGames', reward: { kwacha: 400, gems: 10 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
 
-  { id: 'd_trivia1', name: 'Quiz Time', desc: 'Play 1 trivia game', difficulty: 'easy', target: 1, type: 'triviaPlay', reward: { kwacha: 50 }, xp: 25, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
-  { id: 'd_trivia10', name: 'Trivia Buff', desc: 'Answer 10 questions correctly', difficulty: 'medium', target: 10, type: 'triviaCorrect', reward: { kwacha: 175 }, xp: 50, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
-  { id: 'd_speed12', name: 'Speed Demon', desc: 'Score 12+ in Speed Round', difficulty: 'medium', target: 12, type: 'speedScore', reward: { kwacha: 200 }, xp: 60, image: 'target', cta: 'minigames', ctaLabel: 'Go to Games' },
-  { id: 'd_tstreak5', name: 'Trivia Streak', desc: 'Reach streak of 5 in Streak Trivia', difficulty: 'hard', target: 5, type: 'triviaStreak', reward: { kwacha: 400, gems: 5 }, xp: 100, image: 'crown', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_trivia1', name: 'Quiz Time', desc: 'Play 1 trivia game', difficulty: 'easy', target: 1, type: 'triviaPlay', reward: { kwacha: 50 }, xp: 25, image: 'classicQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_trivia10', name: 'Trivia Buff', desc: 'Answer 10 questions correctly', difficulty: 'medium', target: 10, type: 'triviaCorrect', reward: { kwacha: 175 }, xp: 50, image: 'classicQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_speed12', name: 'Speed Demon', desc: 'Score 12+ in Speed Round', difficulty: 'medium', target: 12, type: 'speedScore', reward: { kwacha: 200 }, xp: 60, image: 'speedRound', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_tstreak5', name: 'Trivia Streak', desc: 'Reach streak of 5 in Streak Trivia', difficulty: 'hard', target: 5, type: 'triviaStreak', reward: { kwacha: 400, gems: 5 }, xp: 100, image: 'streakTrivia', cta: 'minigames', ctaLabel: 'Go to Games' },
 ];
 
 // Weekly missions (5, reset every Monday)
@@ -498,7 +504,7 @@ const WEEKLY_MISSIONS = [
   { id: 'w_wins10', name: 'Winning Week', desc: 'Win 10 bets this week', difficulty: 'hard', target: 10, type: 'weeklyWins', reward: { kwacha: 600, gems: 15 }, xp: 150, image: 'winTrophy', cta: 'predict', ctaLabel: 'Go to Predict' },
   { id: 'w_explorer', name: 'Game Explorer', desc: 'Play all 9 minigames this week', difficulty: 'hard', target: 9, type: 'uniqueGamesWeekly', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
   { id: 'w_xp500', name: 'XP Grinder', desc: 'Earn 500 XP this week', difficulty: 'hard', target: 500, type: 'weeklyXP', reward: { kwacha: 400, gems: 10 }, xp: 100, image: 'crown', cta: 'overview', ctaLabel: 'View Progress' },
-  { id: 'w_trivia50', name: 'Trivia Master', desc: 'Answer 50 questions correctly this week', difficulty: 'hard', target: 50, type: 'weeklyTriviaCorrect', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'w_trivia50', name: 'Trivia Master', desc: 'Answer 50 questions correctly this week', difficulty: 'hard', target: 50, type: 'weeklyTriviaCorrect', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'classicQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
 ];
 
 // Permanent missions (always available, one-time completion)
@@ -2993,40 +2999,46 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
 
   if (answered) {
     return (
-      <div className="bg-[#1a1333] rounded-2xl p-4 border border-purple-900/30">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-2xl">🎯</span>
-          <div>
-            <div className="font-bold">Daily Challenge</div>
-            <div className="text-sm text-gray-400">Come back tomorrow!</div>
-          </div>
-          <div className="ml-auto text-green-400 font-bold">
-            {user.dailyChallengeCorrect ? '✅ Correct!' : '❌ Wrong'}
+      <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 relative">
+        <div className="relative h-28 overflow-hidden">
+          <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className={`px-4 py-2 rounded-xl font-bold text-lg ${user.dailyChallengeCorrect ? 'bg-green-500/30 text-green-400 border border-green-500/40' : 'bg-red-500/30 text-red-400 border border-red-500/40'}`}>
+              {user.dailyChallengeCorrect ? '✅ Correct!' : '❌ Wrong'}
+            </div>
           </div>
         </div>
-        <div className="text-xs text-gray-500">
-          {user.dailyChallengeCorrect ? 'You earned 500 Coins + 10 Gems!' : 'You earned 25 consolation Coins'}
+        <div className="p-4">
+          <div className="font-bold">🎯 Daily Challenge</div>
+          <div className="text-sm text-gray-400">
+            {user.dailyChallengeCorrect ? 'You earned 500 Coins + 10 Gems!' : 'You earned 25 consolation Coins. Come back tomorrow!'}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-r from-[#1a1333] to-[#231a40] rounded-2xl p-4 border border-amber-500/30 shadow-lg shadow-amber-500/10">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🎯</span>
-          <div className="font-bold">Daily Challenge</div>
-        </div>
-        <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-amber-500/30 text-amber-300'}`}>
-          {timer}s
+    <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-amber-500/30 shadow-lg shadow-amber-500/10">
+      <div className="relative h-28 overflow-hidden">
+        <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-[#1a1333]/40 to-transparent" />
+        <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+          <div>
+            <div className="font-bold text-lg">🎯 Daily Challenge</div>
+            <div className="text-xs text-amber-300">500 Coins + 10 Gems if correct!</div>
+          </div>
+          <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-amber-500/30 text-amber-300'}`}>
+            ⏱️ {timer}s
+          </div>
         </div>
       </div>
-      <div className="text-xs text-gray-400 mb-2">Answer correctly for 500 Coins + 10 Gems!</div>
-      <div className="bg-[#0f0a1f] rounded-xl p-3 mb-3">
-        <p className="font-bold text-sm">{question.q}</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="p-4">
+        <div className="bg-[#0f0a1f] rounded-xl p-3 mb-3">
+          <p className="font-bold text-sm">{question.q}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
         {question.options.map((opt, i) => {
           const isCorrect = opt === question.a;
           const isSelected = opt === selected;
@@ -4297,13 +4309,17 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {TRIVIA_GAMES.map(game => (
-                    <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift">
-                      <div className={`relative h-28 bg-gradient-to-br ${game.color} flex items-center justify-center`}>
-                        <span className="text-6xl">{game.icon}</span>
+                    <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group">
+                      <div className="relative h-36 overflow-hidden">
+                        <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
                         {user.triviaPlays[game.id] > 0 && (
                           <span className="absolute top-3 right-3 px-3 py-1 bg-green-500 rounded-full text-sm font-bold">
                             {user.triviaPlays[game.id]} FREE
                           </span>
+                        )}
+                        {game.isNew && (
+                          <span className="absolute top-3 left-3 px-2 py-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full text-xs font-bold animate-pulse">NEW</span>
                         )}
                       </div>
                       <div className="p-4">
