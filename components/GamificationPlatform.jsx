@@ -54,20 +54,20 @@ const IMAGES = {
   questMap: `${IMG_BASE}/quest-map.jpg`,
 };
 
-// Wheel-specific premium assets
+// Wheel-specific premium assets (served from public/ on Vercel)
 const WHEEL_IMAGES = {
-  frame: `${IMG_BASE}/wheel/wheel-gold-frame.jpg`,
-  pointer: `${IMG_BASE}/wheel/wheel-pointer-arrow.jpg`,
-  spinBtn: `${IMG_BASE}/wheel/wheel-spin-button.jpg`,
-  diamond: `${IMG_BASE}/wheel/prize-diamond.jpg`,
-  coinsStack: `${IMG_BASE}/wheel/prize-coins-stack.jpg`,
-  xpStar: `${IMG_BASE}/wheel/prize-xp-star.jpg`,
-  magicKey: `${IMG_BASE}/wheel/prize-magic-key.jpg`,
-  emeralds: `${IMG_BASE}/wheel/prize-emeralds.jpg`,
-  clover: `${IMG_BASE}/wheel/prize-clover.jpg`,
-  coinsPile: `${IMG_BASE}/wheel/prize-coins-pile.jpg`,
-  magnet: `${IMG_BASE}/wheel/prize-magnet.jpg`,
-  ring: `${IMG_BASE}/wheel/prize-ring.jpg`,
+  frame: `/images/wheel/wheel-gold-frame.jpg`,
+  pointer: `/images/wheel/wheel-pointer-arrow.jpg`,
+  spinBtn: `/images/wheel/wheel-spin-button.jpg`,
+  diamond: `/images/wheel/prize-diamond.jpg`,
+  coinsStack: `/images/wheel/prize-coins-stack.jpg`,
+  xpStar: `/images/wheel/prize-xp-star.jpg`,
+  magicKey: `/images/wheel/prize-magic-key.jpg`,
+  emeralds: `/images/wheel/prize-emeralds.jpg`,
+  clover: `/images/wheel/prize-clover.jpg`,
+  coinsPile: `/images/wheel/prize-coins-pile.jpg`,
+  magnet: `/images/wheel/prize-magnet.jpg`,
+  ring: `/images/wheel/prize-ring.jpg`,
 };
 
 // ============================================================================
@@ -528,48 +528,93 @@ function WheelGame({ onClose, onWin, playsLeft }) {
         {/* Wheel Container */}
         <div className="relative w-80 h-80 mx-auto mb-6">
           
-          {/* Gold Frame Overlay */}
-          <div className="absolute inset-[-18px] z-30 pointer-events-none">
-            <img 
-              src={WHEEL_IMAGES.frame} 
-              alt="" 
-              className="w-full h-full object-contain drop-shadow-2xl"
-              style={{ filter: 'drop-shadow(0 0 12px rgba(251,191,36,0.4))' }}
-            />
+          {/* Premium CSS Frame - outer gold ring */}
+          <div 
+            className="absolute inset-[-14px] rounded-full pointer-events-none z-10"
+            style={{
+              background: 'conic-gradient(from 0deg, #b8860b, #ffd700, #daa520, #ffd700, #b8860b, #ffd700, #daa520, #ffd700, #b8860b)',
+              padding: '6px',
+              boxShadow: '0 0 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,215,0,0.15), inset 0 0 20px rgba(255,215,0,0.3)',
+            }}
+          >
+            <div className="w-full h-full rounded-full" style={{ background: '#1a1333' }}>
+              {/* Inner gold ring */}
+              <div 
+                className="absolute inset-[4px] rounded-full"
+                style={{
+                  border: '3px solid',
+                  borderImage: 'linear-gradient(135deg, #ffd700, #b8860b, #ffd700) 1',
+                  borderRadius: '50%',
+                  borderColor: '#daa520',
+                  boxShadow: 'inset 0 0 8px rgba(255,215,0,0.3)',
+                }}
+              />
+            </div>
           </div>
           
           {/* Animated Light Dots around frame */}
-          <div className="absolute inset-[-22px] z-30 pointer-events-none">
+          <div className="absolute inset-[-20px] z-20 pointer-events-none">
             {[...Array(16)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-2.5 h-2.5 rounded-full"
+                className="absolute w-3 h-3 rounded-full"
                 style={{
                   background: i % 2 === 0 ? '#fbbf24' : '#ec4899',
-                  boxShadow: `0 0 8px 2px ${i % 2 === 0 ? 'rgba(251,191,36,0.8)' : 'rgba(236,72,153,0.8)'}`,
-                  left: `${50 + 50 * Math.cos((i * 22.5 - 90) * Math.PI / 180)}%`,
-                  top: `${50 + 50 * Math.sin((i * 22.5 - 90) * Math.PI / 180)}%`,
+                  boxShadow: `0 0 8px 3px ${i % 2 === 0 ? 'rgba(251,191,36,0.9)' : 'rgba(236,72,153,0.9)'}`,
+                  left: `${50 + 52 * Math.cos((i * 22.5 - 90) * Math.PI / 180)}%`,
+                  top: `${50 + 52 * Math.sin((i * 22.5 - 90) * Math.PI / 180)}%`,
                   transform: 'translate(-50%, -50%)',
                   animation: spinning 
                     ? `lightPulse ${0.3 + (i % 3) * 0.15}s ease-in-out infinite ${i * 0.05}s` 
                     : 'none',
-                  opacity: spinning ? 1 : 0.6,
+                  opacity: spinning ? 1 : 0.7,
                   transition: 'opacity 0.3s',
                 }}
               />
             ))}
           </div>
           
-          {/* Pointer Arrow */}
+          {/* Pointer Arrow - CSS golden pointer */}
           <div 
-            className="absolute top-[-28px] left-1/2 z-40 w-14 h-14"
+            className="absolute top-[-20px] left-1/2 z-40"
             style={{ 
               transform: 'translateX(-50%)',
               animation: pointerBouncing ? 'pointerBounce 0.15s ease-in-out infinite' : 'none',
-              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))',
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.6))',
             }}
           >
-            <img src={WHEEL_IMAGES.pointer} alt="" className="w-full h-full object-contain" style={{ transform: 'rotate(180deg)' }} />
+            <div style={{
+              width: 0,
+              height: 0,
+              borderLeft: '16px solid transparent',
+              borderRight: '16px solid transparent',
+              borderTop: '28px solid #ffd700',
+              position: 'relative',
+            }}>
+              {/* Inner triangle for 3D effect */}
+              <div style={{
+                position: 'absolute',
+                width: 0,
+                height: 0,
+                borderLeft: '10px solid transparent',
+                borderRight: '10px solid transparent',
+                borderTop: '18px solid #b8860b',
+                top: '-26px',
+                left: '-10px',
+              }} />
+              {/* Red gem at top */}
+              <div style={{
+                position: 'absolute',
+                width: '10px',
+                height: '10px',
+                background: 'radial-gradient(circle at 35% 35%, #ff4444, #cc0000)',
+                borderRadius: '2px',
+                top: '-34px',
+                left: '-5px',
+                transform: 'rotate(45deg)',
+                boxShadow: '0 0 6px rgba(255,0,0,0.6)',
+              }} />
+            </div>
           </div>
           
           {/* Sparkle Particles during spin */}
@@ -590,7 +635,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
           
           {/* Spinning Wheel */}
           <div 
-            className="absolute inset-3 rounded-full overflow-hidden" 
+            className="absolute inset-1 rounded-full overflow-hidden" 
             style={{ 
               transform: `rotate(${rotation}deg)`, 
               transition: spinning ? 'transform 5s cubic-bezier(0.12, 0.8, 0.18, 1)' : 'none',
@@ -599,19 +644,18 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                 : '0 8px 32px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3)',
             }}
           >
-            <svg viewBox="0 0 200 200" className="w-full h-full">
+            {/* SVG Segments (colors only) */}
+            <svg viewBox="0 0 200 200" className="w-full h-full absolute inset-0">
               <defs>
-                {WHEEL_SEGMENTS.map((seg, i) => {
-                  const angle = 360 / WHEEL_SEGMENTS.length;
-                  const midAngle = i * angle - 90 + angle / 2;
-                  const imgX = 100 + 62 * Math.cos((midAngle * Math.PI) / 180);
-                  const imgY = 100 + 62 * Math.sin((midAngle * Math.PI) / 180);
-                  return (
-                    <pattern key={`p-${seg.id}`} id={`prize-${seg.id}`} x={imgX - 14} y={imgY - 14} width="28" height="28" patternUnits="userSpaceOnUse">
-                      <image href={WHEEL_IMAGES[seg.image]} width="28" height="28" preserveAspectRatio="xMidYMid slice" />
-                    </pattern>
-                  );
-                })}
+                <radialGradient id="segGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
+                  <stop offset="60%" stopColor="#000" stopOpacity="0" />
+                  <stop offset="100%" stopColor="#000" stopOpacity="0.12" />
+                </radialGradient>
+                <radialGradient id="hubGrad">
+                  <stop offset="0%" stopColor="#2d2250" />
+                  <stop offset="100%" stopColor="#1a1333" />
+                </radialGradient>
               </defs>
               {WHEEL_SEGMENTS.map((seg, i) => {
                 const angle = 360 / WHEEL_SEGMENTS.length;
@@ -625,10 +669,6 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                   x: 100 + 100 * Math.cos((endAngle * Math.PI) / 180), 
                   y: 100 + 100 * Math.sin((endAngle * Math.PI) / 180) 
                 };
-                const midAngle = startAngle + angle / 2;
-                const iconX = 100 + 62 * Math.cos((midAngle * Math.PI) / 180);
-                const iconY = 100 + 62 * Math.sin((midAngle * Math.PI) / 180);
-                
                 return (
                   <g key={seg.id}>
                     <path 
@@ -637,64 +677,67 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                       stroke="#1a1333" 
                       strokeWidth="1.5" 
                     />
-                    {/* Dark gradient overlay for depth */}
                     <path 
                       d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
                       fill="url(#segGrad)" 
                       opacity="0.3"
                     />
-                    {/* Prize icon image */}
-                    <image
-                      href={WHEEL_IMAGES[seg.image]}
-                      x={iconX - 16}
-                      y={iconY - 16}
-                      width="32"
-                      height="32"
-                      transform={`rotate(${midAngle + 90}, ${iconX}, ${iconY})`}
-                      style={{ filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.5))' }}
-                      preserveAspectRatio="xMidYMid slice"
-                    />
                   </g>
                 );
               })}
-              {/* Center gradient overlay */}
-              <defs>
-                <radialGradient id="segGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#000" stopOpacity="0.4" />
-                  <stop offset="70%" stopColor="#000" stopOpacity="0" />
-                  <stop offset="100%" stopColor="#000" stopOpacity="0.15" />
-                </radialGradient>
-              </defs>
-              {/* Center hub */}
               <circle cx="100" cy="100" r="28" fill="#1a1333" stroke="#fbbf24" strokeWidth="3" />
               <circle cx="100" cy="100" r="24" fill="url(#hubGrad)" />
-              <defs>
-                <radialGradient id="hubGrad">
-                  <stop offset="0%" stopColor="#2d2250" />
-                  <stop offset="100%" stopColor="#1a1333" />
-                </radialGradient>
-              </defs>
             </svg>
+            
+            {/* Prize Icon Images (HTML img overlays, inside rotating container) */}
+            {WHEEL_SEGMENTS.map((seg, i) => {
+              const angle = 360 / WHEEL_SEGMENTS.length;
+              const midAngle = i * angle - 90 + angle / 2;
+              const radius = 0.31; // proportion of container (62/200)
+              const iconX = 50 + radius * 100 * Math.cos((midAngle * Math.PI) / 180);
+              const iconY = 50 + radius * 100 * Math.sin((midAngle * Math.PI) / 180);
+              return (
+                <img
+                  key={`icon-${seg.id}`}
+                  src={WHEEL_IMAGES[seg.image]}
+                  alt={seg.label}
+                  className="absolute w-10 h-10 object-contain pointer-events-none"
+                  style={{
+                    left: `${iconX}%`,
+                    top: `${iconY}%`,
+                    transform: `translate(-50%, -50%) rotate(${midAngle + 90}deg)`,
+                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))',
+                  }}
+                />
+              );
+            })}
           </div>
           
-          {/* SPIN Button - Image overlay */}
+          {/* SPIN Button */}
           <button 
             type="button" 
             onClick={spin} 
             disabled={spinning || playsLeft <= 0} 
-            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76px] h-[76px] rounded-full z-10 transition-all duration-300 ${
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[78px] h-[78px] rounded-full z-10 transition-all duration-300 font-black text-lg ${
               spinning || playsLeft <= 0 
                 ? 'opacity-50 grayscale' 
                 : 'hover:scale-110 hover:shadow-lg hover:shadow-orange-500/50 active:scale-90'
             }`}
-            style={{ filter: spinning ? 'none' : 'drop-shadow(0 4px 12px rgba(251,191,36,0.5))' }}
+            style={{ 
+              background: spinning || playsLeft <= 0 
+                ? 'linear-gradient(135deg, #4b5563, #374151)' 
+                : 'linear-gradient(135deg, #fbbf24, #f59e0b, #d97706)',
+              boxShadow: spinning || playsLeft <= 0 
+                ? 'none'
+                : '0 4px 16px rgba(251,191,36,0.5), inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.2)',
+              border: '3px solid #ffd700',
+              textShadow: '0 2px 4px rgba(0,0,0,0.4)',
+            }}
           >
             {spinning ? (
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-gray-500 to-gray-700 flex items-center justify-center">
-                <RotateCcw className="w-8 h-8 animate-spin text-white" />
-              </div>
+              <RotateCcw className="w-8 h-8 mx-auto animate-spin text-white" />
             ) : (
-              <img src={WHEEL_IMAGES.spinBtn} alt="SPIN" className="w-full h-full object-contain rounded-full" />
+              <span className="text-white text-xl tracking-wider">SPIN</span>
             )}
           </button>
         </div>
