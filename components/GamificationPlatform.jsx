@@ -3481,6 +3481,38 @@ export default function GamificationPlatform() {
     }
   };
 
+  const playTrivia = (triviaId) => {
+    const game = TRIVIA_GAMES.find(g => g.id === triviaId);
+    if (!game) return;
+    if (user.triviaPlays[triviaId] > 0) {
+      setUser(u => ({
+        ...u,
+        triviaPlays: { ...u.triviaPlays, [triviaId]: Math.max(0, u.triviaPlays[triviaId] - 1) }
+      }));
+      setActiveTrivia(triviaId);
+    } else if (user.kwacha >= game.cost) {
+      addCoins(-game.cost);
+      setActiveTrivia(triviaId);
+    } else {
+      showNotif('Not enough Coins!', 'error');
+    }
+  };
+
+  const handleDailyChallenge = (correct) => {
+    if (correct) {
+      addCoins(500);
+      addGems(10);
+      addXP(50);
+      showNotif('🎯 Daily Challenge: +500 Coins + 10 Gems!');
+    } else {
+      addCoins(25);
+      showNotif('🎯 +25 consolation Coins');
+    }
+    setUser(u => ({ ...u, dailyChallengeAnswered: true, dailyChallengeCorrect: correct }));
+    trackMission('triviaPlayed', { triviaType: 'daily', correct });
+    if (correct) trackMission('triviaCorrect', {});
+  };
+
   const tabs = [
     { id: 'overview', icon: Home, label: 'Overview' },
     { id: 'missions', icon: Target, label: 'Missions' },
