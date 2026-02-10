@@ -54,6 +54,136 @@ const IMAGES = {
   questMap: `${IMG_BASE}/quest-map.jpg`,
 };
 
+// ============================================================================
+// TRIVIA QUESTION BANK - 60 questions (15 per category)
+// ============================================================================
+const TRIVIA_QUESTIONS = {
+  sports: [
+    { q: 'Which country won the 2022 FIFA World Cup?', a: 'Argentina', wrong: ['France', 'Brazil', 'Germany'] },
+    { q: 'How many players are on a football pitch per team?', a: '11', wrong: ['9', '10', '12'] },
+    { q: 'Which club has won the most Champions League titles?', a: 'Real Madrid', wrong: ['AC Milan', 'Barcelona', 'Liverpool'] },
+    { q: 'What is the duration of a standard football match?', a: '90 minutes', wrong: ['80 minutes', '100 minutes', '120 minutes'] },
+    { q: 'Who holds the record for most international goals?', a: 'Cristiano Ronaldo', wrong: ['Lionel Messi', 'Pelé', 'Ali Daei'] },
+    { q: 'Which African nation first reached a World Cup quarterfinal?', a: 'Cameroon', wrong: ['Nigeria', 'Ghana', 'Senegal'] },
+    { q: 'What color card means a player is sent off?', a: 'Red', wrong: ['Yellow', 'Blue', 'Green'] },
+    { q: 'Which Premier League club is known as "The Gunners"?', a: 'Arsenal', wrong: ['Chelsea', 'Tottenham', 'West Ham'] },
+    { q: 'In which year was the first FIFA World Cup held?', a: '1930', wrong: ['1926', '1934', '1950'] },
+    { q: 'What is the penalty spot distance from goal?', a: '12 yards', wrong: ['10 yards', '14 yards', '11 yards'] },
+    { q: 'Which footballer is known as "The Egyptian King"?', a: 'Mohamed Salah', wrong: ['Sadio Mané', 'Pierre-Emerick Aubameyang', 'Riyad Mahrez'] },
+    { q: 'How many teams compete in the English Premier League?', a: '20', wrong: ['18', '22', '16'] },
+    { q: 'Which country hosted the 2010 FIFA World Cup?', a: 'South Africa', wrong: ['Brazil', 'Germany', 'Russia'] },
+    { q: 'What does VAR stand for in football?', a: 'Video Assistant Referee', wrong: ['Visual Aid Review', 'Video Analysis Room', 'Verified Action Replay'] },
+    { q: 'Which club does Kylian Mbappé play for (2024-25)?', a: 'Real Madrid', wrong: ['PSG', 'Barcelona', 'Manchester City'] },
+  ],
+  general: [
+    { q: 'What is the largest planet in our solar system?', a: 'Jupiter', wrong: ['Saturn', 'Neptune', 'Uranus'] },
+    { q: 'What is the chemical symbol for gold?', a: 'Au', wrong: ['Ag', 'Go', 'Gd'] },
+    { q: 'How many continents are there on Earth?', a: '7', wrong: ['5', '6', '8'] },
+    { q: 'What is the speed of light approximately?', a: '300,000 km/s', wrong: ['150,000 km/s', '500,000 km/s', '1,000,000 km/s'] },
+    { q: 'Which organ pumps blood through the body?', a: 'Heart', wrong: ['Lungs', 'Liver', 'Brain'] },
+    { q: 'What is the hardest natural substance?', a: 'Diamond', wrong: ['Titanium', 'Platinum', 'Quartz'] },
+    { q: 'How many bones are in the adult human body?', a: '206', wrong: ['186', '212', '198'] },
+    { q: 'What gas do plants absorb from the atmosphere?', a: 'Carbon dioxide', wrong: ['Oxygen', 'Nitrogen', 'Hydrogen'] },
+    { q: 'Which planet is known as the Red Planet?', a: 'Mars', wrong: ['Venus', 'Mercury', 'Jupiter'] },
+    { q: 'What is the boiling point of water in Celsius?', a: '100°C', wrong: ['90°C', '110°C', '120°C'] },
+    { q: 'Who developed the theory of relativity?', a: 'Albert Einstein', wrong: ['Isaac Newton', 'Nikola Tesla', 'Stephen Hawking'] },
+    { q: 'What is the largest ocean on Earth?', a: 'Pacific Ocean', wrong: ['Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean'] },
+    { q: 'How many elements are in the periodic table?', a: '118', wrong: ['100', '108', '126'] },
+    { q: 'What force keeps us on the ground?', a: 'Gravity', wrong: ['Magnetism', 'Friction', 'Inertia'] },
+    { q: 'Which blood type is the universal donor?', a: 'O negative', wrong: ['A positive', 'AB positive', 'B negative'] },
+  ],
+  music: [
+    { q: 'Who is known as the "King of Pop"?', a: 'Michael Jackson', wrong: ['Prince', 'Elvis Presley', 'Stevie Wonder'] },
+    { q: 'Which artist released the album "Lemonade"?', a: 'Beyoncé', wrong: ['Rihanna', 'Adele', 'Taylor Swift'] },
+    { q: 'What instrument does a DJ primarily use?', a: 'Turntables', wrong: ['Guitar', 'Piano', 'Drums'] },
+    { q: 'Which Nigerian artist made "Essence"?', a: 'Wizkid', wrong: ['Burna Boy', 'Davido', 'Olamide'] },
+    { q: 'How many strings does a standard guitar have?', a: '6', wrong: ['4', '5', '8'] },
+    { q: 'Who sang "Bohemian Rhapsody"?', a: 'Queen', wrong: ['The Beatles', 'Led Zeppelin', 'Pink Floyd'] },
+    { q: 'Which genre originated in Jamaica?', a: 'Reggae', wrong: ['Blues', 'Jazz', 'Funk'] },
+    { q: 'Who is known as the "Queen of Afrobeats"?', a: 'Tiwa Savage', wrong: ['Yemi Alade', 'Simi', 'Teni'] },
+    { q: 'What does the "B" stand for in R&B?', a: 'Blues', wrong: ['Bass', 'Beat', 'Band'] },
+    { q: 'Which South African group sang "Jerusalema"?', a: 'Master KG', wrong: ['Black Coffee', 'DJ Maphorisa', 'Kabza De Small'] },
+    { q: 'How many keys are on a standard piano?', a: '88', wrong: ['76', '92', '64'] },
+    { q: 'Who won the most Grammy Awards ever?', a: 'Beyoncé', wrong: ['Taylor Swift', 'Adele', 'Stevie Wonder'] },
+    { q: 'What country is Afrobeats originally from?', a: 'Nigeria', wrong: ['Ghana', 'South Africa', 'Kenya'] },
+    { q: 'Which Zambian artist is known as "King Dandy"?', a: 'Dandy Krazy', wrong: ['Chef 187', 'Macky 2', 'Yo Maps'] },
+    { q: 'What music platform has the most subscribers?', a: 'Spotify', wrong: ['Apple Music', 'YouTube Music', 'Tidal'] },
+  ],
+  african: [
+    { q: 'What is the largest country in Africa by area?', a: 'Algeria', wrong: ['Sudan', 'DR Congo', 'Libya'] },
+    { q: 'Which river is the longest in Africa?', a: 'Nile', wrong: ['Congo', 'Niger', 'Zambezi'] },
+    { q: 'What is the capital of Zambia?', a: 'Lusaka', wrong: ['Kitwe', 'Ndola', 'Livingstone'] },
+    { q: 'Which African country has the largest population?', a: 'Nigeria', wrong: ['Ethiopia', 'Egypt', 'DR Congo'] },
+    { q: 'What is Victoria Falls known as locally?', a: 'Mosi-oa-Tunya', wrong: ['Kalambo Falls', 'Tugela Falls', 'Blue Nile Falls'] },
+    { q: 'Which country is home to the Great Pyramids?', a: 'Egypt', wrong: ['Sudan', 'Libya', 'Morocco'] },
+    { q: 'What language is most widely spoken in East Africa?', a: 'Swahili', wrong: ['Amharic', 'Somali', 'Yoruba'] },
+    { q: 'Which African country was never colonized?', a: 'Ethiopia', wrong: ['Liberia', 'Morocco', 'Egypt'] },
+    { q: 'What is the currency of Kenya?', a: 'Kenyan Shilling', wrong: ['Kenyan Dollar', 'Kenyan Rand', 'Kenyan Kwacha'] },
+    { q: 'Mount Kilimanjaro is located in which country?', a: 'Tanzania', wrong: ['Kenya', 'Uganda', 'Rwanda'] },
+    { q: 'Which desert covers much of North Africa?', a: 'Sahara', wrong: ['Kalahari', 'Namib', 'Nubian'] },
+    { q: 'When did most African countries gain independence?', a: '1960s', wrong: ['1940s', '1950s', '1970s'] },
+    { q: 'Which African city hosted the 2010 World Cup final?', a: 'Johannesburg', wrong: ['Cape Town', 'Durban', 'Pretoria'] },
+    { q: 'What is the Zambian national language?', a: 'English', wrong: ['Bemba', 'Nyanja', 'Tonga'] },
+    { q: 'Which lake is the largest in Africa?', a: 'Lake Victoria', wrong: ['Lake Tanganyika', 'Lake Malawi', 'Lake Chad'] },
+  ],
+};
+
+const TRIVIA_CATEGORIES = [
+  { id: 'sports', name: 'Sports & Football', icon: '⚽', color: 'from-green-500 to-emerald-600' },
+  { id: 'general', name: 'General Knowledge', icon: '🧠', color: 'from-blue-500 to-cyan-600' },
+  { id: 'music', name: 'Music & Entertainment', icon: '🎵', color: 'from-pink-500 to-rose-600' },
+  { id: 'african', name: 'African Culture', icon: '🌍', color: 'from-amber-500 to-orange-600' },
+];
+
+const TRIVIA_GAMES = [
+  { id: 'classicQuiz', name: 'Classic Quiz', desc: '10 questions, pick a category', icon: '🧠', color: 'from-purple-500 to-indigo-600', free: 3, cost: 30 },
+  { id: 'speedRound', name: 'Speed Round', desc: '20 True/False in 60 seconds', icon: '⚡', color: 'from-yellow-500 to-orange-600', free: 5, cost: 20 },
+  { id: 'streakTrivia', name: 'Streak Trivia', desc: 'Answer or cash out!', icon: '🏆', color: 'from-red-500 to-pink-600', free: 3, cost: 25 },
+];
+
+// Get shuffled questions for a category
+const getQuestions = (category, count = 10) => {
+  const pool = TRIVIA_QUESTIONS[category] || [];
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count).map(q => ({
+    ...q,
+    options: [q.a, ...q.wrong].sort(() => Math.random() - 0.5),
+  }));
+};
+
+// Get daily challenge question (same for everyone each day)
+const getDailyQuestion = () => {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const allQuestions = Object.values(TRIVIA_QUESTIONS).flat();
+  const index = seed % allQuestions.length;
+  const q = allQuestions[index];
+  const catKeys = Object.keys(TRIVIA_QUESTIONS);
+  const category = catKeys.find(k => TRIVIA_QUESTIONS[k].includes(q));
+  return { ...q, options: [q.a, ...q.wrong].sort(() => Math.random() - 0.5), category };
+};
+
+// True/False questions for Speed Round
+const getSpeedQuestions = (count = 20) => {
+  const allQ = Object.values(TRIVIA_QUESTIONS).flat();
+  const shuffled = [...allQ].sort(() => Math.random() - 0.5).slice(0, count);
+  return shuffled.map(q => {
+    const isTrue = Math.random() > 0.5;
+    return {
+      statement: isTrue ? `${q.q.replace('?', '')} — ${q.a}` : `${q.q.replace('?', '')} — ${q.wrong[0]}`,
+      answer: isTrue,
+      source: q.q,
+    };
+  });
+};
+
+// Get random question for streak (mixed categories)
+const getRandomQuestion = () => {
+  const allQ = Object.values(TRIVIA_QUESTIONS).flat();
+  const q = allQ[Math.floor(Math.random() * allQ.length)];
+  return { ...q, options: [q.a, ...q.wrong].sort(() => Math.random() - 0.5) };
+};
+
 // Wheel-specific premium assets (served from public/ on Vercel)
 const WHEEL_IMAGES = {
   diamond: `/images/wheel/prize-diamond.png`,
@@ -239,6 +369,43 @@ const TUTORIALS = {
     prizes: ['Regular matches: 50-60 Coins', 'Featured ⭐: 75-100 Coins', '+5 XP per prediction'],
     tips: ['Research before predicting', 'Featured matches pay more', 'No limit on predictions!'],
   },
+
+  classicQuiz: {
+    title: '🧠 Classic Quiz',
+    subtitle: 'Test your knowledge!',
+    image: 'brainQuiz',
+    steps: [
+      { icon: '📚', title: 'Pick Category', desc: 'Choose Sports, General Knowledge, Music, or African Culture.' },
+      { icon: '⏱️', title: 'Answer Fast', desc: '10 questions with 15 seconds each. Pick the correct answer!' },
+      { icon: '🏆', title: 'Score Big', desc: '10 Coins per correct answer, bonuses for 7+ and perfect scores!' },
+    ],
+    prizes: ['10 Coins per correct answer', '7/10 bonus: +150 Coins', '10/10 perfect: +500 Coins'],
+    tips: ['Use 50/50 to eliminate 2 wrong answers (1 Gem)', 'Use Skip to auto-pass a question (2 Gems)', 'Read carefully before answering!'],
+  },
+  speedRound: {
+    title: '⚡ Speed Round',
+    subtitle: 'True or False — GO!',
+    image: 'target',
+    steps: [
+      { icon: '⏱️', title: '60 Seconds', desc: 'You have 1 minute to answer 20 True/False questions.' },
+      { icon: '✅', title: 'Quick Decisions', desc: 'Read the statement and tap TRUE or FALSE as fast as you can!' },
+      { icon: '💰', title: 'Speed Bonus', desc: '5 Coins per correct answer plus bonuses for high scores!' },
+    ],
+    prizes: ['5 Coins per correct answer', '15+ correct: +200 Coins', '20/20 perfect: +500 Coins'],
+    tips: ['Trust your instincts', "Don't overthink — speed matters!", 'Watch for tricky wording'],
+  },
+  streakTrivia: {
+    title: '🏆 Streak Trivia',
+    subtitle: 'Risk it or cash out!',
+    image: 'crown',
+    steps: [
+      { icon: '🔥', title: 'Build Your Streak', desc: 'Answer questions correctly to build your streak multiplier.' },
+      { icon: '💰', title: 'Cash Out Anytime', desc: 'Take your winnings at any time — or risk it for more!' },
+      { icon: '💥', title: 'Wrong = Lose All', desc: 'One wrong answer and you lose all accumulated coins!' },
+    ],
+    prizes: ['25 Coins × streak level', 'Streak 5 = 125 Coins', 'Streak 10 = 250 Coins'],
+    tips: ['Cash out at 5 if unsure', 'Mixed categories — prepare for anything!', 'The longer you go, the riskier it gets'],
+  },
   referrals: {
     title: '👥 Referrals',
     subtitle: 'Invite friends, earn rewards!',
@@ -317,6 +484,11 @@ const DAILY_MISSION_POOL = [
   { id: 'd_bet10', name: 'High Roller', desc: 'Place 10 bets in one day', difficulty: 'hard', target: 10, type: 'bets', reward: { kwacha: 400, gems: 8 }, xp: 120, image: 'betMission', cta: 'predict', ctaLabel: 'Go to Predict' },
   { id: 'd_jackpot', name: 'Jackpot Hunter', desc: 'Find the 👑 in Treasure Hunt', difficulty: 'hard', target: 1, type: 'treasureJackpot', reward: { kwacha: 500, gems: 5 }, xp: 100, image: 'crown', cta: 'minigames', ctaLabel: 'Go to Games' },
   { id: 'd_marathon', name: 'Game Marathon', desc: 'Play 6 different games', difficulty: 'hard', target: 6, type: 'uniqueGames', reward: { kwacha: 400, gems: 10 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
+
+  { id: 'd_trivia1', name: 'Quiz Time', desc: 'Play 1 trivia game', difficulty: 'easy', target: 1, type: 'triviaPlay', reward: { kwacha: 50 }, xp: 25, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_trivia10', name: 'Trivia Buff', desc: 'Answer 10 questions correctly', difficulty: 'medium', target: 10, type: 'triviaCorrect', reward: { kwacha: 175 }, xp: 50, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_speed12', name: 'Speed Demon', desc: 'Score 12+ in Speed Round', difficulty: 'medium', target: 12, type: 'speedScore', reward: { kwacha: 200 }, xp: 60, image: 'target', cta: 'minigames', ctaLabel: 'Go to Games' },
+  { id: 'd_tstreak5', name: 'Trivia Streak', desc: 'Reach streak of 5 in Streak Trivia', difficulty: 'hard', target: 5, type: 'triviaStreak', reward: { kwacha: 400, gems: 5 }, xp: 100, image: 'crown', cta: 'minigames', ctaLabel: 'Go to Games' },
 ];
 
 // Weekly missions (5, reset every Monday)
@@ -326,6 +498,7 @@ const WEEKLY_MISSIONS = [
   { id: 'w_wins10', name: 'Winning Week', desc: 'Win 10 bets this week', difficulty: 'hard', target: 10, type: 'weeklyWins', reward: { kwacha: 600, gems: 15 }, xp: 150, image: 'winTrophy', cta: 'predict', ctaLabel: 'Go to Predict' },
   { id: 'w_explorer', name: 'Game Explorer', desc: 'Play all 9 minigames this week', difficulty: 'hard', target: 9, type: 'uniqueGamesWeekly', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'trophy', cta: 'minigames', ctaLabel: 'Go to Games' },
   { id: 'w_xp500', name: 'XP Grinder', desc: 'Earn 500 XP this week', difficulty: 'hard', target: 500, type: 'weeklyXP', reward: { kwacha: 400, gems: 10 }, xp: 100, image: 'crown', cta: 'overview', ctaLabel: 'View Progress' },
+  { id: 'w_trivia50', name: 'Trivia Master', desc: 'Answer 50 questions correctly this week', difficulty: 'hard', target: 50, type: 'weeklyTriviaCorrect', reward: { kwacha: 500, gems: 12 }, xp: 120, image: 'brainQuiz', cta: 'minigames', ctaLabel: 'Go to Games' },
 ];
 
 // Permanent missions (always available, one-time completion)
@@ -554,7 +727,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
           {/* Done overlay */}
           {done && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-16 h-16 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
+              <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-28 h-28 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
             </div>
           )}
           
@@ -1329,7 +1502,7 @@ function MemoryGame({ onClose, onWin, closing }) {
         
         if (newMatched.length === cards.length) {
           const prize = Math.max(300 - moves * 10, 50);
-          setTimeout(() => onWin(prize), 300);
+          setTimeout(() => onWin(prize, { moves: moves + 1 }), 300);
         }
       } else {
         setTimeout(() => setFlipped([]), 800);
@@ -1801,7 +1974,7 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
   useEffect(() => {
     if (gameState === 'done') {
       const prize = score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
-      if (prize > 0) onWin(prize);
+      if (prize > 0) onWin(prize, { score });
     }
     return () => { clearInterval(timerRef.current); clearTimeout(targetRef.current); };
   }, [gameState]);
@@ -1943,7 +2116,7 @@ function StopClockGame({ onClose, onWin, closing }) {
     const diff = Math.abs(currentNum - targetNum);
     const minDiff = Math.min(diff, 100 - diff);
     const prize = minDiff === 0 ? 1000 : minDiff <= 2 ? 500 : minDiff <= 5 ? 200 : minDiff <= 10 ? 100 : minDiff <= 20 ? 50 : 0;
-    if (prize > 0) onWin(prize);
+    if (prize > 0) onWin(prize, { diff: minDiff });
   };
   
   useEffect(() => {
@@ -2173,17 +2346,18 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
         setFlipped(board.map((_, i) => i));
       }, 500);
       // Still give partial winnings
-      if (collected > 0) onWin(collected);
+      if (collected > 0) onWin(collected, { survivedNoTrap: false, foundCrown: false });
       return;
     }
     
     const newTotal = collected + tile.value;
+    const hitCrown = tile.type === 'jackpot';
     setCollected(newTotal);
     
     // Check if last pick
     if (picksLeft <= 1) {
       setGameState('won');
-      if (newTotal > 0) onWin(newTotal);
+      if (newTotal > 0) onWin(newTotal, { survivedNoTrap: true, foundCrown: hitCrown || flipped.some(fi => board[fi]?.type === 'jackpot') });
       // Reveal all tiles after short delay
       setTimeout(() => {
         setFlipped(board.map((_, i) => i));
@@ -2308,6 +2482,573 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
 // ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
+// ============================================================================
+// CLASSIC QUIZ COMPONENT
+// ============================================================================
+function ClassicQuizGame({ onClose, onWin, closing }) {
+  const [phase, setPhase] = useState('category'); // category, playing, result
+  const [category, setCategory] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(15);
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(0);
+  const [skipUsed, setSkipUsed] = useState(false);
+  const [eliminated, setEliminated] = useState([]);
+  const timerRef = useRef(null);
+
+  const startQuiz = (catId) => {
+    setCategory(catId);
+    setQuestions(getQuestions(catId, 10));
+    setPhase('playing');
+    setTimer(15);
+  };
+
+  useEffect(() => {
+    if (phase === 'playing' && !showAnswer) {
+      timerRef.current = setInterval(() => {
+        setTimer(t => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            setShowAnswer(true);
+            setTimeout(() => nextQuestion(), 1500);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timerRef.current);
+    }
+  }, [phase, qIndex, showAnswer]);
+
+  const selectAnswer = (opt) => {
+    if (showAnswer || selected) return;
+    clearInterval(timerRef.current);
+    setSelected(opt);
+    setShowAnswer(true);
+    const correct = opt === questions[qIndex].a;
+    if (correct) setScore(s => s + 1);
+    setTimeout(() => nextQuestion(), 1200);
+  };
+
+  const nextQuestion = () => {
+    if (qIndex >= 9) {
+      setPhase('result');
+      const totalCoins = score * 10 + (score >= 10 ? 500 : score >= 7 ? 150 : score >= 5 ? 50 : 0);
+      if (totalCoins > 0) onWin(totalCoins, { triviaCorrect: score, triviaType: 'classic' });
+      return;
+    }
+    setQIndex(i => i + 1);
+    setSelected(null);
+    setShowAnswer(false);
+    setEliminated([]);
+    setTimer(15);
+  };
+
+  const useFiftyFifty = () => {
+    if (fiftyFiftyUsed >= 2 || showAnswer) return;
+    const q = questions[qIndex];
+    const wrongOpts = q.options.filter(o => o !== q.a);
+    const toRemove = wrongOpts.sort(() => Math.random() - 0.5).slice(0, 2);
+    setEliminated(toRemove);
+    setFiftyFiftyUsed(f => f + 1);
+  };
+
+  const useSkip = () => {
+    if (skipUsed || showAnswer) return;
+    clearInterval(timerRef.current);
+    setSkipUsed(true);
+    setScore(s => s + 1);
+    setShowAnswer(true);
+    setSelected('__skipped__');
+    setTimeout(() => nextQuestion(), 800);
+  };
+
+  const q = questions[qIndex];
+  const finalCoins = score * 10 + (score >= 10 ? 500 : score >= 7 ? 150 : score >= 5 ? 50 : 0);
+
+  return (
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-2xl">🧠</div>
+          <h2 className="font-bold text-lg">Classic Quiz</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
+        </div>
+
+        {/* Category Selection */}
+        {phase === 'category' && (
+          <div className="space-y-3">
+            <p className="text-gray-400 text-center mb-4">Pick a category:</p>
+            {TRIVIA_CATEGORIES.map(cat => (
+              <button key={cat.id} type="button" onClick={() => startQuiz(cat.id)}
+                className={`w-full p-4 rounded-xl bg-gradient-to-r ${cat.color} hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3 font-bold text-lg`}>
+                <span className="text-2xl">{cat.icon}</span> {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Playing */}
+        {phase === 'playing' && q && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-400">Q{qIndex + 1}/10</span>
+              <div className="flex items-center gap-1">
+                {Array.from({length: 10}, (_, i) => (
+                  <div key={i} className={`w-2 h-2 rounded-full ${i < qIndex ? (i < score ? 'bg-green-500' : 'bg-red-500') : i === qIndex ? 'bg-purple-400 animate-pulse' : 'bg-gray-700'}`} />
+                ))}
+              </div>
+              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 5 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-purple-500/30 text-purple-300'}`}>
+                {timer}s
+              </div>
+            </div>
+            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+              <p className="font-bold text-center">{q.q}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {q.options.map((opt, i) => {
+                if (eliminated.includes(opt)) return (
+                  <div key={i} className="p-3 rounded-xl bg-gray-800/30 text-gray-600 line-through text-center text-sm">
+                    {opt}
+                  </div>
+                );
+                const isCorrect = opt === q.a;
+                const isSelected = opt === selected;
+                let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
+                if (showAnswer) {
+                  if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
+                  else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
+                  else bg = 'bg-[#231a40] border border-purple-900/20 opacity-50';
+                }
+                return (
+                  <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+                    className={`p-3 rounded-xl font-medium text-sm transition-all ${bg}`}>
+                    {opt} {showAnswer && isCorrect && ' ✅'} {showAnswer && isSelected && !isCorrect && ' ❌'}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Lifelines */}
+            <div className="flex gap-2">
+              <button type="button" onClick={useFiftyFifty} disabled={fiftyFiftyUsed >= 2 || showAnswer}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 ${fiftyFiftyUsed >= 2 || showAnswer ? 'bg-gray-800 text-gray-600' : 'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 border border-blue-500/30'}`}>
+                🔀 50/50 <span className="text-xs opacity-60">({2 - fiftyFiftyUsed})</span> <span className="text-xs">1💚</span>
+              </button>
+              <button type="button" onClick={useSkip} disabled={skipUsed || showAnswer}
+                className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 ${skipUsed || showAnswer ? 'bg-gray-800 text-gray-600' : 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/30'}`}>
+                ⏭️ Skip <span className="text-xs opacity-60">({skipUsed ? 0 : 1})</span> <span className="text-xs">2💚</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {phase === 'result' && (
+          <div className="text-center">
+            <div className="text-6xl mb-3">{score >= 8 ? '🏆' : score >= 5 ? '⭐' : '👏'}</div>
+            <div className="text-3xl font-black mb-1">{score}/10</div>
+            <div className="text-gray-400 mb-4">{score >= 8 ? 'Amazing!' : score >= 5 ? 'Good job!' : 'Keep practicing!'}</div>
+            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+              <div className="text-yellow-400 font-bold text-xl">🪙 +{finalCoins} Coins</div>
+              {score >= 7 && <div className="text-green-400 text-sm mt-1">Bonus: +{score >= 10 ? 500 : 150} for {score >= 10 ? 'perfect' : 'great'} score!</div>}
+            </div>
+            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
+              Done
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// SPEED ROUND COMPONENT
+// ============================================================================
+function SpeedRoundGame({ onClose, onWin, closing }) {
+  const [phase, setPhase] = useState('ready'); // ready, playing, result
+  const [questions, setQuestions] = useState([]);
+  const [qIndex, setQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [timer, setTimer] = useState(60);
+  const [feedback, setFeedback] = useState(null);
+  const timerRef = useRef(null);
+  const scoreRef = useRef(0);
+
+  const startGame = () => {
+    setQuestions(getSpeedQuestions(20));
+    setPhase('playing');
+    setTimer(60);
+    timerRef.current = setInterval(() => {
+      setTimer(t => {
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          const s = scoreRef.current;
+          const coins = s * 5 + (s >= 20 ? 500 : s >= 15 ? 200 : 0);
+          if (coins > 0) onWin(coins, { triviaCorrect: s, triviaType: 'speed' });
+          setPhase('result');
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    return () => clearInterval(timerRef.current);
+  }, []);
+
+  const answer = (val) => {
+    if (phase !== 'playing') return;
+    const correct = val === questions[qIndex].answer;
+    if (correct) {
+      setScore(s => s + 1);
+      scoreRef.current += 1;
+    }
+    setFeedback(correct ? 'correct' : 'wrong');
+    setTimeout(() => {
+      setFeedback(null);
+      if (qIndex >= 19) {
+        clearInterval(timerRef.current);
+        setPhase('result');
+        const totalCoins = (correct ? score + 1 : score) * 5 + ((correct ? score + 1 : score) >= 15 ? 200 : (correct ? score + 1 : score) >= 20 ? 500 : 0);
+        if (totalCoins > 0) onWin(totalCoins, { triviaCorrect: correct ? score + 1 : score, triviaType: 'speed' });
+      } else {
+        setQIndex(i => i + 1);
+      }
+    }, 400);
+  };
+
+  const finalScore = score;
+  const finalCoins = finalScore * 5 + (finalScore >= 20 ? 500 : finalScore >= 15 ? 200 : 0);
+
+  return (
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-2xl">⚡</div>
+          <h2 className="font-bold text-lg">Speed Round</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
+        </div>
+
+        {phase === 'ready' && (
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚡</div>
+            <p className="text-gray-400 mb-2">20 True/False questions</p>
+            <p className="text-sm text-gray-500 mb-6">You have 60 seconds!</p>
+            <button type="button" onClick={startGame}
+              className="w-full py-4 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all">
+              Start!
+            </button>
+          </div>
+        )}
+
+        {phase === 'playing' && questions[qIndex] && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-400">{qIndex + 1}/20</span>
+              <span className="text-lg font-bold text-green-400">{score} ✓</span>
+              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-yellow-500/30 text-yellow-300'}`}>
+                ⏱️ {timer}s
+              </div>
+            </div>
+            <div className="h-1.5 bg-[#231a40] rounded-full mb-4 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-300" style={{ width: `${((qIndex) / 20) * 100}%` }} />
+            </div>
+            <div className={`bg-[#231a40] rounded-xl p-5 mb-6 min-h-[100px] flex items-center justify-center transition-all ${feedback === 'correct' ? 'ring-2 ring-green-500' : feedback === 'wrong' ? 'ring-2 ring-red-500' : ''}`}>
+              <p className="font-bold text-center text-sm leading-relaxed">{questions[qIndex].statement}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => answer(true)}
+                className="py-4 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 rounded-xl font-bold text-green-400 text-lg transition-all hover:scale-[1.02] active:scale-95">
+                ✅ TRUE
+              </button>
+              <button type="button" onClick={() => answer(false)}
+                className="py-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-xl font-bold text-red-400 text-lg transition-all hover:scale-[1.02] active:scale-95">
+                ❌ FALSE
+              </button>
+            </div>
+          </div>
+        )}
+
+        {phase === 'result' && (
+          <div className="text-center">
+            <div className="text-6xl mb-3">{finalScore >= 15 ? '🏆' : finalScore >= 10 ? '⚡' : '👏'}</div>
+            <div className="text-3xl font-black mb-1">{finalScore}/20</div>
+            <div className="text-gray-400 mb-4">{finalScore >= 15 ? 'Lightning fast!' : finalScore >= 10 ? 'Quick thinker!' : 'Keep trying!'}</div>
+            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+              <div className="text-yellow-400 font-bold text-xl">🪙 +{finalCoins} Coins</div>
+              {finalScore >= 15 && <div className="text-green-400 text-sm mt-1">Speed bonus: +{finalScore >= 20 ? 500 : 200}!</div>}
+            </div>
+            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
+              Done
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// STREAK TRIVIA COMPONENT
+// ============================================================================
+function StreakTriviaGame({ onClose, onWin, closing }) {
+  const [phase, setPhase] = useState('ready'); // ready, playing, result
+  const [didCashOut, setDidCashOut] = useState(false);
+  const [question, setQuestion] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [timer, setTimer] = useState(15);
+  const [maxStreak, setMaxStreak] = useState(0);
+  const timerRef = useRef(null);
+
+  const loadQuestion = () => {
+    setQuestion(getRandomQuestion());
+    setSelected(null);
+    setShowAnswer(false);
+    setTimer(15);
+  };
+
+  const startGame = () => {
+    setPhase('playing');
+    setStreak(0);
+    loadQuestion();
+  };
+
+  useEffect(() => {
+    if (phase === 'playing' && !showAnswer) {
+      timerRef.current = setInterval(() => {
+        setTimer(t => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            // Time out = wrong
+            setShowAnswer(true);
+            setTimeout(() => endGame(), 1200);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timerRef.current);
+    }
+  }, [phase, streak, showAnswer]);
+
+  const selectAnswer = (opt) => {
+    if (showAnswer || selected) return;
+    clearInterval(timerRef.current);
+    setSelected(opt);
+    setShowAnswer(true);
+    const correct = opt === question.a;
+    if (correct) {
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      setMaxStreak(m => Math.max(m, newStreak));
+      setTimeout(() => loadQuestion(), 1000);
+    } else {
+      setTimeout(() => endGame(), 1200);
+    }
+  };
+
+  const cashOut = () => {
+    clearInterval(timerRef.current);
+    setDidCashOut(true);
+    const coins = streak * 25;
+    if (coins > 0) onWin(coins, { triviaStreak: streak, triviaType: 'streak' });
+    setPhase('result');
+  };
+
+  const endGame = () => {
+    // Lost - no winnings
+    setPhase('result');
+  };
+
+  const currentPrize = streak * 25;
+
+  return (
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-2xl">🏆</div>
+          <h2 className="font-bold text-lg">Streak Trivia</h2>
+          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X className="w-5 h-5" /></button>
+        </div>
+
+        {phase === 'ready' && (
+          <div className="text-center">
+            <div className="text-6xl mb-4">🏆</div>
+            <p className="text-gray-400 mb-2">Answer questions in a row</p>
+            <p className="text-sm text-gray-500 mb-2">Cash out anytime to keep your coins</p>
+            <p className="text-sm text-yellow-400 mb-6">Wrong answer = lose everything!</p>
+            <button type="button" onClick={startGame}
+              className="w-full py-4 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl font-bold text-lg hover:scale-[1.02] active:scale-95 transition-all">
+              Start Streak!
+            </button>
+          </div>
+        )}
+
+        {phase === 'playing' && question && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-orange-400">🔥 Streak: {streak}</span>
+              </div>
+              <div className="text-yellow-400 font-bold text-sm">🪙 {currentPrize}</div>
+              <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 5 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-purple-500/30 text-purple-300'}`}>
+                {timer}s
+              </div>
+            </div>
+            <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+              <p className="font-bold text-center text-sm">{question.q}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-2 mb-4">
+              {question.options.map((opt, i) => {
+                const isCorrect = opt === question.a;
+                const isSelected = opt === selected;
+                let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
+                if (showAnswer) {
+                  if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
+                  else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
+                  else bg = 'bg-[#231a40] border border-purple-900/20 opacity-50';
+                }
+                return (
+                  <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+                    className={`p-3 rounded-xl font-medium text-sm transition-all ${bg}`}>
+                    {opt} {showAnswer && isCorrect && ' ✅'} {showAnswer && isSelected && !isCorrect && ' ❌'}
+                  </button>
+                );
+              })}
+            </div>
+            {streak > 0 && !showAnswer && (
+              <button type="button" onClick={cashOut}
+                className="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/30">
+                💰 Cash Out ({currentPrize} Coins)
+              </button>
+            )}
+          </div>
+        )}
+
+        {phase === 'result' && (
+          <div className="text-center">
+            <div className="text-6xl mb-3">{streak >= 5 ? '🏆' : streak >= 3 ? '⭐' : selected && selected !== question?.a ? '💥' : '👏'}</div>
+            <div className="text-3xl font-black mb-1">Streak: {maxStreak || streak}</div>
+            <div className="text-gray-400 mb-4">
+              {didCashOut ? `You cashed out with ${currentPrize} Coins!` : 'Lost your streak! 0 Coins.'}
+            </div>
+            {didCashOut && currentPrize > 0 && (
+              <div className="bg-[#231a40] rounded-xl p-4 mb-4">
+                <div className="text-yellow-400 font-bold text-xl">🪙 +{currentPrize} Coins</div>
+              </div>
+            )}
+            <button type="button" onClick={onClose} className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all">
+              Done
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// DAILY CHALLENGE COMPONENT (inline card for Overview)
+// ============================================================================
+function DailyChallengeCard({ user, onAnswer, onClose }) {
+  const [question] = useState(() => getDailyQuestion());
+  const [selected, setSelected] = useState(null);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [timer, setTimer] = useState(30);
+  const timerRef = useRef(null);
+  const answered = user.dailyChallengeAnswered;
+
+  useEffect(() => {
+    if (!answered && !showAnswer) {
+      timerRef.current = setInterval(() => {
+        setTimer(t => {
+          if (t <= 1) {
+            clearInterval(timerRef.current);
+            setShowAnswer(true);
+            onAnswer(false);
+            return 0;
+          }
+          return t - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timerRef.current);
+    }
+  }, [answered, showAnswer]);
+
+  const selectAnswer = (opt) => {
+    if (showAnswer || selected || answered) return;
+    clearInterval(timerRef.current);
+    setSelected(opt);
+    setShowAnswer(true);
+    const correct = opt === question.a;
+    onAnswer(correct);
+  };
+
+  if (answered) {
+    return (
+      <div className="bg-[#1a1333] rounded-2xl p-4 border border-purple-900/30">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-2xl">🎯</span>
+          <div>
+            <div className="font-bold">Daily Challenge</div>
+            <div className="text-sm text-gray-400">Come back tomorrow!</div>
+          </div>
+          <div className="ml-auto text-green-400 font-bold">
+            {user.dailyChallengeCorrect ? '✅ Correct!' : '❌ Wrong'}
+          </div>
+        </div>
+        <div className="text-xs text-gray-500">
+          {user.dailyChallengeCorrect ? 'You earned 500 Coins + 10 Gems!' : 'You earned 25 consolation Coins'}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-[#1a1333] to-[#231a40] rounded-2xl p-4 border border-amber-500/30 shadow-lg shadow-amber-500/10">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🎯</span>
+          <div className="font-bold">Daily Challenge</div>
+        </div>
+        <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-amber-500/30 text-amber-300'}`}>
+          {timer}s
+        </div>
+      </div>
+      <div className="text-xs text-gray-400 mb-2">Answer correctly for 500 Coins + 10 Gems!</div>
+      <div className="bg-[#0f0a1f] rounded-xl p-3 mb-3">
+        <p className="font-bold text-sm">{question.q}</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        {question.options.map((opt, i) => {
+          const isCorrect = opt === question.a;
+          const isSelected = opt === selected;
+          let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
+          if (showAnswer) {
+            if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
+            else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
+            else bg = 'bg-[#231a40] border border-purple-900/20 opacity-50';
+          }
+          return (
+            <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+              className={`p-2.5 rounded-xl font-medium text-xs transition-all ${bg}`}>
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 export default function GamificationPlatform() {
   const [tab, setTab] = useState('overview');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -2315,6 +3056,7 @@ export default function GamificationPlatform() {
   const [missionSubTab, setMissionSubTab] = useState('daily');
   const [selectedMission, setSelectedMission] = useState(null);
   const [closingModal, setClosingModal] = useState(false);
+  const [activeTrivia, setActiveTrivia] = useState(null);
   
   const animateClose = useCallback((closeFn) => {
     setClosingModal(true);
@@ -2509,6 +3251,9 @@ export default function GamificationPlatform() {
     dailyClaimed: false,
     referrals: 0,
     gamePlays: { wheel: 3, scratch: 5, dice: 5, memory: 3, highlow: 5, plinko: 5, tapfrenzy: 5, stopclock: 5, treasure: 3 },
+    triviaPlays: { classicQuiz: 3, speedRound: 5, streakTrivia: 3 },
+    dailyChallengeAnswered: false,
+    dailyChallengeCorrect: false,
   });
 
   const level = getLevel(user.xp);
@@ -2551,9 +3296,181 @@ export default function GamificationPlatform() {
       showNotif(`🎉 Won: ${name}!`);
     }
     setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+    setGamesPlayedToday(prev => new Set([...prev, 'wheel']));
+    trackMission('gamePlayed', { gameId: 'wheel', coinsWon: typeof prize === 'number' ? prize : (prize.kwacha || 0), gamesSet: gamesPlayedToday });
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 1500);
   };
+
+
+  // Mission tracking
+  const [gamesPlayedToday, setGamesPlayedToday] = useState(new Set());
+  
+  const trackMission = useCallback((actionType, metadata = {}) => {
+    const allActive = [...getDailyMissions(), ...WEEKLY_MISSIONS, ...PERMANENT_MISSIONS];
+    
+    setUser(prev => {
+      const newProgress = { ...prev.missionProgress };
+      const newComplete = [...prev.missionsComplete];
+      let bonusCoins = 0, bonusGems = 0, bonusXP = 0;
+      let justCompleted = [];
+      
+      allActive.forEach(mission => {
+        if (newComplete.includes(mission.id)) return; // already done
+        
+        let shouldIncrement = false;
+        let incrementBy = 1;
+        let setTo = null; // for score-type missions
+        
+        switch (mission.type) {
+          case 'gamePlay':
+            if (actionType === 'gamePlayed' && metadata.gameId === mission.gameId) shouldIncrement = true;
+            break;
+          case 'bets':
+            if (actionType === 'betPlaced') shouldIncrement = true;
+            break;
+          case 'wins':
+          case 'weeklyWins':
+            if (actionType === 'betWon') shouldIncrement = true;
+            break;
+          case 'dailyClaim':
+            if (actionType === 'dailyClaimed') shouldIncrement = true;
+            break;
+          case 'uniqueGames':
+          case 'uniqueGamesWeekly':
+            if (actionType === 'gamePlayed') {
+              const updatedSet = new Set([...(metadata.gamesSet || []), metadata.gameId]);
+              setTo = updatedSet.size;
+            }
+            break;
+          case 'coinsWon':
+            if (actionType === 'gamePlayed' && metadata.coinsWon > 0) {
+              incrementBy = metadata.coinsWon;
+              shouldIncrement = true;
+            }
+            break;
+          case 'tapScore':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'tapfrenzy' && metadata.tapScore >= mission.target) {
+              setTo = metadata.tapScore;
+            }
+            break;
+          case 'clockClose':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'stopclock' && metadata.clockDiff !== undefined && metadata.clockDiff <= 3) {
+              setTo = 1;
+            }
+            break;
+          case 'treasureSurvive':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'treasure' && metadata.survivedNoTrap) {
+              setTo = 1;
+            }
+            break;
+          case 'treasureJackpot':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'treasure' && metadata.foundCrown) {
+              setTo = 1;
+            }
+            break;
+          case 'memoryFast':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'memory' && metadata.memoryMoves && metadata.memoryMoves < 16) {
+              setTo = 1;
+            }
+            break;
+          case 'winStreak':
+            if (actionType === 'betWon') {
+              incrementBy = 1;
+              shouldIncrement = true;
+            } else if (actionType === 'betLost') {
+              setTo = 0; // reset streak
+            }
+            break;
+          case 'wheelSpins':
+            if (actionType === 'gamePlayed' && metadata.gameId === 'wheel') shouldIncrement = true;
+            break;
+          case 'storePurchase':
+          case 'coinsSpent':
+            if (actionType === 'storePurchase') {
+              incrementBy = metadata.amount || 1;
+              shouldIncrement = true;
+            }
+            break;
+          case 'deposits':
+            if (actionType === 'deposit') shouldIncrement = true;
+            break;
+          case 'dailyMissionsDone':
+            if (actionType === 'missionCompleted' && metadata.missionId?.startsWith('d_')) shouldIncrement = true;
+            break;
+
+          case 'triviaPlay':
+            if (actionType === 'triviaPlayed') shouldIncrement = true;
+            break;
+          case 'triviaCorrect':
+            if (actionType === 'triviaCorrect') {
+              incrementBy = metadata.count || 1;
+              shouldIncrement = true;
+            }
+            break;
+          case 'speedScore':
+            if (actionType === 'triviaPlayed' && metadata.triviaType === 'speed' && metadata.speedScore >= mission.target) {
+              setTo = metadata.speedScore;
+            }
+            break;
+          case 'triviaStreak':
+            if (actionType === 'triviaPlayed' && metadata.triviaType === 'streak' && metadata.triviaStreak >= mission.target) {
+              setTo = metadata.triviaStreak;
+            }
+            break;
+          case 'weeklyTriviaCorrect':
+            if (actionType === 'triviaCorrect') {
+              incrementBy = metadata.count || 1;
+              shouldIncrement = true;
+            }
+            break;
+          case 'weeklyXP':
+            if (actionType === 'xpEarned') {
+              incrementBy = metadata.amount || 0;
+              shouldIncrement = true;
+            }
+            break;
+        }
+        
+        if (shouldIncrement) {
+          newProgress[mission.id] = (newProgress[mission.id] || 0) + incrementBy;
+        } else if (setTo !== null) {
+          newProgress[mission.id] = setTo;
+        }
+        
+        // Check completion
+        if (!newComplete.includes(mission.id) && (newProgress[mission.id] || 0) >= mission.target) {
+          newComplete.push(mission.id);
+          bonusCoins += mission.reward.kwacha || 0;
+          bonusGems += mission.reward.gems || 0;
+          bonusXP += mission.xp || 0;
+          justCompleted.push(mission);
+        }
+      });
+      
+      // Show completion notifications (delayed so state updates first)
+      if (justCompleted.length > 0) {
+        setTimeout(() => {
+          justCompleted.forEach(m => {
+            showNotif('✅ Mission Complete: ' + m.name + '!');
+            // Track weekly mission for daily missions completed
+            if (m.id.startsWith('d_')) {
+              trackMission('missionCompleted', { missionId: m.id });
+            }
+          });
+        }, 300);
+      }
+      
+      return {
+        ...prev,
+        kwacha: prev.kwacha + bonusCoins,
+        gems: prev.gems + bonusGems,
+        xp: prev.xp + bonusXP,
+        missionProgress: newProgress,
+        missionsComplete: newComplete,
+      };
+    });
+  }, [showNotif]);
 
   const playGame = (gameId) => {
     if (user.gamePlays[gameId] > 0) {
@@ -2645,6 +3562,8 @@ export default function GamificationPlatform() {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'scratch']));
+            trackMission('gamePlayed', { gameId: 'scratch', coinsWon: n, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
@@ -2655,17 +3574,21 @@ export default function GamificationPlatform() {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'dice']));
+            trackMission('gamePlayed', { gameId: 'dice', coinsWon: n, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
       {activeGame === 'memory' && (
         <MemoryGame 
           onClose={() => animateClose(() => setActiveGame(null))} closing={closingModal} 
-          onWin={(n) => {
+          onWin={(n, meta) => {
             addCoins(n);
             addXP(20);
             showNotif(`🎉 +${n} Coins + 20 XP!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'memory']));
+            trackMission('gamePlayed', { gameId: 'memory', coinsWon: n, memoryMoves: meta?.moves, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
@@ -2676,6 +3599,8 @@ export default function GamificationPlatform() {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'highlow']));
+            trackMission('gamePlayed', { gameId: 'highlow', coinsWon: n, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
@@ -2688,40 +3613,84 @@ export default function GamificationPlatform() {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'plinko']));
+            trackMission('gamePlayed', { gameId: 'plinko', coinsWon: n, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
       {activeGame === 'tapfrenzy' && (
         <TapFrenzyGame 
           onClose={() => animateClose(() => setActiveGame(null))} closing={closingModal} 
-          onWin={(n) => {
+          onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'tapfrenzy']));
+            trackMission('gamePlayed', { gameId: 'tapfrenzy', coinsWon: n, tapScore: meta?.score, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
       {activeGame === 'stopclock' && (
         <StopClockGame 
           onClose={() => animateClose(() => setActiveGame(null))} closing={closingModal} 
-          onWin={(n) => {
+          onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'stopclock']));
+            trackMission('gamePlayed', { gameId: 'stopclock', coinsWon: n, clockDiff: meta?.diff, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
       {activeGame === 'treasure' && (
         <TreasureHuntGame 
           onClose={() => animateClose(() => setActiveGame(null))} closing={closingModal} 
-          onWin={(n) => {
+          onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
             setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setGamesPlayedToday(prev => new Set([...prev, 'treasure']));
+            trackMission('gamePlayed', { gameId: 'treasure', coinsWon: n, foundCrown: meta?.foundCrown, survivedNoTrap: meta?.survivedNoTrap, gamesSet: gamesPlayedToday });
           }} 
         />
       )}
 
+
+
+      {/* Trivia Game Modals */}
+      {activeTrivia === 'classicQuiz' && (
+        <ClassicQuizGame
+          onClose={() => animateClose(() => setActiveTrivia(null))} closing={closingModal}
+          onWin={(n, meta) => {
+            addCoins(n);
+            showNotif('🧠 +' + n + ' Coins!');
+            trackMission('triviaPlayed', { triviaType: 'classic' });
+            if (meta?.triviaCorrect) trackMission('triviaCorrect', { count: meta.triviaCorrect });
+          }}
+        />
+      )}
+      {activeTrivia === 'speedRound' && (
+        <SpeedRoundGame
+          onClose={() => animateClose(() => setActiveTrivia(null))} closing={closingModal}
+          onWin={(n, meta) => {
+            addCoins(n);
+            showNotif('⚡ +' + n + ' Coins!');
+            trackMission('triviaPlayed', { triviaType: 'speed', speedScore: meta?.triviaCorrect });
+            if (meta?.triviaCorrect) trackMission('triviaCorrect', { count: meta.triviaCorrect });
+          }}
+        />
+      )}
+      {activeTrivia === 'streakTrivia' && (
+        <StreakTriviaGame
+          onClose={() => animateClose(() => setActiveTrivia(null))} closing={closingModal}
+          onWin={(n, meta) => {
+            addCoins(n);
+            showNotif('🏆 +' + n + ' Coins!');
+            trackMission('triviaPlayed', { triviaType: 'streak', triviaStreak: meta?.triviaStreak });
+            if (meta?.triviaStreak) trackMission('triviaCorrect', { count: meta.triviaStreak });
+          }}
+        />
+      )}
 
       {/* Mission Detail Modal */}
       {selectedMission && (
@@ -2861,6 +3830,8 @@ export default function GamificationPlatform() {
                   addCoins(100);
                   addXP(50);
                   setUser(u => ({ ...u, deposits: u.deposits + 100 }));
+                  trackMission('deposit');
+                  trackMission('xpEarned', { amount: 50 });
                   showNotif('+100K + 50XP!');
                 }} 
                 className="py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95"
@@ -2872,6 +3843,8 @@ export default function GamificationPlatform() {
                 onClick={() => {
                   addXP(5);
                   setUser(u => ({ ...u, bets: u.bets + 1 }));
+                  trackMission('betPlaced');
+                  trackMission('xpEarned', { amount: 5 });
                   showNotif('+1 Bet!');
                 }} 
                 className="py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95"
@@ -2884,6 +3857,8 @@ export default function GamificationPlatform() {
                   addCoins(50);
                   addXP(15);
                   setUser(u => ({ ...u, wins: u.wins + 1 }));
+                  trackMission('betWon');
+                  trackMission('xpEarned', { amount: 15 });
                   showNotif('+Win!');
                 }} 
                 className="py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95"
@@ -3022,7 +3997,7 @@ export default function GamificationPlatform() {
                     )}
                     {user.dailyClaimed && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-16 h-16 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
+                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-32 h-32 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
                       </div>
                     )}
                   </div>
@@ -3045,6 +4020,8 @@ export default function GamificationPlatform() {
                             dailyClaimed: true, 
                             dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1 
                           }));
+                          trackMission('dailyClaimed');
+                          trackMission('xpEarned', { amount: 20 });
                           showNotif(`🎉 +${r.kwacha} Coins!`);
                         }} 
                         className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold btn-glow transition-all duration-300 hover:scale-[1.02] active:scale-95"
@@ -3175,6 +4152,13 @@ export default function GamificationPlatform() {
                 </div>
               </div>
 
+
+                {/* Daily Trivia Challenge */}
+                <DailyChallengeCard 
+                  user={user} 
+                  onAnswer={handleDailyChallenge}
+                />
+
               {/* Featured Store Section */}
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -3269,6 +4253,43 @@ export default function GamificationPlatform() {
                   </div>
                 ))}
               </div>
+            
+              {/* Trivia Section */}
+              <div className="mt-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">🧠</span>
+                  <div>
+                    <h2 className="text-xl font-bold">Trivia</h2>
+                    <p className="text-sm text-gray-400">Test your knowledge, win prizes!</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {TRIVIA_GAMES.map(game => (
+                    <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift">
+                      <div className={`relative h-28 bg-gradient-to-br ${game.color} flex items-center justify-center`}>
+                        <span className="text-6xl">{game.icon}</span>
+                        {user.triviaPlays[game.id] > 0 && (
+                          <span className="absolute top-3 right-3 px-3 py-1 bg-green-500 rounded-full text-sm font-bold">
+                            {user.triviaPlays[game.id]} FREE
+                          </span>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <div className="font-bold text-lg mb-1">{game.name}</div>
+                        <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
+                        <button 
+                          type="button" 
+                          onClick={() => playTrivia(game.id)} 
+                          className={`w-full py-3 rounded-xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 ${user.triviaPlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 btn-glow' : 'bg-gray-700'}`}
+                        >
+                          {user.triviaPlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -3366,7 +4387,7 @@ export default function GamificationPlatform() {
                             {/* Full-card completed overlay */}
                             {done && (
                               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-14 h-14 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
+                                <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-24 h-24 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
                               </div>
                             )}
                             <div className="relative h-28 overflow-hidden">
@@ -3416,7 +4437,7 @@ export default function GamificationPlatform() {
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-16 h-16 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
+                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-32 h-32 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
                           </div>
                         )}
                         <div className="relative h-36 overflow-hidden">
@@ -3466,7 +4487,7 @@ export default function GamificationPlatform() {
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-16 h-16 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
+                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-32 h-32 object-cover rounded-full anim-check-pop" style={{ mixBlendMode: "screen" }} />
                           </div>
                         )}
                         <div className="relative h-40 overflow-hidden">
@@ -3552,6 +4573,8 @@ export default function GamificationPlatform() {
                               dailyClaimed: true, 
                               dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1 
                             }));
+                            trackMission('dailyClaimed');
+                            trackMission('xpEarned', { amount: 20 });
                             showNotif(`🎉 +${r.kwacha} Coins!`);
                           }
                         }} 
@@ -3561,7 +4584,7 @@ export default function GamificationPlatform() {
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
                         {isPast && (
                           <div className="flex justify-center mb-1">
-                            <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-6 h-6 object-cover rounded-full" style={{ mixBlendMode: "screen" }} />
+                            <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-10 h-10 object-cover rounded-full" style={{ mixBlendMode: "screen" }} />
                           </div>
                         )}
                         <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
@@ -3657,6 +4680,7 @@ export default function GamificationPlatform() {
                             if (canBuy) {
                               addCoins(-item.price.kwacha);
                               if (item.price.gems) addGems(-item.price.gems);
+                              trackMission('storePurchase', { amount: item.price.kwacha });
                               showNotif(`Purchased ${item.name}!`);
                             }
                           }} 
