@@ -554,7 +554,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
           {/* Done overlay */}
           {done && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <img src="/images/green_bubble.jpg" alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
+              <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
             </div>
           )}
           
@@ -3014,7 +3014,7 @@ export default function GamificationPlatform() {
                     )}
                     {user.dailyClaimed && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <img src="/images/green_bubble.jpg" alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
+                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
                       </div>
                     )}
                   </div>
@@ -3358,7 +3358,7 @@ export default function GamificationPlatform() {
                             {/* Full-card completed overlay */}
                             {done && (
                               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                <img src="/images/green_bubble.jpg" alt="Complete" className="w-14 h-14 object-contain drop-shadow-lg" />
+                                <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-14 h-14 object-contain drop-shadow-lg" />
                               </div>
                             )}
                             <div className="relative h-28 overflow-hidden">
@@ -3408,7 +3408,7 @@ export default function GamificationPlatform() {
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                        <img src="/images/green_bubble.jpg" alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
+                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
                           </div>
                         )}
                         <div className="relative h-36 overflow-hidden">
@@ -3458,7 +3458,7 @@ export default function GamificationPlatform() {
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
-                                        <img src="/images/green_bubble.jpg" alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
+                                        <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-16 h-16 object-contain drop-shadow-lg" />
                           </div>
                         )}
                         <div className="relative h-40 overflow-hidden">
@@ -3553,7 +3553,7 @@ export default function GamificationPlatform() {
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
                         {isPast && (
                           <div className="flex justify-center mb-1">
-                            <img src="/images/green_bubble.jpg" alt="Complete" className="w-6 h-6 object-contain" />
+                            <img src={`${IMG_BASE}/green_bubble.jpg`} alt="Complete" className="w-6 h-6 object-contain" />
                           </div>
                         )}
                         <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
