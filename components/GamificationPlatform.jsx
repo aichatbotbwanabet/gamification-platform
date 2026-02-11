@@ -793,7 +793,7 @@ function TutorialModal({ tutorialKey, onClose, closing }) {
   
   return (
     <div className={`fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 ${closing ? 'anim-backdrop-close' : 'anim-fade-in'}`} onClick={onClose}>
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-lg w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 max-h-[90vh] overflow-y-auto ${closing ? 'anim-modal-close' : 'anim-scale-in'}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-lg w-full overflow-hidden border border-purple-500/10 shadow-2xl shadow-purple-900/50 max-h-[90vh] overflow-y-auto ${closing ? 'anim-modal-close' : 'anim-scale-in'}`} onClick={(e) => e.stopPropagation()}>
         {/* Header Image */}
         <div className="relative h-44">
           <img src={IMAGES[tutorial.image]} alt="" className="w-full h-full object-cover" />
@@ -895,7 +895,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
   
   return (
     <div className={`fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 ${closing ? 'anim-backdrop-close' : 'anim-fade-in'}`} onClick={onClose}>
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full overflow-hidden border border-purple-500/30 shadow-2xl shadow-purple-900/50 max-h-[90vh] overflow-y-auto ${closing ? 'anim-modal-close' : 'anim-scale-in'}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full overflow-hidden border border-purple-500/10 shadow-2xl shadow-purple-900/50 max-h-[90vh] overflow-y-auto ${closing ? 'anim-modal-close' : 'anim-scale-in'}`} onClick={(e) => e.stopPropagation()}>
         {/* Header Image */}
         <div className="relative h-44 overflow-hidden">
           <img src={IMAGES[mission.image]} alt="" className="w-full h-full object-cover" />
@@ -1113,7 +1113,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
         </div>
       )}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 shadow-2xl shadow-purple-900/50 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 shadow-2xl shadow-purple-900/50 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -1450,7 +1450,7 @@ function ScratchGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1463,7 +1463,7 @@ function ScratchGame({ onClose, onWin, closing }) {
         
         <p className="text-center text-gray-400 mb-4">Scratch the card to reveal your prize!</p>
         
-        <div className="relative mx-auto rounded-2xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
+        <div className="relative mx-auto rounded-3xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-2">🎁</div>
@@ -1589,7 +1589,7 @@ function DiceGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="dice" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1706,7 +1706,7 @@ function MemoryGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="memory" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1822,7 +1822,7 @@ function HighLowGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="highlow" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -1973,7 +1973,7 @@ function PlinkoGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="plinko" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2174,7 +2174,7 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="tapfrenzy" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2331,7 +2331,7 @@ function StopClockGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="stopclock" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2558,7 +2558,7 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="treasure" onClose={() => setShowTutorial(false)} />}
       
-      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+      <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-purple-400" />
@@ -2801,7 +2801,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
               <div className="grid grid-cols-2 gap-3">
                 {TRIVIA_CATEGORIES.map(cat => (
                   <button key={cat.id} type="button" onClick={() => startQuiz(cat.id)}
-                    className="group relative rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.03] active:scale-95">
+                    className="group relative rounded-3xl overflow-hidden transition-all duration-300 hover:scale-[1.03] active:scale-95">
                     <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 group-hover:opacity-40 transition-opacity`} />
                     <div className="relative p-5 text-center border border-white/10 rounded-2xl group-hover:border-white/20">
                       <div className="text-4xl mb-2 drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 8px rgba(168,85,247,0.4))' }}>{cat.icon}</div>
@@ -2827,7 +2827,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                       {streak >= 2 && <span className="text-xs text-orange-400 animate-pulse">🔥{streak}</span>}
                     </div>
                   </div>
-                  <div className="h-2 bg-[#1a1333] rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#1a1333]/80 backdrop-blur-sm rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-500 ease-out" style={{
                       width: `${((qIndex + 1) / 10) * 100}%`,
                       background: 'linear-gradient(90deg, #a855f7, #ec4899, #f97316)'
@@ -2855,7 +2855,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
               {/* Question Card */}
               <div className="relative mb-4">
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-purple-500/30 rounded-2xl blur-sm" />
-                <div className="relative bg-[#1a1333] rounded-2xl p-5">
+                <div className="relative bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-5">
                   <p className="font-bold text-center leading-relaxed">{q.q}</p>
                 </div>
               </div>
@@ -2928,7 +2928,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                 <div className="text-yellow-400/60 text-xs">Coins earned</div>
                 {score >= 7 && <div className="text-emerald-400 text-sm mt-2 font-bold">🎉 Bonus: +{score >= 10 ? 500 : 150} for {score >= 10 ? 'perfect' : 'great'} score!</div>}
               </div>
-              <button type="button" onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
+              <button type="button" onClick={onClose} className="w-full py-4 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-purple">
                 Continue
               </button>
             </div>
@@ -3079,7 +3079,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
                     <span className="text-xs text-gray-500">Progress</span>
                     <span className="text-xs font-bold text-yellow-400">{qIndex + 1}/20</span>
                   </div>
-                  <div className="h-2 bg-[#1a1333] rounded-full overflow-hidden">
+                  <div className="h-2 bg-[#1a1333]/80 backdrop-blur-sm rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-300" style={{
                       width: `${((qIndex + 1) / 20) * 100}%`,
                       background: 'linear-gradient(90deg, #eab308, #f97316, #ef4444)'
@@ -3102,7 +3102,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
               {/* Statement Card */}
               <div className={`relative mb-6 transition-all duration-200 ${feedback === 'correct' ? 'scale-[0.98]' : feedback === 'wrong' ? 'scale-[0.98]' : ''}`}>
                 <div className={`absolute -inset-[1px] rounded-2xl blur-sm transition-all duration-200 ${feedback === 'correct' ? 'bg-green-500/40' : feedback === 'wrong' ? 'bg-red-500/40' : 'bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20'}`} />
-                <div className={`relative bg-[#1a1333] rounded-2xl p-6 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
+                <div className={`relative bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-6 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
                   {feedback === 'correct' && <div className="absolute top-3 right-3 text-green-400 font-bold text-sm animate-pulse">✓ Correct!</div>}
                   {feedback === 'wrong' && <div className="absolute top-3 right-3 text-red-400 font-bold text-sm animate-pulse">✗ Wrong!</div>}
                   <p className="font-bold text-center leading-relaxed">{questions[qIndex].statement}</p>
@@ -3344,7 +3344,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
               {/* Question */}
               <div className="relative mb-4">
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-orange-500/20 via-red-500/20 to-orange-500/20 rounded-2xl blur-sm" />
-                <div className="relative bg-[#1a1333] rounded-2xl p-5">
+                <div className="relative bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-5">
                   <p className="font-bold text-center leading-relaxed">{question.q}</p>
                 </div>
               </div>
@@ -3384,7 +3384,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
               {/* Cash Out Button */}
               {streak > 0 && !showAnswer && (
                 <button type="button" onClick={cashOut}
-                  className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-black text-base hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/30 flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-green flex items-center justify-center gap-2"
                   style={{ boxShadow: '0 0 20px rgba(34,197,94,0.25), 0 4px 12px rgba(0,0,0,0.3)' }}>
                   <span className="text-lg">💰</span> Cash Out — {currentPrize} Coins
                 </button>
@@ -3418,7 +3418,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
                   <div className="text-red-400/60 text-xs">Better luck next time!</div>
                 </div>
               )}
-              <button type="button" onClick={onClose} className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
+              <button type="button" onClick={onClose} className="w-full py-4 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-purple">
                 Continue
               </button>
             </div>
@@ -3478,7 +3478,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
               const done = progress >= step.target;
               const pct = Math.min(100, (progress / step.target) * 100);
               return (
-                <div key={step.id} className={`rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : 'bg-[#1a1333] border-purple-900/30'}`}>
+                <div key={step.id} className={`rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : 'bg-[#1a1333]/80 backdrop-blur-sm border-purple-500/[0.08]'}`}>
                   <div className="flex items-center gap-3 p-3.5">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg ${done ? 'bg-green-500/20' : 'bg-purple-500/10'}`}>
                       {done ? '✅' : step.icon}
@@ -3489,7 +3489,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
                         <span className={`text-xs font-bold ml-2 ${done ? 'text-green-400' : 'text-gray-500'}`}>{Math.min(progress, step.target)}/{step.target}</span>
                       </div>
                       {!done && (
-                        <div className="h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden mt-1.5">
+                        <div className="h-1.5 bg-[#0f0a1f]/70 rounded-full overflow-hidden mt-1.5">
                           <div className="h-full rounded-full transition-all duration-500" style={{
                             width: `${pct}%`,
                             background: 'linear-gradient(90deg, #a855f7, #ec4899)'
@@ -3511,7 +3511,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
           </div>
 
           {/* Rewards */}
-          <div className={`rounded-xl p-4 mb-4 border ${isComplete ? 'bg-green-500/5 border-green-500/20' : 'bg-[#1a1333] border-purple-900/30'}`}>
+          <div className={`rounded-xl p-4 mb-4 border ${isComplete ? 'bg-green-500/5 border-green-500/20' : 'bg-[#1a1333]/80 backdrop-blur-sm border-purple-500/[0.08]'}`}>
             <div className="text-xs font-bold text-gray-500 mb-2">{isComplete ? '✅ REWARDS CLAIMED' : '🎁 QUEST REWARDS'}</div>
             <div className="flex items-center gap-4">
               <span className="text-yellow-400 font-bold text-sm">🪙 {quest.reward.kwacha}</span>
@@ -3524,7 +3524,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
           {/* Action Button */}
           {canClaim && (
             <button type="button" onClick={() => onClaim(quest)}
-              className="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl font-black text-base hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-green-500/30 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-green flex items-center justify-center gap-2"
               style={{ boxShadow: '0 0 20px rgba(34,197,94,0.25)' }}>
               🎉 Claim Rewards
             </button>
@@ -3536,7 +3536,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
           )}
           {!canClaim && !isComplete && (
             <button type="button" onClick={() => { onClose(); onNavigate('minigames'); }}
-              className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
+              className="w-full py-4 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-purple">
               Go Play →
             </button>
           )}
@@ -3588,7 +3588,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
   if (answered || showResult) {
     const correct = user.dailyChallengeCorrect;
     return (
-      <div className={`bg-[#1a1333] rounded-2xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-purple-900/30'} relative`}>
+      <div className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-purple-500/[0.08]'} relative`}>
         <div className="p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${correct ? 'bg-green-500/20' : 'bg-red-500/10'}`}>
@@ -3602,7 +3602,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
             </div>
           </div>
           {!correct && (
-            <div className="bg-[#0f0a1f] rounded-xl p-3">
+            <div className="bg-[#0f0a1f]/70 rounded-xl p-3">
               <div className="text-xs text-gray-500 mb-1">The correct answer was:</div>
               <div className="text-sm font-bold text-green-400">{question.a}</div>
             </div>
@@ -3613,7 +3613,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
   }
 
   return (
-    <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-amber-500/30 shadow-lg shadow-amber-500/10">
+    <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-amber-500/30 shadow-lg shadow-amber-500/10">
       <div className="relative h-28 overflow-hidden">
         <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-[#1a1333]/40 to-transparent" />
@@ -3628,14 +3628,14 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
         </div>
       </div>
       <div className="p-4">
-        <div className="bg-[#0f0a1f] rounded-xl p-3 mb-3">
+        <div className="bg-[#0f0a1f]/70 rounded-xl p-3 mb-3">
           <p className="font-bold text-sm">{question.q}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
         {question.options.map((opt, i) => {
           const isCorrect = opt === question.a;
           const isSelected = opt === selected;
-          let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-900/30';
+          let bg = 'bg-[#231a40] hover:bg-purple-500/20 border border-purple-500/[0.08]';
           if (showAnswer) {
             if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
             else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
@@ -3689,8 +3689,147 @@ export default function GamificationPlatform() {
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
+      /* Global overrides - bigger/bolder fonts, soft edges */
+      * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      
+      /* ===== 3D BUTTON SYSTEM ===== */
+      .btn-3d {
+        position: relative;
+        border: none;
+        border-radius: 16px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        box-shadow: 
+          0 4px 0 rgba(0,0,0,0.35),
+          0 6px 20px rgba(0,0,0,0.25),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.15);
+        transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+        overflow: hidden;
+        transform: translateY(0);
+      }
+      .btn-3d:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+          0 6px 0 rgba(0,0,0,0.35),
+          0 10px 30px rgba(0,0,0,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.25),
+          inset 0 -1px 0 rgba(0,0,0,0.15);
+      }
+      .btn-3d:active {
+        transform: translateY(3px);
+        box-shadow: 
+          0 1px 0 rgba(0,0,0,0.35),
+          0 2px 8px rgba(0,0,0,0.2),
+          inset 0 2px 4px rgba(0,0,0,0.2);
+      }
+      .btn-3d::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 50%;
+        background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+        border-radius: 16px 16px 0 0;
+        pointer-events: none;
+      }
+      
+      /* Purple 3D button */
+      .btn-3d-purple {
+        background: linear-gradient(180deg, #9333EA 0%, #7C3AED 40%, #6D28D9 100%);
+        box-shadow: 
+          0 4px 0 #4C1D95,
+          0 6px 20px rgba(124,58,237,0.35),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.2);
+      }
+      .btn-3d-purple:hover {
+        box-shadow: 
+          0 6px 0 #4C1D95,
+          0 10px 30px rgba(124,58,237,0.5),
+          inset 0 1px 0 rgba(255,255,255,0.25);
+      }
+      .btn-3d-purple:active {
+        box-shadow: 
+          0 1px 0 #4C1D95,
+          0 2px 8px rgba(124,58,237,0.3),
+          inset 0 2px 4px rgba(0,0,0,0.3);
+      }
+      
+      /* Green 3D button */
+      .btn-3d-green {
+        background: linear-gradient(180deg, #22C55E 0%, #16A34A 40%, #15803D 100%);
+        box-shadow: 
+          0 4px 0 #166534,
+          0 6px 20px rgba(34,197,94,0.35),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.2);
+      }
+      .btn-3d-green:hover {
+        box-shadow: 
+          0 6px 0 #166534,
+          0 10px 30px rgba(34,197,94,0.5),
+          inset 0 1px 0 rgba(255,255,255,0.25);
+      }
+      .btn-3d-green:active {
+        box-shadow: 
+          0 1px 0 #166534,
+          0 2px 8px rgba(34,197,94,0.3),
+          inset 0 2px 4px rgba(0,0,0,0.3);
+      }
+
+      /* Pink 3D button */
+      .btn-3d-pink {
+        background: linear-gradient(180deg, #EC4899 0%, #DB2777 40%, #BE185D 100%);
+        box-shadow: 
+          0 4px 0 #9D174D,
+          0 6px 20px rgba(236,72,153,0.35),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.2);
+      }
+      .btn-3d-pink:hover {
+        box-shadow: 
+          0 6px 0 #9D174D,
+          0 10px 30px rgba(236,72,153,0.5),
+          inset 0 1px 0 rgba(255,255,255,0.25);
+      }
+
+      /* Blue 3D button */
+      .btn-3d-blue {
+        background: linear-gradient(180deg, #3B82F6 0%, #2563EB 40%, #1D4ED8 100%);
+        box-shadow: 
+          0 4px 0 #1E3A8A,
+          0 6px 20px rgba(59,130,246,0.35),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.2);
+      }
+      .btn-3d-blue:hover {
+        box-shadow: 
+          0 6px 0 #1E3A8A,
+          0 10px 30px rgba(59,130,246,0.5),
+          inset 0 1px 0 rgba(255,255,255,0.25);
+      }
+      
+      /* ===== SOFT CARD SYSTEM ===== */
+      .card-soft {
+        background: linear-gradient(145deg, rgba(30,21,69,0.85) 0%, rgba(15,10,31,0.9) 100%);
+        border: 1px solid rgba(168,85,247,0.08);
+        box-shadow: 
+          0 4px 24px rgba(0,0,0,0.3),
+          0 0 0 1px rgba(168,85,247,0.06),
+          inset 0 1px 0 rgba(255,255,255,0.04);
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+      }
+      .card-soft:hover {
+        border-color: rgba(168,85,247,0.15);
+        box-shadow: 
+          0 8px 32px rgba(0,0,0,0.4),
+          0 0 0 1px rgba(168,85,247,0.1),
+          inset 0 1px 0 rgba(255,255,255,0.06);
+      }
       
       @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
@@ -3734,8 +3873,8 @@ export default function GamificationPlatform() {
         100% { transform: scale(1); }
       }
       @keyframes borderGlow {
-        0%, 100% { border-color: rgba(168, 85, 247, 0.2); }
-        50% { border-color: rgba(168, 85, 247, 0.6); }
+        0%, 100% { border-color: rgba(168, 85, 247, 0.08); }
+        50% { border-color: rgba(168, 85, 247, 0.25); }
       }
       @keyframes wiggle {
         0%, 100% { transform: rotate(0deg); }
@@ -3794,8 +3933,8 @@ export default function GamificationPlatform() {
         transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
       }
       .hover-lift:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(168, 85, 247, 0.15);
+        transform: translateY(-6px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.1);
       }
       
       .btn-glow {
@@ -3806,13 +3945,12 @@ export default function GamificationPlatform() {
         content: '';
         position: absolute;
         inset: -2px;
-        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
         background-size: 200% 200%;
         animation: shimmer 2.5s infinite;
         border-radius: inherit;
         pointer-events: none;
       }
-      
 
       @keyframes modalScaleOut {
         0% { opacity: 1; transform: scale(1); }
@@ -4184,20 +4322,20 @@ export default function GamificationPlatform() {
   ];
 
   return (
-    <div className="flex h-screen bg-[#0f0a1f] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#0f0a1f]/70 text-white overflow-hidden">
       {/* Animated gradient background */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.6 }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.85 }}>
         <Grainient
-          color1="#2D1B69"
-          color2="#0a0618"
+          color1="#4C1D95"
+          color2="#0f0520"
           color3="#7C3AED"
-          timeSpeed={0.12}
-          warpStrength={1.0}
-          warpFrequency={4.0}
-          noiseScale={1.8}
-          grainAmount={0.06}
-          contrast={1.4}
-          saturation={1.2}
+          timeSpeed={0.25}
+          warpStrength={1.6}
+          warpFrequency={5.0}
+          noiseScale={2.0}
+          grainAmount={0.08}
+          contrast={1.5}
+          saturation={1.3}
         />
       </div>
       {/* Confetti Burst - Full screen premium */}
@@ -4446,7 +4584,7 @@ export default function GamificationPlatform() {
       {/* Avatar Selector Modal */}
       {showAvatarSelector && (
         <div className={`fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4 ${closingModal ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={() => animateClose(() => setShowAvatarSelector(false))}>
-          <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/30 ${closingModal ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
+          <div className={`bg-gradient-to-b from-[#1a1333] to-[#0f0a1f] rounded-3xl max-w-md w-full p-6 border border-purple-500/10 ${closingModal ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Choose Avatar</h2>
               <button 
@@ -4491,7 +4629,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-[#1a1333]/95 backdrop-blur-xl h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r border-purple-900/30`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-[#110d24]/80 backdrop-blur-2xl h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r border-purple-500/[0.08]`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="p-4">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -4505,7 +4643,7 @@ export default function GamificationPlatform() {
           </div>
 
           {/* User Profile Card */}
-          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/30 glow-border">
+          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/10 glow-border">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -4547,11 +4685,10 @@ export default function GamificationPlatform() {
                   key={t.id} 
                   type="button" 
                   onClick={() => { setTab(t.id); setMobileMenuOpen(false); }} 
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-300 relative overflow-hidden ${active ? 'bg-gradient-to-r from-purple-600/80 to-pink-600/80 shadow-lg shadow-purple-500/20' : 'hover:bg-[#2d2250]/50 text-gray-300 hover:text-white'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 relative overflow-hidden ${active ? 'btn-3d btn-3d-purple text-white' : 'hover:bg-white/[0.04] text-gray-400 hover:text-white'}`}
                 >
-                  {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-purple-400 rounded-r-full shadow-lg shadow-purple-400/50" />}
                   <Icon className={`w-5 h-5 transition-transform duration-300 ${!active ? 'group-hover:scale-110' : ''}`} />
-                  <span className="font-medium">{t.label}</span>
+                  <span className="font-bold text-[15px]">{t.label}</span>
                 </button>
               );
             })}
@@ -4633,7 +4770,7 @@ export default function GamificationPlatform() {
       {/* Main Content */}
       <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
-        <header className="bg-[#1a1333]/90 backdrop-blur-xl border-b border-purple-900/30 p-4 sticky top-0 z-20">
+        <header className="bg-[#1a1333]/80 backdrop-blur-sm/90 backdrop-blur-xl border-b border-purple-500/[0.08] p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             {/* Mobile Menu Button */}
             <button 
@@ -4648,26 +4785,26 @@ export default function GamificationPlatform() {
             <div className="hidden md:block w-32"></div>
 
             {/* Currency Display - Centered */}
-            <div className="flex items-center justify-center gap-6 flex-1 md:flex-none">
-              <div className={`flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-yellow-500/30 shadow-lg shadow-yellow-500/10 transition-all duration-300 hover:border-yellow-500/40 ${coinBounce ? 'anim-coin-bounce' : ''}`}>
-                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-14 h-14 object-contain" />
+            <div className="flex items-center justify-center gap-4 flex-1 md:flex-none">
+              <div className={`flex items-center gap-3 px-5 py-3 bg-[#1a1333]/60 backdrop-blur-xl rounded-2xl border border-yellow-500/10 shadow-lg shadow-yellow-500/5 transition-all duration-300 ${coinBounce ? 'anim-coin-bounce' : ''}`}>
+                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-10 h-10 object-contain" />
                 <div>
-                  <div className="font-black text-3xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
-                  <div className="text-sm text-gray-400">Coins</div>
+                  <div className="font-black text-2xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
+                  <div className="text-xs text-gray-500 font-bold tracking-wider">COINS</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-green-500/30 shadow-lg shadow-green-500/10">
-                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-14 h-14 object-contain" />
+              <div className="flex items-center gap-3 px-5 py-3 bg-[#1a1333]/60 backdrop-blur-xl rounded-2xl border border-green-500/10 shadow-lg shadow-green-500/5">
+                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-10 h-10 object-contain" />
                 <div>
-                  <div className="font-black text-3xl text-green-400">{user.gems}</div>
-                  <div className="text-sm text-gray-400">Gems</div>
+                  <div className="font-black text-2xl text-green-400">{user.gems}</div>
+                  <div className="text-xs text-gray-500 font-bold tracking-wider">GEMS</div>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-4 px-6 py-4 bg-[#231a40] rounded-2xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
-                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-14 h-14 object-contain" />
+              <div className="hidden sm:flex items-center gap-3 px-5 py-3 bg-[#1a1333]/60 backdrop-blur-xl rounded-2xl border border-blue-500/10 shadow-lg shadow-blue-500/5">
+                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-10 h-10 object-contain" />
                 <div>
-                  <div className="font-black text-3xl text-blue-400">{user.diamonds}</div>
-                  <div className="text-sm text-gray-400">Diamonds</div>
+                  <div className="font-black text-2xl text-blue-400">{user.diamonds}</div>
+                  <div className="text-xs text-gray-500 font-bold tracking-wider">DIAMONDS</div>
                 </div>
               </div>
             </div>
@@ -4703,8 +4840,8 @@ export default function GamificationPlatform() {
                 <img src={IMAGES.welcomeBanner} alt="" className="w-full h-52 object-cover transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent flex items-center p-8">
                   <div>
-                    <h1 className="text-3xl font-black mb-2">Welcome back! 👋</h1>
-                    <p className="text-white/80 mb-4">Ready to win big today?</p>
+                    <h1 className="text-4xl font-black mb-2 tracking-tight">Welcome back! 👋</h1>
+                    <p className="text-white/80 mb-4 text-lg">Ready to win big today?</p>
                     <div className="flex items-center gap-3 flex-wrap">
                       <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-xl backdrop-blur-sm">
                         <Flame className="w-5 h-5 text-orange-400" />
@@ -4722,7 +4859,7 @@ export default function GamificationPlatform() {
               {/* Quick Actions - 3 Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Daily Reward Card */}
-                <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-green-500/50 transition-all hover-lift group">
+                <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.08] hover:border-green-500/50 transition-all hover-lift group">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.dailyGift} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -4768,7 +4905,7 @@ export default function GamificationPlatform() {
                           trackQuest('xpEarned', { amount: 20 });
                           showNotif(`🎉 +${r.kwacha} Coins!`);
                         }} 
-                        className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold btn-glow transition-all duration-300 hover:scale-[1.02] active:scale-95"
+                        className="w-full py-3.5 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-green"
                       >
                         Claim!
                       </button>
@@ -4777,7 +4914,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div onClick={() => playGame('wheel')} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
+                <div onClick={() => playGame('wheel')} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.06] hover:border-purple-500/20 shadow-lg shadow-black/20 transition-all hover-lift group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -4794,16 +4931,16 @@ export default function GamificationPlatform() {
                     )}
                   </div>
                   <div className="p-4">
-                    <div className="font-bold text-lg mb-1">Spin Wheel</div>
+                    <div className="font-black text-xl mb-1">Spin Wheel</div>
                     <div className="text-sm text-gray-400 mb-3">{user.gamePlays.wheel} spins left</div>
-                    <div className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold btn-glow text-center">
+                    <div className="w-full py-3.5 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-purple text-center">
                       Play!
                     </div>
                   </div>
                 </div>
 
                 {/* Predictions Card */}
-                <div onClick={() => setTab('predictions')} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-blue-500/50 transition-all hover-lift group cursor-pointer">
+                <div onClick={() => setTab('predictions')} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.08] hover:border-blue-500/50 transition-all hover-lift group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -4818,9 +4955,9 @@ export default function GamificationPlatform() {
                     </span>
                   </div>
                   <div className="p-4">
-                    <div className="font-bold text-lg mb-1">Predictions</div>
+                    <div className="font-black text-xl mb-1">Predictions</div>
                     <div className="text-sm text-gray-400 mb-3">{MATCHES.length} matches available</div>
-                    <div className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl font-bold text-center">
+                    <div className="w-full py-3.5 rounded-2xl font-black text-lg tracking-wide btn-3d btn-3d-blue text-center">
                       Predict!
                     </div>
                   </div>
@@ -4831,7 +4968,7 @@ export default function GamificationPlatform() {
               <button 
                 type="button" 
                 onClick={() => setTab('minigames')} 
-                className="w-full rounded-2xl overflow-hidden hover:opacity-90 transition-opacity"
+                className="w-full rounded-3xl overflow-hidden hover:opacity-90 transition-opacity"
               >
                 <img src={IMAGES.jackpotBanner} alt="" className="w-full h-44 object-cover" />
               </button>
@@ -4859,7 +4996,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[...getDailyMissions(), ...PERMANENT_MISSIONS].filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <button key={m.id} type="button" onClick={() => setSelectedMission(m)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group text-left">
+                    <button key={m.id} type="button" onClick={() => setSelectedMission(m)} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.06] hover:border-purple-500/20 shadow-lg shadow-black/20 transition-all hover-lift group text-left">
                       <div className="relative h-40 overflow-hidden">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {m.difficulty && (
@@ -4899,7 +5036,7 @@ export default function GamificationPlatform() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold">Featured Store</h2>
+                    <h2 className="text-2xl font-black tracking-tight">Featured Store</h2>
                     <button 
                       type="button" 
                       onClick={() => setActiveTutorial('store')} 
@@ -4918,7 +5055,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {STORE_ITEMS.filter(i => i.featured || i.isNew).slice(0, 4).map(item => (
-                    <div key={item.id} className="bg-[#1a1333] rounded-xl overflow-hidden border border-purple-900/30 hover-lift group">
+                    <div key={item.id} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl overflow-hidden border border-purple-500/[0.08] hover-lift group">
                       <div className="relative h-32 overflow-hidden">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {item.isNew && (
@@ -4949,12 +5086,12 @@ export default function GamificationPlatform() {
           {tab === 'minigames' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold">Minigames</h1>
-                <p className="text-gray-400">Play games and win prizes!</p>
+                <h1 className="text-3xl font-black tracking-tight">Minigames</h1>
+                <p className="text-gray-400 text-base">Play games and win prizes!</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} onClick={() => playGame(game.id)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
+                  <div key={game.id} onClick={() => playGame(game.id)} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.06] hover:border-purple-500/20 shadow-lg shadow-black/20 transition-all hover-lift group cursor-pointer">
                     <div className="relative h-44 overflow-hidden">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       {user.gamePlays[game.id] > 0 && (
@@ -4976,10 +5113,10 @@ export default function GamificationPlatform() {
                       </button>
                     </div>
                     <div className="p-4">
-                      <div className="font-bold text-lg mb-1">{game.name}</div>
+                      <div className="font-black text-xl mb-1">{game.name}</div>
                       <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
                       <div 
-                        className={`w-full py-3 rounded-xl font-bold text-center transition-all duration-300 ${user.gamePlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 btn-glow' : 'bg-gray-700'}`}
+                        className={`w-full py-3.5 rounded-2xl font-black text-center text-lg tracking-wide transition-all duration-200 ${user.gamePlays[game.id] > 0 ? 'btn-3d btn-3d-purple' : 'bg-gray-700/60 text-gray-400'}`}
                       >
                         {user.gamePlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
                       </div>
@@ -4993,13 +5130,13 @@ export default function GamificationPlatform() {
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-2xl">🧠</span>
                   <div>
-                    <h2 className="text-xl font-bold">Trivia</h2>
+                    <h2 className="text-2xl font-black tracking-tight">Trivia</h2>
                     <p className="text-sm text-gray-400">Test your knowledge, win prizes!</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {TRIVIA_GAMES.map(game => (
-                    <div key={game.id} onClick={() => playTrivia(game.id)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
+                    <div key={game.id} onClick={() => playTrivia(game.id)} className="bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border border-purple-500/[0.06] hover:border-purple-500/20 shadow-lg shadow-black/20 transition-all hover-lift group cursor-pointer">
                       <div className="relative h-36 overflow-hidden">
                         <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
@@ -5013,10 +5150,10 @@ export default function GamificationPlatform() {
                         )}
                       </div>
                       <div className="p-4">
-                        <div className="font-bold text-lg mb-1">{game.name}</div>
+                        <div className="font-black text-xl mb-1">{game.name}</div>
                         <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
                         <div 
-                          className={`w-full py-3 rounded-xl font-bold text-center transition-all duration-300 ${user.triviaPlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 btn-glow' : 'bg-gray-700'}`}
+                          className={`w-full py-3.5 rounded-2xl font-black text-center text-lg tracking-wide transition-all duration-200 ${user.triviaPlays[game.id] > 0 ? 'btn-3d btn-3d-purple' : 'bg-gray-700/60 text-gray-400'}`}
                         >
                           {user.triviaPlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
                         </div>
@@ -5037,7 +5174,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.target} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Missions</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Missions</h1>
                   <p className="text-gray-400">Complete missions for rewards!</p>
                 </div>
                 <button 
@@ -5050,7 +5187,7 @@ export default function GamificationPlatform() {
               </div>
               
               {/* Mission Sub-Tabs */}
-              <div className="flex gap-2 bg-[#0f0a1f] rounded-xl p-1">
+              <div className="flex gap-2 bg-[#0f0a1f]/70 rounded-xl p-1">
                 {[
                   { id: 'daily', label: '🔄 Daily', count: getDailyMissions().length },
                   { id: 'weekly', label: '📅 Weekly', count: WEEKLY_MISSIONS.length },
@@ -5080,7 +5217,7 @@ export default function GamificationPlatform() {
                 return (
                   <div className="space-y-4">
                     {/* Daily progress bar */}
-                    <div className="bg-[#1a1333] rounded-2xl p-4 border border-purple-900/30">
+                    <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-4 border border-purple-500/[0.08]">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-bold">Daily Progress</span>
                         <span className="text-sm text-gray-400">{completedCount}/{dailyMissions.length} done</span>
@@ -5118,7 +5255,7 @@ export default function GamificationPlatform() {
                             key={m.id}
                             type="button"
                             onClick={() => setSelectedMission(m)}
-                            className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
+                            className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-500/[0.08] hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                           >
                             {/* Full-card completed overlay */}
                             {done && (
@@ -5169,7 +5306,7 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
+                        className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-500/[0.08] hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
@@ -5219,7 +5356,7 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-[#1a1333] rounded-2xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-900/30 hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
+                        className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-purple-500/[0.08] hover:border-purple-500/50 hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
@@ -5272,7 +5409,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.dailyGift} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Daily Rewards</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Daily Rewards</h1>
                   <p className="text-gray-400">Login every day for bigger rewards!</p>
                 </div>
                 <button 
@@ -5283,7 +5420,7 @@ export default function GamificationPlatform() {
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="bg-[#1a1333] rounded-2xl p-6 border border-purple-900/30">
+              <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/[0.08]">
                 <div className="flex items-center justify-center gap-2 mb-6">
                   <Flame className="w-6 h-6 text-orange-500" />
                   <span className="text-2xl font-bold">{user.streak} Day Streak</span>
@@ -5344,7 +5481,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.crown} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">VIP Club</h1>
+                  <h1 className="text-3xl font-black tracking-tight">VIP Club</h1>
                   <p className="text-gray-400">Exclusive benefits for loyal players</p>
                 </div>
                 <button 
@@ -5366,7 +5503,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {VIP_TIERS.map(tier => (
-                  <div key={tier.name} className={`bg-[#1a1333] rounded-2xl p-4 border hover-lift transition-all duration-300 ${tier.name === vip.name ? 'border-purple-500/50 bg-purple-500/10 glow-pulse' : 'border-purple-900/30'}`}>
+                  <div key={tier.name} className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-4 border hover-lift transition-all duration-300 ${tier.name === vip.name ? 'border-purple-500/50 bg-purple-500/10 glow-pulse' : 'border-purple-500/[0.08]'}`}>
                     <div className="text-4xl mb-2">{tier.icon}</div>
                     <div className="font-bold">{tier.name}</div>
                     <div className="text-sm text-gray-400">K{tier.min}+ deposits</div>
@@ -5392,14 +5529,14 @@ export default function GamificationPlatform() {
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="rounded-2xl overflow-hidden">
+              <div className="rounded-3xl overflow-hidden">
                 <img src={IMAGES.newArrivals} alt="" className="w-full h-44 object-cover" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {STORE_ITEMS.map(item => {
                   const canBuy = user.kwacha >= item.price.kwacha && (!item.price.gems || user.gems >= item.price.gems);
                   return (
-                    <div key={item.id} className={`bg-[#1a1333] rounded-2xl overflow-hidden border hover-lift group ${item.featured ? 'border-amber-500/50' : 'border-purple-900/30'}`}>
+                    <div key={item.id} className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-3xl overflow-hidden border hover-lift group ${item.featured ? 'border-amber-500/50' : 'border-purple-500/[0.08]'}`}>
                       <div className="relative h-44 overflow-hidden">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {item.featured && (
@@ -5460,7 +5597,7 @@ export default function GamificationPlatform() {
                 {MATCHES.map(m => {
                   const pred = user.predictions.find(p => p.id === m.id);
                   return (
-                    <div key={m.id} className={`bg-[#1a1333] rounded-2xl p-5 border hover-lift ${m.featured ? 'border-amber-500/50' : 'border-purple-900/30'}`}>
+                    <div key={m.id} className={`bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-5 border hover-lift ${m.featured ? 'border-amber-500/50' : 'border-purple-500/[0.08]'}`}>
                       {m.featured && (
                         <div className="text-xs text-amber-400 font-bold mb-2">⭐ FEATURED MATCH</div>
                       )}
@@ -5526,7 +5663,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.questMap} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Quests</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Quests</h1>
                   <p className="text-gray-400 text-sm">Multi-step adventures for bigger rewards!</p>
                 </div>
               </div>
@@ -5540,10 +5677,10 @@ export default function GamificationPlatform() {
 
                 return (
                   <button key={quest.id} type="button" onClick={() => setSelectedQuest(quest)}
-                    className={`w-full text-left rounded-2xl overflow-hidden border transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
+                    className={`w-full text-left rounded-3xl overflow-hidden border transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
                       isComplete ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40' :
                       canClaim ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/40 hover:border-green-400/60 shadow-lg shadow-green-500/10' :
-                      'bg-[#1a1333] border-purple-900/30 hover:border-purple-500/40'
+                      'bg-[#1a1333]/80 backdrop-blur-sm border-purple-500/[0.08] hover:border-purple-500/40'
                     }`}>
                     <div className="flex items-stretch">
                       {/* Left Image */}
@@ -5562,7 +5699,7 @@ export default function GamificationPlatform() {
                         <p className="text-xs text-gray-500 mb-2.5 line-clamp-1">{quest.desc}</p>
                         {/* Progress */}
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="flex-1 h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-[#0f0a1f]/70 rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all duration-500" style={{
                               width: `${isComplete ? 100 : pct}%`,
                               background: isComplete ? '#22c55e' : 'linear-gradient(90deg, #a855f7, #ec4899)'
@@ -5593,7 +5730,7 @@ export default function GamificationPlatform() {
           {tab === 'referrals' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold">Referrals</h1>
+                <h1 className="text-3xl font-black tracking-tight">Referrals</h1>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('referrals')} 
@@ -5608,7 +5745,7 @@ export default function GamificationPlatform() {
                   <p className="text-gray-400">Earn 500 Coins + 50 Gems per referral!</p>
                 </div>
                 <div className="flex gap-2 mb-6">
-                  <div className="flex-1 bg-[#1a1333] rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
+                  <div className="flex-1 bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
                   <button 
                     type="button" 
                     onClick={() => {
@@ -5621,15 +5758,15 @@ export default function GamificationPlatform() {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                  <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                     <div className="text-3xl font-black text-purple-400">{user.referrals}</div>
                     <div className="text-gray-400">Referrals</div>
                   </div>
-                  <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                  <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                     <div className="text-3xl font-black text-yellow-400">{user.referrals * 500}</div>
                     <div className="text-gray-400">Coins</div>
                   </div>
-                  <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                  <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                     <div className="text-3xl font-black text-green-400">{user.referrals * 50}</div>
                     <div className="text-gray-400">Gems</div>
                   </div>
@@ -5659,7 +5796,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.trophy} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Leaderboard</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Leaderboard</h1>
                   <p className="text-gray-400">Top players this week</p>
                 </div>
               </div>
@@ -5688,7 +5825,7 @@ export default function GamificationPlatform() {
                   { r: 4, n: 'Player1', k: user.kwacha, u: true },
                   { r: 5, n: 'WinMaster', k: 700 }
                 ].map(p => (
-                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.01] ${p.u ? 'bg-purple-500/20 border border-purple-500/50 glow-border' : 'bg-[#1a1333]'}`}>
+                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.01] ${p.u ? 'bg-purple-500/20 border border-purple-500/50 glow-border' : 'bg-[#1a1333]/80 backdrop-blur-sm'}`}>
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-[#231a40]'}`}>
                       {p.r}
                     </div>
@@ -5724,24 +5861,24 @@ export default function GamificationPlatform() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                   <div className="text-2xl font-bold text-yellow-400">{user.bets}</div>
                   <div className="text-gray-400">Bets Placed</div>
                 </div>
-                <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                   <div className="text-2xl font-bold text-green-400">{user.wins}</div>
                   <div className="text-gray-400">Bets Won</div>
                 </div>
-                <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                   <div className="text-2xl font-bold text-purple-400">{user.gamesPlayed}</div>
                   <div className="text-gray-400">Games Played</div>
                 </div>
-                <div className="bg-[#1a1333] rounded-xl p-4 text-center">
+                <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-xl p-4 text-center">
                   <div className="text-2xl font-bold text-pink-400">{user.missionsComplete.length}</div>
                   <div className="text-gray-400">Missions Done</div>
                 </div>
               </div>
-              <div className="bg-[#1a1333] rounded-2xl p-5 border border-purple-900/30">
+              <div className="bg-[#1a1333]/80 backdrop-blur-sm rounded-2xl p-5 border border-purple-500/[0.08]">
                 <h3 className="font-bold text-lg mb-4">Wallet</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
