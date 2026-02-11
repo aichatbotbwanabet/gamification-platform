@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { 
   Trophy, Star, Gift, Target, Crown, Gem, Diamond, Gamepad2, Store, Medal, 
   Ticket, Zap, ChevronRight, Lock, Check, X, Users, Award, Sparkles, 
@@ -1129,7 +1129,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="wheel" onClose={() => setShowTutorial(false)} />}
       
       {/* Screen Flash on Win */}
@@ -1431,6 +1431,7 @@ function ScratchGame({ onClose, onWin, closing }) {
   const canvas2 = useRef(null);
   const canvasRefs = [canvas0, canvas1, canvas2];
   const [scratching, setScratching] = useState(-1);
+  const scratchingRef = useRef(-1);
   const [revealed, setRevealed] = useState([false, false, false]);
   const [allRevealed, setAllRevealed] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
@@ -1438,7 +1439,6 @@ function ScratchGame({ onClose, onWin, closing }) {
   const [prizeAnim, setPrizeAnim] = useState(false);
   const [jackpotFlash, setJackpotFlash] = useState(false);
   const [jackpotShake, setJackpotShake] = useState(false);
-  const [displayPrize, setDisplayPrize] = useState(0);
   const lastPos = useRef({ x: 0, y: 0 });
   const percents = useRef([0, 0, 0]);
 
@@ -1482,22 +1482,6 @@ function ScratchGame({ onClose, onWin, closing }) {
     : matchCount === 2 ? [50, 75, 100][Math.floor(Math.random() * 3)]
     : [10, 15, 25][Math.floor(Math.random() * 3)];
 
-  // Prize count-up effect
-  useEffect(() => {
-    if (!allRevealed) return;
-    let current = 0;
-    const step = Math.max(1, Math.floor(prize / 30));
-    const interval = setInterval(() => {
-      current += step;
-      if (current >= prize) {
-        current = prize;
-        clearInterval(interval);
-      }
-      setDisplayPrize(current);
-    }, 30);
-    return () => clearInterval(interval);
-  }, [allRevealed, prize]);
-
   // Draw gold foil on each canvas
   useEffect(() => {
     canvasRefs.forEach((ref) => {
@@ -1531,7 +1515,7 @@ function ScratchGame({ onClose, onWin, closing }) {
   }, []);
 
   const doScratch = (e, idx) => {
-    if (scratching !== idx || revealed[idx]) return;
+    if (scratchingRef.current !== idx || revealed[idx]) return;
     const c = canvasRefs[idx].current;
     const ctx = c.getContext('2d');
     const rect = c.getBoundingClientRect();
@@ -1592,8 +1576,8 @@ function ScratchGame({ onClose, onWin, closing }) {
     }
   };
 
-  const startScratch = (idx) => { setScratching(idx); lastPos.current = { x: 0, y: 0 }; };
-  const stopScratch = () => setScratching(-1);
+  const startScratch = (idx) => { scratchingRef.current = idx; setScratching(idx); lastPos.current = { x: 0, y: 0 }; };
+  const stopScratch = () => { scratchingRef.current = -1; setScratching(-1); };
 
   // Check if two symbols match for pulse effect
   const isMatched = (idx) => {
@@ -1602,7 +1586,7 @@ function ScratchGame({ onClose, onWin, closing }) {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? 'anim-backdrop-close' : 'anim-fade-in'}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? 'anim-backdrop-close' : 'anim-fade-in'}`}>
       {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
 
       {/* Jackpot screen flash */}
@@ -1659,7 +1643,7 @@ function ScratchGame({ onClose, onWin, closing }) {
                   transition: 'all 0.5s ease',
                 }}>
                   {/* Prize underneath */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: revealed[idx] ? `radial-gradient(circle, ${symbols[idx].color}15 0%, rgba(5,10,20,0.95) 70%)` : 'rgba(5,10,20,0.95)' }}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: `radial-gradient(circle, ${symbols[idx].color}10 0%, rgba(5,10,20,0.95) 70%)` }}>
                     {/* Reveal burst ring */}
                     {revealed[idx] && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1675,8 +1659,8 @@ function ScratchGame({ onClose, onWin, closing }) {
                         animation: revealed[idx]
                           ? `symbolPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both${isMatched(idx) ? ', matchPulse 1.2s ease-in-out 0.6s infinite' : ''}`
                           : 'none',
-                        opacity: revealed[idx] ? 1 : 0.2,
-                        transform: revealed[idx] ? 'scale(1)' : 'scale(0.4)',
+                        opacity: 1,
+                        transform: 'scale(1)',
                         filter: revealed[idx] ? `drop-shadow(0 0 14px ${symbols[idx].color}90)` : 'none',
                       }}
                     />
@@ -1690,7 +1674,7 @@ function ScratchGame({ onClose, onWin, closing }) {
                         boxShadow: `0 0 6px ${symbols[idx].color}`,
                       }} />
                     ))}
-                    <div className={`text-xs font-black mt-2 tracking-wider transition-all duration-500 ${revealed[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`} style={{ color: symbols[idx].color, transitionDelay: '0.3s' }}>
+                    <div className="text-xs font-black mt-2 tracking-wider" style={{ color: symbols[idx].color }}>
                       {symbols[idx].name.toUpperCase()}
                     </div>
                   </div>
@@ -1759,7 +1743,7 @@ function ScratchGame({ onClose, onWin, closing }) {
                   {matchCount === 3 ? '🔥 JACKPOT! 3 MATCHES! 🔥' : matchCount === 2 ? '✨ 2 MATCHES!' : 'Bonus Prize'}
                 </div>
                 <div className={`text-5xl font-black tabular-nums ${matchCount === 3 ? 'text-yellow-400' : matchCount === 2 ? 'text-blue-400' : 'text-gray-300'}`} style={{ textShadow: matchCount === 3 ? '0 0 30px rgba(251,191,36,0.5)' : 'none' }}>
-                  {displayPrize}
+                  {prize}
                 </div>
                 <div className={`text-sm font-bold ${matchCount === 3 ? 'text-yellow-500' : matchCount === 2 ? 'text-blue-300' : 'text-gray-500'}`}>
                   KWACHA
@@ -1884,7 +1868,7 @@ function DiceGame({ onClose, onWin, closing }) {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="dice" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -1959,7 +1943,16 @@ function DiceGame({ onClose, onWin, closing }) {
 // MEMORY GAME COMPONENT
 // ============================================================================
 function MemoryGame({ onClose, onWin, closing }) {
-  const symbols = ['🎁', '💎', '⭐', '🏆', '👑', '🎰', '🍀', '💰'];
+  const MEMORY_SYMBOLS = [
+    { id: 'diamond', img: '/images/diamond.png', label: 'Diamond' },
+    { id: 'coin', img: '/images/coin.png', label: 'Coin' },
+    { id: 'gem', img: '/images/gem.png', label: 'Gem' },
+    { id: 'fire', img: '/images/wheel/fire.png', label: 'Fire' },
+    { id: 'star', img: '/images/wheel/star.png', label: 'Star' },
+    { id: 'clover', img: '/images/wheel/lucky-clover.png', label: 'Clover' },
+    { id: 'crown', img: '/images/wheel/crown.png', label: 'Crown' },
+    { id: 'lightning', img: '/images/wheel/lightning.png', label: 'Lightning' },
+  ];
   const [cards, setCards] = useState([]);
   const [flipped, setFlipped] = useState([]);
   const [matched, setMatched] = useState([]);
@@ -1967,7 +1960,7 @@ function MemoryGame({ onClose, onWin, closing }) {
   const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
-    setCards([...symbols, ...symbols]
+    setCards([...MEMORY_SYMBOLS, ...MEMORY_SYMBOLS]
       .sort(() => Math.random() - 0.5)
       .map((s, i) => ({ id: i, symbol: s })));
   }, []);
@@ -1982,7 +1975,7 @@ function MemoryGame({ onClose, onWin, closing }) {
       setMoves(m => m + 1);
       const [a, b] = newFlipped;
       
-      if (cards[a].symbol === cards[b].symbol) {
+      if (cards[a].symbol.id === cards[b].symbol.id) {
         const newMatched = [...matched, a, b];
         setMatched(newMatched);
         setFlipped([]);
@@ -2001,7 +1994,7 @@ function MemoryGame({ onClose, onWin, closing }) {
   const prize = Math.max(300 - moves * 10, 50);
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="memory" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -2021,7 +2014,7 @@ function MemoryGame({ onClose, onWin, closing }) {
             <div className="text-xs text-gray-400">Moves</div>
           </div>
           <div className="text-center px-4 py-2 bg-black/50 rounded-xl border border-white/10">
-            <div className="text-xl font-bold text-green-400">{matched.length/2}/{symbols.length}</div>
+            <div className="text-xl font-bold text-green-400">{matched.length/2}/{MEMORY_SYMBOLS.length}</div>
             <div className="text-xs text-gray-400">Pairs</div>
           </div>
           <div className="text-center px-4 py-2 bg-black/50 rounded-xl border border-white/10">
@@ -2041,13 +2034,17 @@ function MemoryGame({ onClose, onWin, closing }) {
                 type="button" 
                 onClick={() => flip(card.id)} 
                 disabled={isFlipped} 
-                className={`aspect-square rounded-xl text-3xl flex items-center justify-center font-bold ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-yellow-400 to-orange-500') : 'bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50'}`}
+                className={`aspect-square rounded-xl flex items-center justify-center font-bold ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-[#0d1520] to-[#0a1018]') : 'bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50'}`}
                 style={{ 
                   animation: isMatched ? 'correctPop 0.4s ease both' : isFlipped ? 'cardFlipIn 0.3s ease both' : 'none',
                   transition: 'all 0.2s ease',
                 }}
               >
-                {isFlipped ? card.symbol : '?'}
+                {isFlipped ? (
+                  <img src={card.symbol.img} alt={card.symbol.label} className="w-10 h-10 object-contain" style={{ filter: 'drop-shadow(0 0 6px rgba(255,255,255,0.3))' }} />
+                ) : (
+                  <span className="text-white/60 text-lg font-black">?</span>
+                )}
               </button>
             );
           })}
@@ -2122,7 +2119,7 @@ function HighLowGame({ onClose, onWin, closing }) {
   );
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="highlow" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -2222,58 +2219,212 @@ function HighLowGame({ onClose, onWin, closing }) {
 // PLINKO DROP GAME
 // ============================================================================
 function PlinkoGame({ onClose, onWin, closing }) {
-  const [balls, setBalls] = useState([]);
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
   const [dropping, setDropping] = useState(false);
   const [result, setResult] = useState(null);
   const [dropX, setDropX] = useState(50);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [hitPegs, setHitPegs] = useState(new Set());
+  const ballRef = useRef(null);
   
-  const ROWS = 8;
-  const SLOTS = [500, 50, 25, 10, 5, 10, 25, 50, 500];
-  const SLOT_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#22c55e', '#eab308', '#f97316', '#ef4444'];
+  const ROWS = 12;
+  const SLOTS = [500, 100, 50, 25, 10, 5, 10, 25, 50, 100, 500];
+  const SLOT_COLORS = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#3b82f6', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444'];
+  const W = 380, H = 420;
+  const PEG_R = 5, BALL_R = 8;
+  const GRAVITY = 0.35, BOUNCE = 0.55, FRICTION = 0.98;
+  
+  // Calculate peg positions once
+  const pegs = useMemo(() => {
+    const p = [];
+    const startY = 40;
+    const endY = H - 50;
+    const rowH = (endY - startY) / (ROWS - 1);
+    for (let row = 0; row < ROWS; row++) {
+      const pegsInRow = row + 3;
+      const rowWidth = W * 0.78;
+      const startX = (W - rowWidth) / 2;
+      const spacing = rowWidth / (pegsInRow - 1 || 1);
+      for (let col = 0; col < pegsInRow; col++) {
+        p.push({ x: startX + col * spacing, y: startY + row * rowH, row, col, id: `${row}-${col}` });
+      }
+    }
+    return p;
+  }, []);
   
   const drop = () => {
     if (dropping) return;
     setDropping(true);
     setResult(null);
+    setHitPegs(new Set());
     
-    // Simulate ball path through pegs
-    let x = dropX;
-    const path = [{ x, y: 0 }];
+    const startX = (dropX / 100) * W * 0.7 + W * 0.15;
+    ballRef.current = { x: startX, y: 8, vx: (Math.random() - 0.5) * 0.5, vy: 0, trail: [] };
     
-    for (let row = 1; row <= ROWS; row++) {
-      // Each peg deflects left or right with slight bias toward center
-      const bias = (50 - x) * 0.02;
-      x += (Math.random() + bias > 0.5 ? 1 : -1) * (100 / (SLOTS.length));
-      x = Math.max(5, Math.min(95, x));
-      path.push({ x, y: row * (100 / (ROWS + 1)) });
-    }
+    const hitSet = new Set();
+    let settled = 0;
     
-    // Determine which slot the ball lands in
-    const slotWidth = 100 / SLOTS.length;
-    const slotIndex = Math.min(SLOTS.length - 1, Math.floor(x / slotWidth));
-    const prize = SLOTS[slotIndex];
-    
-    // Animate ball
-    const ballId = Date.now();
-    let step = 0;
-    
-    const interval = setInterval(() => {
-      if (step < path.length) {
-        setBalls([{ id: ballId, x: path[step].x, y: path[step].y + 8 }]);
-        step++;
-      } else {
-        clearInterval(interval);
-        setBalls([{ id: ballId, x: path[path.length - 1].x, y: 95 }]);
+    const animate = () => {
+      const b = ballRef.current;
+      if (!b) return;
+      
+      // Physics
+      b.vy += GRAVITY;
+      b.vx *= FRICTION;
+      b.x += b.vx;
+      b.y += b.vy;
+      
+      // Trail
+      b.trail.push({ x: b.x, y: b.y });
+      if (b.trail.length > 12) b.trail.shift();
+      
+      // Wall bounces
+      if (b.x < BALL_R + 10) { b.x = BALL_R + 10; b.vx = Math.abs(b.vx) * BOUNCE; }
+      if (b.x > W - BALL_R - 10) { b.x = W - BALL_R - 10; b.vx = -Math.abs(b.vx) * BOUNCE; }
+      
+      // Peg collisions
+      for (const peg of pegs) {
+        const dx = b.x - peg.x;
+        const dy = b.y - peg.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minDist = PEG_R + BALL_R;
+        
+        if (dist < minDist && dist > 0) {
+          // Push ball out
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const overlap = minDist - dist;
+          b.x += nx * overlap;
+          b.y += ny * overlap;
+          
+          // Reflect velocity
+          const dot = b.vx * nx + b.vy * ny;
+          b.vx -= 2 * dot * nx * BOUNCE;
+          b.vy -= 2 * dot * ny * BOUNCE;
+          
+          // Add randomness for natural feel
+          b.vx += (Math.random() - 0.5) * 1.5;
+          
+          // Track hit
+          hitSet.add(peg.id);
+          setHitPegs(new Set(hitSet));
+        }
+      }
+      
+      // Draw
+      const c = canvasRef.current;
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+      
+      // Draw pegs
+      for (const peg of pegs) {
+        const isHit = hitSet.has(peg.id);
+        ctx.beginPath();
+        ctx.arc(peg.x, peg.y, PEG_R, 0, Math.PI * 2);
+        const grad = ctx.createRadialGradient(peg.x - 1, peg.y - 1, 1, peg.x, peg.y, PEG_R);
+        if (isHit) {
+          grad.addColorStop(0, '#fde68a');
+          grad.addColorStop(1, '#f59e0b');
+          ctx.shadowColor = '#fbbf24';
+          ctx.shadowBlur = 12;
+        } else {
+          grad.addColorStop(0, '#c084fc');
+          grad.addColorStop(1, '#7c3aed');
+          ctx.shadowColor = '#a855f7';
+          ctx.shadowBlur = 4;
+        }
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+      
+      // Draw ball trail
+      for (let i = 0; i < b.trail.length; i++) {
+        const alpha = (i / b.trail.length) * 0.4;
+        const r = BALL_R * (0.4 + (i / b.trail.length) * 0.6);
+        ctx.beginPath();
+        ctx.arc(b.trail[i].x, b.trail[i].y, r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(251,191,36,${alpha})`;
+        ctx.fill();
+      }
+      
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, BALL_R, 0, Math.PI * 2);
+      const ballGrad = ctx.createRadialGradient(b.x - 2, b.y - 2, 1, b.x, b.y, BALL_R);
+      ballGrad.addColorStop(0, '#fef08a');
+      ballGrad.addColorStop(0.5, '#fbbf24');
+      ballGrad.addColorStop(1, '#d97706');
+      ctx.fillStyle = ballGrad;
+      ctx.shadowColor = '#fbbf24';
+      ctx.shadowBlur = 15;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      // Check if ball reached bottom
+      if (b.y >= H - 45) {
+        const slotWidth = (W * 0.78) / SLOTS.length;
+        const startX = W * 0.11;
+        let slotIndex = Math.floor((b.x - startX) / slotWidth);
+        slotIndex = Math.max(0, Math.min(SLOTS.length - 1, slotIndex));
+        const prize = SLOTS[slotIndex];
+        
         setResult({ slot: slotIndex, prize });
         setDropping(false);
+        ballRef.current = null;
         if (prize > 0) onWin(prize);
+        return;
       }
-    }, 150);
+      
+      // Ball moving too slow vertically near bottom = settled
+      if (b.y > H - 80 && Math.abs(b.vy) < 0.3) settled++;
+      if (settled > 30) {
+        const slotWidth = (W * 0.78) / SLOTS.length;
+        const startX = W * 0.11;
+        let slotIndex = Math.floor((b.x - startX) / slotWidth);
+        slotIndex = Math.max(0, Math.min(SLOTS.length - 1, slotIndex));
+        const prize = SLOTS[slotIndex];
+        setResult({ slot: slotIndex, prize });
+        setDropping(false);
+        ballRef.current = null;
+        if (prize > 0) onWin(prize);
+        return;
+      }
+      
+      animRef.current = requestAnimationFrame(animate);
+    };
+    
+    animRef.current = requestAnimationFrame(animate);
   };
+  
+  // Draw static board
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0, 0, W, H);
+    for (const peg of pegs) {
+      ctx.beginPath();
+      ctx.arc(peg.x, peg.y, PEG_R, 0, Math.PI * 2);
+      const grad = ctx.createRadialGradient(peg.x - 1, peg.y - 1, 1, peg.x, peg.y, PEG_R);
+      grad.addColorStop(0, '#c084fc');
+      grad.addColorStop(1, '#7c3aed');
+      ctx.fillStyle = grad;
+      ctx.shadowColor = '#a855f7';
+      ctx.shadowBlur = 4;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }, [pegs]);
+  
+  useEffect(() => {
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, []);
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="plinko" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -2289,9 +2440,9 @@ function PlinkoGame({ onClose, onWin, closing }) {
         
         {/* Drop position selector */}
         <div className="mb-3">
-          <p className="text-center text-sm text-gray-400 mb-2">Slide to choose drop position</p>
+          <p className="text-center text-sm text-gray-400 mb-2">Choose where to drop the ball</p>
           <input 
-            type="range" min="15" max="85" value={dropX} 
+            type="range" min="10" max="90" value={dropX} 
             onChange={(e) => setDropX(Number(e.target.value))}
             disabled={dropping}
             className="w-full accent-cyan-500"
@@ -2299,64 +2450,32 @@ function PlinkoGame({ onClose, onWin, closing }) {
         </div>
         
         {/* Plinko Board */}
-        <div className="relative bg-black/40 rounded-2xl border-0 overflow-hidden" style={{ height: 340 }}>
+        <div className="relative rounded-2xl overflow-hidden mx-auto" style={{ width: W, maxWidth: '100%', background: 'radial-gradient(ellipse at center, #0a1520 0%, #050a10 100%)', border: '1px solid rgba(168,85,247,0.15)' }}>
           {/* Drop indicator */}
-          <div className="absolute top-0 w-4 h-4 rounded-full bg-yellow-400 -translate-x-1/2 z-10"
-            style={{ left: `${dropX}%`, boxShadow: '0 0 12px rgba(251,191,36,0.8)' }}
-          />
+          {!dropping && !result && (
+            <div className="absolute top-1 w-4 h-4 rounded-full bg-yellow-400 -translate-x-1/2 z-10" 
+              style={{ left: `${dropX}%`, boxShadow: '0 0 16px rgba(251,191,36,0.9)', animation: 'float 1.5s ease-in-out infinite' }} />
+          )}
           
-          {/* Pegs */}
-          {Array.from({ length: ROWS }, (_, row) => {
-            const pegsInRow = row + 3;
-            const rowY = ((row + 1) / (ROWS + 1)) * 100;
-            return Array.from({ length: pegsInRow }, (_, col) => {
-              const pegX = ((col + 1) / (pegsInRow + 1)) * 100;
-              return (
-                <div
-                  key={`peg-${row}-${col}`}
-                  className="absolute w-2.5 h-2.5 rounded-full"
-                  style={{
-                    left: `${pegX}%`, top: `${rowY}%`,
-                    transform: 'translate(-50%, -50%)',
-                    background: 'radial-gradient(circle at 35% 35%, #c084fc, #7c3aed)',
-                    boxShadow: '0 0 6px rgba(168,85,247,0.5)',
-                  }}
-                />
-              );
-            });
-          })}
-          
-          {/* Balls */}
-          {balls.map(ball => (
-            <div
-              key={ball.id}
-              className="absolute w-5 h-5 rounded-full z-10"
-              style={{
-                left: `${ball.x}%`, top: `${ball.y}%`,
-                transform: 'translate(-50%, -50%)',
-                background: 'radial-gradient(circle at 35% 35%, #fde047, #f59e0b)',
-                boxShadow: '0 0 12px rgba(251,191,36,0.8), 0 2px 6px rgba(0,0,0,0.4)',
-                transition: 'left 0.12s ease-out, top 0.12s ease-out',
-              }}
-            />
-          ))}
+          <canvas ref={canvasRef} width={W} height={H} style={{ width: '100%', height: 'auto', display: 'block' }} />
           
           {/* Prize Slots at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 flex">
-            {SLOTS.map((prize, i) => (
+          <div className="flex px-[11%]" style={{ marginTop: -4 }}>
+            {SLOTS.map((p, i) => (
               <div
                 key={i}
-                className={`flex-1 text-center py-2 font-bold text-xs border-x border-cyan-900/30 transition-all duration-300 ${result?.slot === i ? 'scale-110 z-10' : ''}`}
+                className={`flex-1 text-center py-2 font-bold transition-all duration-300 ${result?.slot === i ? 'z-10' : ''}`}
                 style={{
-                  background: result?.slot === i 
-                    ? `${SLOT_COLORS[i]}` 
-                    : `${SLOT_COLORS[i]}40`,
-                  boxShadow: result?.slot === i ? `0 0 20px ${SLOT_COLORS[i]}80` : 'none',
+                  fontSize: 10,
+                  background: result?.slot === i ? SLOT_COLORS[i] : `${SLOT_COLORS[i]}30`,
+                  boxShadow: result?.slot === i ? `0 0 20px ${SLOT_COLORS[i]}80, inset 0 0 10px rgba(255,255,255,0.2)` : 'none',
                   color: result?.slot === i ? '#fff' : SLOT_COLORS[i],
                   animation: result?.slot === i ? 'plinkoLand 0.4s ease both' : 'none',
+                  transform: result?.slot === i ? 'scale(1.15)' : 'scale(1)',
+                  borderRadius: '0 0 4px 4px',
                 }}
               >
-                {prize}
+                {p}
               </div>
             ))}
           </div>
@@ -2369,7 +2488,7 @@ function PlinkoGame({ onClose, onWin, closing }) {
             <div className="text-2xl font-black text-yellow-400 mb-3" style={{ animation: 'correctPop 0.4s ease 0.2s both' }}>+{result.prize} Coins!</div>
             <button 
               type="button" 
-              onClick={() => { setResult(null); setBalls([]); }} 
+              onClick={() => { setResult(null); setHitPegs(new Set()); const c = canvasRef.current; if (c) { const ctx = c.getContext('2d'); ctx.clearRect(0, 0, W, H); for (const peg of pegs) { ctx.beginPath(); ctx.arc(peg.x, peg.y, PEG_R, 0, Math.PI * 2); const g = ctx.createRadialGradient(peg.x - 1, peg.y - 1, 1, peg.x, peg.y, PEG_R); g.addColorStop(0, '#c084fc'); g.addColorStop(1, '#7c3aed'); ctx.fillStyle = g; ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 4; ctx.fill(); ctx.shadowBlur = 0; } } }} 
               className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl font-bold"
             >
               Drop Again 🔮
@@ -2380,7 +2499,7 @@ function PlinkoGame({ onClose, onWin, closing }) {
             type="button" 
             onClick={drop} 
             disabled={dropping}
-            className={`w-full mt-4 py-4 rounded-xl font-bold text-lg transition-all ${dropping ? 'bg-gray-600' : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 shadow-lg shadow-cyan-500/30 hover:scale-[1.02] active:scale-95'}`}
+            className={`w-full mt-4 py-4 rounded-xl font-bold text-lg transition-all ${dropping ? 'bg-gray-600' : 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg shadow-purple-500/30 hover:scale-[1.02] active:scale-95'}`}
           >
             {dropping ? '⏳ Dropping...' : '🔮 Drop Ball!'}
           </button>
@@ -2394,88 +2513,130 @@ function PlinkoGame({ onClose, onWin, closing }) {
 // TAP FRENZY GAME
 // ============================================================================
 function TapFrenzyGame({ onClose, onWin, closing }) {
-  const [gameState, setGameState] = useState('ready'); // ready, playing, done
+  const [gameState, setGameState] = useState('ready');
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(10);
   const [targets, setTargets] = useState([]);
   const [taps, setTaps] = useState([]);
+  const [ripples, setRipples] = useState([]);
+  const [combo, setCombo] = useState(0);
   const [showTutorial, setShowTutorial] = useState(false);
-  const timerRef = useRef(null);
-  const targetRef = useRef(null);
+  const scoreRef = useRef(0);
+  const comboRef = useRef(0);
   
-  const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    setTimeLeft(10);
-    setTaps([]);
-    spawnTarget();
-    
-    timerRef.current = setInterval(() => {
-      setTimeLeft(t => {
-        if (t <= 1) {
-          clearInterval(timerRef.current);
-          clearTimeout(targetRef.current);
+  const TYPES = [
+    { emoji: '🪙', points: 1, size: 48, color: '#fbbf24' },
+    { emoji: '💎', points: 3, size: 40, color: '#a855f7' },
+    { emoji: '⭐', points: 2, size: 44, color: '#3b82f6' },
+    { emoji: '💚', points: 5, size: 36, color: '#22c55e' },
+    { emoji: '💣', points: -3, size: 42, color: '#ef4444' },
+  ];
+  const WEIGHTS = [40, 15, 25, 10, 10];
+  
+  const pickType = () => {
+    const rand = Math.random() * 100;
+    let sum = 0;
+    for (let i = 0; i < TYPES.length; i++) {
+      sum += WEIGHTS[i];
+      if (rand < sum) return TYPES[i];
+    }
+    return TYPES[0];
+  };
+  
+  const spawnTargets = useCallback(() => {
+    const count = 2 + Math.floor(Math.random() * 2); // 2-3 targets
+    const newTargets = [];
+    for (let i = 0; i < count; i++) {
+      newTargets.push({
+        id: Date.now() + i,
+        x: 8 + Math.random() * 78,
+        y: 8 + Math.random() * 72,
+        ...pickType(),
+        spawnTime: Date.now(),
+      });
+    }
+    setTargets(newTargets);
+  }, []);
+  
+  // Timer countdown via useEffect
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
           setGameState('done');
           setTargets([]);
           return 0;
         }
-        return t - 1;
+        return prev - 1;
       });
     }, 1000);
-  };
+    return () => clearInterval(timer);
+  }, [gameState]);
   
-  const spawnTarget = () => {
-    const types = [
-      { emoji: '🪙', points: 1, size: 48, color: '#fbbf24' },
-      { emoji: '💎', points: 3, size: 40, color: '#a855f7' },
-      { emoji: '⭐', points: 2, size: 44, color: '#3b82f6' },
-      { emoji: '💚', points: 5, size: 36, color: '#22c55e' },
-      { emoji: '💣', points: -3, size: 42, color: '#ef4444' },
-    ];
-    const weights = [40, 15, 25, 10, 10];
-    const rand = Math.random() * 100;
-    let sum = 0;
-    let type = types[0];
-    for (let i = 0; i < types.length; i++) {
-      sum += weights[i];
-      if (rand < sum) { type = types[i]; break; }
+  // Target spawning cycle
+  useEffect(() => {
+    if (gameState !== 'playing') return;
+    spawnTargets();
+    const spawner = setInterval(() => {
+      spawnTargets();
+    }, 1200);
+    return () => clearInterval(spawner);
+  }, [gameState, spawnTargets]);
+  
+  // Award prize on done
+  useEffect(() => {
+    if (gameState === 'done') {
+      const s = scoreRef.current;
+      const prize = s >= 30 ? 300 : s >= 20 ? 200 : s >= 10 ? 100 : s >= 5 ? 50 : 10;
+      if (prize > 0) onWin(prize, { score: s });
     }
-    
-    const target = {
-      id: Date.now(),
-      x: 10 + Math.random() * 75,
-      y: 10 + Math.random() * 65,
-      ...type,
-    };
-    setTargets([target]);
-    
-    targetRef.current = setTimeout(() => {
-      setTargets(prev => prev.filter(t => t.id !== target.id));
-      spawnTarget();
-    }, 800 + Math.random() * 600);
+  }, [gameState]);
+  
+  const startGame = () => {
+    setGameState('playing');
+    setScore(0);
+    scoreRef.current = 0;
+    setTimeLeft(10);
+    setTaps([]);
+    setRipples([]);
+    setCombo(0);
+    comboRef.current = 0;
   };
   
   const tapTarget = (target, e) => {
     e.stopPropagation();
-    setScore(s => Math.max(0, s + target.points));
-    setTaps(prev => [...prev.slice(-8), { id: Date.now(), x: target.x, y: target.y, points: target.points }]);
+    const newScore = Math.max(0, scoreRef.current + target.points);
+    scoreRef.current = newScore;
+    setScore(newScore);
+    
+    // Combo tracking
+    if (target.points > 0) {
+      comboRef.current++;
+      setCombo(comboRef.current);
+    } else {
+      comboRef.current = 0;
+      setCombo(0);
+    }
+    
+    // Score popup
+    setTaps(prev => [...prev.slice(-10), { id: Date.now(), x: target.x, y: target.y, points: target.points }]);
+    
+    // Ripple effect
+    setRipples(prev => [...prev.slice(-6), { id: Date.now(), x: target.x, y: target.y, color: target.color }]);
+    setTimeout(() => setRipples(prev => prev.slice(1)), 600);
+    
+    // Remove tapped target
     setTargets(prev => prev.filter(t => t.id !== target.id));
-    clearTimeout(targetRef.current);
-    spawnTarget();
   };
   
-  useEffect(() => {
-    if (gameState === 'done') {
-      const prize = score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
-      if (prize > 0) onWin(prize, { score });
-    }
-    return () => { clearInterval(timerRef.current); clearTimeout(targetRef.current); };
-  }, [gameState]);
-
-  const getPrize = () => score >= 30 ? 300 : score >= 20 ? 200 : score >= 10 ? 100 : score >= 5 ? 50 : 10;
+  const getPrize = () => {
+    const s = scoreRef.current;
+    return s >= 30 ? 300 : s >= 20 ? 200 : s >= 10 ? 100 : s >= 5 ? 50 : 10;
+  };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="tapfrenzy" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -2491,22 +2652,39 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
         
         {/* Score & Timer */}
         {gameState !== 'ready' && (
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-xl font-bold">Score: <span className="text-yellow-400">{score}</span></div>
-            <div className={`text-xl font-bold px-4 py-1 rounded-full ${timeLeft <= 3 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-cyan-500/20 text-cyan-300'}`}>
-              ⏱️ {timeLeft}s
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="text-xl font-bold">
+                Score: <span className="text-yellow-400">{score}</span>
+                {combo >= 3 && (
+                  <span className="ml-2 text-sm text-orange-400 font-black" style={{ animation: 'streakFire 0.6s ease-in-out infinite' }}>
+                    🔥 {combo}x
+                  </span>
+                )}
+              </div>
+              <div className={`text-xl font-bold px-4 py-1 rounded-full ${timeLeft <= 3 ? 'bg-red-500/30 text-red-400' : 'bg-cyan-500/20 text-cyan-300'}`}
+                style={{ animation: timeLeft <= 3 && gameState === 'playing' ? 'timerUrgent 0.5s ease-in-out infinite' : 'none' }}>
+                ⏱️ {timeLeft}s
+              </div>
+            </div>
+            {/* Timer bar */}
+            <div className="h-1.5 bg-black/50 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-1000 ease-linear" style={{
+                width: `${(timeLeft / 10) * 100}%`,
+                background: timeLeft <= 3 ? 'linear-gradient(90deg, #ef4444, #f87171)' : 'linear-gradient(90deg, #22d3ee, #3b82f6)',
+              }} />
             </div>
           </div>
         )}
         
         {/* Game Area */}
         <div 
-          className="relative rounded-2xl border-0 overflow-hidden"
-          style={{ height: 350, background: 'radial-gradient(ellipse at center, #0a1520 0%, #050a15 100%)' }}
+          className="relative rounded-2xl overflow-hidden"
+          style={{ height: 350, background: 'radial-gradient(ellipse at center, #0a1520 0%, #050a15 100%)', border: '1px solid rgba(255,255,255,0.05)' }}
         >
           {gameState === 'ready' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-6xl mb-4">⚡</div>
+              <div className="text-6xl mb-4" style={{ animation: 'float 2s ease-in-out infinite' }}>⚡</div>
               <p className="text-gray-400 text-center mb-2 px-4">Tap coins & gems as fast as you can! Avoid bombs 💣</p>
               <p className="text-sm text-gray-500 mb-6">You have 10 seconds</p>
               <button 
@@ -2521,18 +2699,32 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
           
           {gameState === 'playing' && (
             <>
+              {/* Ripple effects */}
+              {ripples.map(r => (
+                <div key={r.id} className="absolute pointer-events-none" style={{
+                  left: `${r.x}%`, top: `${r.y}%`, transform: 'translate(-50%, -50%)',
+                }}>
+                  <div className="w-10 h-10 rounded-full" style={{
+                    border: `2px solid ${r.color}`,
+                    animation: 'tapRipple 0.5s ease-out forwards',
+                  }} />
+                </div>
+              ))}
+              
               {/* Targets */}
               {targets.map(t => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={(e) => tapTarget(t, e)}
-                  className="absolute transition-transform duration-100 hover:scale-125 active:scale-75 anim-scale-in"
+                  className="absolute hover:scale-125 active:scale-75"
                   style={{
                     left: `${t.x}%`, top: `${t.y}%`,
                     fontSize: t.size,
-                    filter: `drop-shadow(0 0 8px ${t.color})`,
+                    filter: `drop-shadow(0 0 10px ${t.color})`,
                     transform: 'translate(-50%, -50%)',
+                    animation: 'symbolPop 0.3s ease both',
+                    transition: 'transform 0.08s ease',
                   }}
                 >
                   {t.emoji}
@@ -2564,7 +2756,7 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
               <div className="text-xl text-green-400 font-bold mb-6" style={{ animation: 'correctPop 0.4s ease 0.3s both' }}>+{getPrize()} Coins!</div>
               <button 
                 type="button" 
-                onClick={() => { setGameState('ready'); setScore(0); setTimeLeft(10); }}
+                onClick={() => { setGameState('ready'); setScore(0); scoreRef.current = 0; setTimeLeft(10); setCombo(0); comboRef.current = 0; }}
                 className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 rounded-xl font-bold"
               >
                 Play Again ⚡
@@ -2632,7 +2824,7 @@ function StopClockGame({ onClose, onWin, closing }) {
   const dialRotation = (currentNum / 100) * 360;
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="stopclock" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -2860,7 +3052,7 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       {showTutorial && <TutorialModal tutorialKey="treasure" onClose={() => setShowTutorial(false)} />}
       
       <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
@@ -3076,7 +3268,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
   const circumference = 2 * Math.PI * 22;
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       <div className={`bg-gradient-to-b from-[#0a1828]/95 via-[#061018]/95 to-[#030810]/95 backdrop-blur-xl rounded-3xl max-w-md w-full border-0 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         
         {/* Header with glow */}
@@ -3312,7 +3504,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
   const circumference = 2 * Math.PI * 38;
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       <div className={`bg-gradient-to-b from-[#0a1828]/95 via-[#061018]/95 to-[#030810]/95 backdrop-blur-xl rounded-3xl max-w-md w-full border border-yellow-500/20 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
@@ -3552,7 +3744,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
   const streakGlow = streak >= 5 ? 'drop-shadow(0 0 8px rgba(239,68,68,0.5))' : streak >= 3 ? 'drop-shadow(0 0 6px rgba(234,179,8,0.4))' : 'none';
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       <div className={`bg-gradient-to-b from-[#0a1828]/95 via-[#061018]/95 to-[#030810]/95 backdrop-blur-xl rounded-3xl max-w-md w-full border border-red-500/20 overflow-hidden ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
         
         {/* Header */}
@@ -3756,7 +3948,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`}>
       <div className={`bg-gradient-to-b from-[#0a1828]/95 via-[#061018]/95 to-[#030810]/95 backdrop-blur-xl rounded-3xl max-w-md w-full border-0 overflow-hidden max-h-[90vh] overflow-y-auto ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()} style={{ scrollbarWidth: 'none' }}>
         
         {/* Hero Banner */}
