@@ -1411,6 +1411,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
               type="button" 
               onClick={() => { onWin(result.prize, result.label); setResult(null); }} 
               className="px-10 py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold text-lg shadow-lg shadow-green-500/30 btn-glow transition-all hover:scale-105 active:scale-95"
+              style={{ '--btn-shadow': '#065F46', '--btn-glow': 'rgba(16,185,129,0.3)', '--btn-glow2': 'rgba(16,185,129,0.15)', animation: 'collectBtnPulse 2s ease-in-out infinite' }}
             >
               🎉 Claim Prize!
             </button>
@@ -1422,59 +1423,129 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
 }
 
 // ============================================================================
-// SCRATCH GAME COMPONENT
+// SCRATCH GAME COMPONENT — Lottery-style 3-zone with gold foil
 // ============================================================================
 function ScratchGame({ onClose, onWin, closing }) {
-  const canvasRef = useRef(null);
-  const [scratching, setScratching] = useState(false);
-  const [percent, setPercent] = useState(0);
-  const [revealed, setRevealed] = useState(false);
+  const canvas0 = useRef(null);
+  const canvas1 = useRef(null);
+  const canvas2 = useRef(null);
+  const canvasRefs = [canvas0, canvas1, canvas2];
+  const [scratching, setScratching] = useState(-1);
+  const [revealed, setRevealed] = useState([false, false, false]);
+  const [allRevealed, setAllRevealed] = useState(false);
   const [showTutorial, setShowTutorial] = useState(false);
+  const [confettiParts, setConfettiParts] = useState([]);
+  const [prizeAnim, setPrizeAnim] = useState(false);
+  const [jackpotFlash, setJackpotFlash] = useState(false);
+  const [jackpotShake, setJackpotShake] = useState(false);
+  const [displayPrize, setDisplayPrize] = useState(0);
   const lastPos = useRef({ x: 0, y: 0 });
-  
-  const [prize] = useState(() => {
-    const prizes = [25, 50, 75, 100, 150, 200, 500];
-    const weights = [30, 25, 20, 12, 7, 4, 2];
-    const rand = Math.random() * 100;
-    let sum = 0;
-    for (let i = 0; i < prizes.length; i++) {
-      sum += weights[i];
-      if (rand <= sum) return prizes[i];
+  const percents = useRef([0, 0, 0]);
+
+  const SYMBOLS = [
+    { icon: '/images/diamond.png', name: 'Diamond', color: '#60A5FA' },
+    { icon: '/images/coin.png', name: 'Gold', color: '#FBBF24' },
+    { icon: '/images/gem.png', name: 'Gem', color: '#34D399' },
+    { icon: '/images/wheel/fire.png', name: 'Fire', color: '#F87171' },
+    { icon: '/images/wheel/star.png', name: 'Star', color: '#A78BFA' },
+    { icon: '/images/wheel/lucky-clover.png', name: 'Lucky', color: '#4ADE80' },
+  ];
+
+  const [symbols] = useState(() => {
+    const roll = Math.random();
+    if (roll < 0.20) {
+      const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+      return [s, s, s];
+    } else if (roll < 0.55) {
+      const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+      let other;
+      do { other = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; } while (other.icon === s.icon);
+      const arr = [s, s, other];
+      const pos = Math.floor(Math.random() * 3);
+      [arr[pos], arr[2]] = [arr[2], arr[pos]];
+      return arr;
+    } else {
+      const picked = [];
+      while (picked.length < 3) {
+        const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        if (picked.length < 2 || !picked.every(p => p.icon === s.icon)) picked.push(s);
+        else picked.push(SYMBOLS[(SYMBOLS.indexOf(s) + 1) % SYMBOLS.length]);
+      }
+      return picked;
     }
-    return prizes[0];
   });
 
+  const matchCount = symbols[0].icon === symbols[1].icon && symbols[1].icon === symbols[2].icon ? 3
+    : (symbols[0].icon === symbols[1].icon || symbols[1].icon === symbols[2].icon || symbols[0].icon === symbols[2].icon) ? 2 : 0;
+
+  const prize = matchCount === 3 ? [200, 300, 500][Math.floor(Math.random() * 3)]
+    : matchCount === 2 ? [50, 75, 100][Math.floor(Math.random() * 3)]
+    : [10, 15, 25][Math.floor(Math.random() * 3)];
+
+  // Prize count-up effect
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#c0c0c0');
-    gradient.addColorStop(0.5, '#d8d8d8');
-    gradient.addColorStop(1, '#b0b0b0');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#777';
-    ctx.font = 'bold 18px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🪙 SCRATCH HERE 🪙', canvas.width / 2, canvas.height / 2 + 6);
+    if (!allRevealed) return;
+    let current = 0;
+    const step = Math.max(1, Math.floor(prize / 30));
+    const interval = setInterval(() => {
+      current += step;
+      if (current >= prize) {
+        current = prize;
+        clearInterval(interval);
+      }
+      setDisplayPrize(current);
+    }, 30);
+    return () => clearInterval(interval);
+  }, [allRevealed, prize]);
+
+  // Draw gold foil on each canvas
+  useEffect(() => {
+    canvasRefs.forEach((ref) => {
+      const c = ref.current;
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      const w = c.width, h = c.height;
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, '#D4A017');
+      g.addColorStop(0.2, '#F5D060');
+      g.addColorStop(0.4, '#C8960C');
+      g.addColorStop(0.6, '#F5D060');
+      g.addColorStop(0.8, '#D4A017');
+      g.addColorStop(1, '#E8C840');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 800; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.15})`;
+        ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+      }
+      for (let i = 0; i < 400; i++) {
+        ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.1})`;
+        ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+      }
+      ctx.fillStyle = 'rgba(180,140,20,0.6)';
+      ctx.font = 'bold 14px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SCRATCH', w / 2, h / 2);
+    });
   }, []);
 
-  const scratch = (e) => {
-    if (!scratching || revealed) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX || e.touches?.[0]?.clientX) - rect.left) * (canvas.width / rect.width);
-    const y = ((e.clientY || e.touches?.[0]?.clientY) - rect.top) * (canvas.height / rect.height);
-    
+  const doScratch = (e, idx) => {
+    if (scratching !== idx || revealed[idx]) return;
+    const c = canvasRefs[idx].current;
+    const ctx = c.getContext('2d');
+    const rect = c.getBoundingClientRect();
+    const cx = (e.clientX || e.touches?.[0]?.clientX);
+    const cy = (e.clientY || e.touches?.[0]?.clientY);
+    if (!cx || !cy) return;
+    const x = (cx - rect.left) * (c.width / rect.width);
+    const y = (cy - rect.top) * (c.height / rect.height);
     ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
     ctx.fill();
-    
     if (lastPos.current.x) {
-      ctx.lineWidth = 44;
+      ctx.lineWidth = 40;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(lastPos.current.x, lastPos.current.y);
@@ -1482,86 +1553,262 @@ function ScratchGame({ onClose, onWin, closing }) {
       ctx.stroke();
     }
     lastPos.current = { x, y };
-    
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, c.width, c.height);
     let transparent = 0;
     for (let i = 3; i < imageData.data.length; i += 4) {
       if (imageData.data[i] === 0) transparent++;
     }
-    const pct = (transparent / (canvas.width * canvas.height)) * 100;
-    setPercent(pct);
-    
-    if (pct > 50 && !revealed) {
-      setRevealed(true);
-      onWin(prize);
+    const pct = (transparent / (c.width * c.height)) * 100;
+    percents.current[idx] = pct;
+    if (pct > 45 && !revealed[idx]) {
+      ctx.clearRect(0, 0, c.width, c.height);
+      const newRevealed = [...revealed];
+      newRevealed[idx] = true;
+      setRevealed(newRevealed);
+      if (newRevealed.every(r => r)) {
+        setAllRevealed(true);
+        setPrizeAnim(true);
+        // Jackpot effects
+        if (matchCount === 3) {
+          setJackpotFlash(true);
+          setJackpotShake(true);
+          setTimeout(() => setJackpotFlash(false), 600);
+          setTimeout(() => setJackpotShake(false), 800);
+        }
+        // Confetti
+        const parts = [];
+        const count = matchCount === 3 ? 80 : matchCount === 2 ? 50 : 30;
+        for (let i = 0; i < count; i++) {
+          parts.push({
+            id: i, x: 30 + Math.random() * 40, y: 30 + Math.random() * 20,
+            color: ['#FBBF24', '#F87171', '#34D399', '#60A5FA', '#A78BFA', '#F472B6', '#FB923C'][i % 7],
+            size: 4 + Math.random() * 7, rotation: Math.random() * 360,
+            delay: Math.random() * 0.5, duration: 1.5 + Math.random() * 1.5,
+          });
+        }
+        setConfettiParts(parts);
+        onWin(prize);
+      }
     }
   };
 
+  const startScratch = (idx) => { setScratching(idx); lastPos.current = { x: 0, y: 0 }; };
+  const stopScratch = () => setScratching(-1);
+
+  // Check if two symbols match for pulse effect
+  const isMatched = (idx) => {
+    if (!allRevealed) return false;
+    return symbols.filter(s => s.icon === symbols[idx].icon).length >= 2;
+  };
+
   return (
-    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
+    <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? 'anim-backdrop-close' : 'anim-fade-in'}`} onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
-      
-      <div className={`bg-gradient-to-b from-[#0a1520] to-[#030810] rounded-3xl max-w-md w-full p-6 border-0 ${closing ? "anim-modal-close" : "anim-scale-in"}`} onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-cyan-400" />
-          </button>
-          <h2 className="text-2xl font-bold">🎫 Scratch & Win</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <p className="text-center text-gray-400 mb-4">Scratch the card to reveal your prize!</p>
-        
-        <div className="relative mx-auto rounded-3xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl mb-2">🎁</div>
-              <div className="text-5xl font-black text-white" style={{ textShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>{prize}</div>
-              <div className="text-white font-bold text-lg">KWACHA</div>
+
+      {/* Jackpot screen flash */}
+      {jackpotFlash && (
+        <div className="fixed inset-0 z-[80] pointer-events-none bg-yellow-400" style={{ animation: 'jackpotFlash 0.6s ease-out forwards' }} />
+      )}
+
+      <div
+        className={`max-w-lg w-full ${closing ? 'anim-modal-close' : 'anim-scale-in'}`}
+        style={jackpotShake ? { animation: 'jackpotShake 0.8s ease-out' } : {}}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="rounded-3xl overflow-hidden relative" style={{ background: 'linear-gradient(180deg, #1a1000 0%, #0d0800 100%)', border: '3px solid #D4A017', boxShadow: '0 0 40px rgba(212,160,23,0.2), 0 20px 60px rgba(0,0,0,0.5)' }}>
+
+          {/* Header */}
+          <div className="relative px-6 pt-5 pb-4">
+            <div className="flex items-center justify-between">
+              <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <HelpCircle className="w-5 h-5 text-yellow-500/70" />
+              </button>
+              <div className="text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-yellow-600 mb-1">✦ PREMIUM ✦</div>
+                <h2 className="text-2xl font-black text-yellow-400" style={{ textShadow: '0 2px 8px rgba(251,191,36,0.3)' }}>SCRATCH & WIN</h2>
+              </div>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
             </div>
+            <p className="text-center text-yellow-700 text-sm mt-2 font-medium">Match 3 symbols for the jackpot!</p>
+            <div className="mt-4 h-px bg-gradient-to-r from-transparent via-yellow-600/40 to-transparent" />
           </div>
-          <canvas 
-            ref={canvasRef} 
-            width={300} 
-            height={180} 
-            className="absolute inset-0 cursor-crosshair touch-none"
-            onMouseDown={() => { setScratching(true); lastPos.current = { x: 0, y: 0 }; }}
-            onMouseUp={() => setScratching(false)}
-            onMouseLeave={() => setScratching(false)}
-            onMouseMove={scratch}
-            onTouchStart={() => { setScratching(true); lastPos.current = { x: 0, y: 0 }; }}
-            onTouchEnd={() => setScratching(false)}
-            onTouchMove={scratch}
-          />
+
+          {/* Prize tiers */}
+          <div className="flex justify-center gap-4 px-6 pb-4">
+            {[
+              { label: '3×', text: 'JACKPOT', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', textColor: 'text-yellow-300', labelColor: 'text-yellow-400' },
+              { label: '2×', text: 'WIN', bg: 'bg-white/5', border: 'border-white/10', textColor: 'text-gray-300', labelColor: 'text-gray-400' },
+              { label: '0×', text: 'BONUS', bg: 'bg-white/5', border: 'border-white/10', textColor: 'text-gray-400', labelColor: 'text-gray-500' },
+            ].map((t, i) => (
+              <div key={i} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg ${t.bg} border ${t.border}`}>
+                <span className={`${t.labelColor} text-xs font-bold`}>{t.label}</span>
+                <span className={`${t.textColor} text-xs font-black`}>{t.text}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 3 Scratch Zones */}
+          <div className="flex gap-4 px-6 pb-2 justify-center">
+            {[0, 1, 2].map(idx => (
+              <div key={idx} className="relative" style={{ width: 130, height: 150 }}>
+                <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{
+                  border: revealed[idx] ? `3px solid ${symbols[idx].color}` : '3px solid rgba(212,160,23,0.4)',
+                  boxShadow: revealed[idx] ? `0 0 25px ${symbols[idx].color}50, inset 0 0 25px ${symbols[idx].color}20` : '0 0 10px rgba(212,160,23,0.1)',
+                  transition: 'all 0.5s ease',
+                }}>
+                  {/* Prize underneath */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: revealed[idx] ? `radial-gradient(circle, ${symbols[idx].color}15 0%, rgba(5,10,20,0.95) 70%)` : 'rgba(5,10,20,0.95)' }}>
+                    {/* Reveal burst ring */}
+                    {revealed[idx] && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-16 h-16 rounded-full border-2" style={{ borderColor: symbols[idx].color, animation: 'revealBurst 0.6s ease-out forwards' }} />
+                      </div>
+                    )}
+                    {/* Symbol with pop animation */}
+                    <img
+                      src={symbols[idx].icon}
+                      alt={symbols[idx].name}
+                      className="w-16 h-16 object-contain"
+                      style={{
+                        animation: revealed[idx]
+                          ? `symbolPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both${isMatched(idx) ? ', matchPulse 1.2s ease-in-out 0.6s infinite' : ''}`
+                          : 'none',
+                        opacity: revealed[idx] ? 1 : 0.2,
+                        transform: revealed[idx] ? 'scale(1)' : 'scale(0.4)',
+                        filter: revealed[idx] ? `drop-shadow(0 0 14px ${symbols[idx].color}90)` : 'none',
+                      }}
+                    />
+                    {/* Sparkle particles orbiting */}
+                    {revealed[idx] && [0, 1, 2, 3].map(si => (
+                      <div key={si} className="absolute pointer-events-none" style={{
+                        top: '50%', left: '50%', marginTop: -4, marginLeft: -4,
+                        width: 8, height: 8, borderRadius: '50%',
+                        background: `radial-gradient(circle, white, ${symbols[idx].color})`,
+                        animation: `sparkleOrbit ${2 + si * 0.3}s linear ${si * 0.4}s infinite`,
+                        boxShadow: `0 0 6px ${symbols[idx].color}`,
+                      }} />
+                    ))}
+                    <div className={`text-xs font-black mt-2 tracking-wider transition-all duration-500 ${revealed[idx] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`} style={{ color: symbols[idx].color, transitionDelay: '0.3s' }}>
+                      {symbols[idx].name.toUpperCase()}
+                    </div>
+                  </div>
+
+                  {/* Gold foil canvas + shimmer overlay */}
+                  {!revealed[idx] && (
+                    <>
+                      <canvas
+                        ref={canvasRefs[idx]}
+                        width={130}
+                        height={150}
+                        className="absolute inset-0 cursor-crosshair touch-none rounded-2xl"
+                        style={{ width: '100%', height: '100%' }}
+                        onMouseDown={() => startScratch(idx)}
+                        onMouseUp={stopScratch}
+                        onMouseLeave={stopScratch}
+                        onMouseMove={(e) => doScratch(e, idx)}
+                        onTouchStart={() => startScratch(idx)}
+                        onTouchEnd={stopScratch}
+                        onTouchMove={(e) => doScratch(e, idx)}
+                      />
+                      {/* Gold shimmer sweep */}
+                      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                        <div className="absolute top-0 w-[30%] h-full" style={{
+                          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                          animation: 'goldShimmer 3s ease-in-out infinite',
+                          animationDelay: `${idx * 0.8}s`,
+                        }} />
+                      </div>
+                    </>
+                  )}
+                </div>
+                {/* Zone number */}
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black" style={{ background: revealed[idx] ? symbols[idx].color : 'rgba(212,160,23,0.8)', color: '#000' }}>
+                  {revealed[idx] ? '✓' : idx + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Status dots */}
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              {[0, 1, 2].map(idx => (
+                <div key={idx} className="transition-all duration-300" style={{
+                  width: revealed[idx] ? 14 : 10, height: revealed[idx] ? 14 : 10, borderRadius: '50%',
+                  background: revealed[idx] ? '#4ADE80' : '#374151',
+                  boxShadow: revealed[idx] ? '0 0 10px rgba(74,222,128,0.6)' : 'none',
+                  animation: revealed[idx] ? 'symbolPop 0.3s ease both' : 'none',
+                }} />
+              ))}
+              <span className="text-xs text-gray-500 ml-2">{revealed.filter(r => r).length}/3 revealed</span>
+            </div>
+
+            {/* Prize result */}
+            {allRevealed && (
+              <div className={`text-center py-5 rounded-2xl mb-4`} style={{
+                animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                background: matchCount === 3 ? 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.05) 100%)' : matchCount === 2 ? 'linear-gradient(135deg, rgba(96,165,250,0.1) 0%, rgba(59,130,246,0.05) 100%)' : 'rgba(255,255,255,0.03)',
+                border: matchCount === 3 ? '2px solid rgba(251,191,36,0.4)' : matchCount === 2 ? '2px solid rgba(96,165,250,0.3)' : '2px solid rgba(255,255,255,0.1)',
+              }}>
+                <div className="text-4xl mb-2" style={{ animation: 'float 2s ease-in-out infinite' }}>
+                  {matchCount === 3 ? '🎰' : matchCount === 2 ? '🎉' : '🪙'}
+                </div>
+                <div className={`text-sm font-bold mb-1 ${matchCount === 3 ? 'text-yellow-400' : matchCount === 2 ? 'text-blue-400' : 'text-gray-400'}`}>
+                  {matchCount === 3 ? '🔥 JACKPOT! 3 MATCHES! 🔥' : matchCount === 2 ? '✨ 2 MATCHES!' : 'Bonus Prize'}
+                </div>
+                <div className={`text-5xl font-black tabular-nums ${matchCount === 3 ? 'text-yellow-400' : matchCount === 2 ? 'text-blue-400' : 'text-gray-300'}`} style={{ textShadow: matchCount === 3 ? '0 0 30px rgba(251,191,36,0.5)' : 'none' }}>
+                  {displayPrize}
+                </div>
+                <div className={`text-sm font-bold ${matchCount === 3 ? 'text-yellow-500' : matchCount === 2 ? 'text-blue-300' : 'text-gray-500'}`}>
+                  KWACHA
+                </div>
+              </div>
+            )}
+
+            {/* Collect button with pulse */}
+            {allRevealed ? (
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full py-4 rounded-2xl font-black text-lg transition-all hover:scale-[1.02] active:scale-95"
+                style={{
+                  '--btn-shadow': matchCount === 3 ? '#92400E' : '#164E63',
+                  '--btn-glow': matchCount === 3 ? 'rgba(251,191,36,0.3)' : 'rgba(6,182,212,0.2)',
+                  '--btn-glow2': matchCount === 3 ? 'rgba(251,191,36,0.15)' : 'rgba(6,182,212,0.1)',
+                  background: matchCount === 3 ? 'linear-gradient(180deg, #FBBF24 0%, #D97706 100%)' : 'linear-gradient(180deg, #22D3EE 0%, #0891B2 100%)',
+                  color: '#000',
+                  animation: 'collectBtnPulse 2s ease-in-out infinite',
+                }}
+              >
+                💰 Collect {prize} Coins!
+              </button>
+            ) : (
+              <p className="text-center text-gray-500 text-sm">Scratch each zone to reveal your symbols</p>
+            )}
+          </div>
+
+          {/* Confetti overlay */}
+          {confettiParts.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+              {confettiParts.map(p => (
+                <div
+                  key={p.id}
+                  className="absolute"
+                  style={{
+                    left: `${p.x}%`, top: `${p.y}%`,
+                    width: p.size, height: p.size * 0.6,
+                    background: p.color, borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                    transform: `rotate(${p.rotation}deg)`,
+                    animation: `confettiFall ${p.duration}s ease-out ${p.delay}s forwards`,
+                    '--drift': `${(Math.random() - 0.5) * 60}px`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        
-        <div className="mt-6">
-          <div className="flex justify-between text-sm text-gray-400 mb-2">
-            <span>Progress</span>
-            <span>{Math.min(Math.round(percent * 2), 100)}%</span>
-          </div>
-          <div className="h-3 bg-gray-800/40 border border-gray-600/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-yellow-500 transition-all" 
-              style={{ width: `${Math.min(percent * 2, 100)}%` }} 
-            />
-          </div>
-          <p className="text-center text-gray-400 mt-2">
-            {revealed ? '🎉 Prize Revealed!' : 'Scratch at least 50% to reveal'}
-          </p>
-        </div>
-        
-        {revealed && (
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="w-full mt-4 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 rounded-xl font-bold text-lg shadow-lg"
-          >
-            💰 Collect {prize} Coins!
-          </button>
-        )}
       </div>
     </div>
   );
@@ -1623,7 +1870,7 @@ function DiceGame({ onClose, onWin, closing }) {
         className={`w-24 h-24 rounded-2xl shadow-2xl transition-transform duration-200 ${rolling ? '' : 'hover:scale-105'}`} 
         style={{ 
           background: color === 'red' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-          animation: rolling ? 'wiggle 0.15s ease infinite' : 'none',
+          animation: rolling ? 'diceRollSpin 0.6s ease infinite' : (result && !rolling ? 'diceLand 0.4s ease-out both' : 'none'),
           boxShadow: `0 8px 24px ${color === 'red' ? 'rgba(239,68,68,0.3)' : 'rgba(59,130,246,0.3)'}`,
         }}
       >
@@ -1686,12 +1933,12 @@ function DiceGame({ onClose, onWin, closing }) {
         )}
         
         {result && (
-          <div className="text-center">
-            <div className="text-6xl mb-4">{result.won ? '🎯' : result.close ? '👍' : '😢'}</div>
+          <div className="text-center" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-6xl mb-4" style={{ animation: result.won ? 'symbolPop 0.5s ease both, float 2s ease-in-out 0.5s infinite' : 'symbolPop 0.4s ease both' }}>{result.won ? '🎯' : result.close ? '👍' : '😢'}</div>
             <p className="text-xl mb-2">
               Total: <span className="text-4xl text-yellow-400 font-black">{result.total}</span>
             </p>
-            <p className={`text-2xl font-bold mb-6 ${result.won ? 'text-green-400' : result.close ? 'text-yellow-400' : 'text-gray-400'}`}>
+            <p className={`text-2xl font-bold mb-6 ${result.won ? 'text-green-400' : result.close ? 'text-yellow-400' : 'text-gray-400'}`} style={{ animation: result.won ? 'correctPop 0.5s ease both' : result.prize === 0 ? 'wrongShake 0.5s ease both' : 'none' }}>
               {result.won ? `🎉 EXACT! +${result.prize} Coins!` : result.close ? `Close! +${result.prize} Coins` : 'Better luck next time!'}
             </p>
             <button 
@@ -1794,7 +2041,11 @@ function MemoryGame({ onClose, onWin, closing }) {
                 type="button" 
                 onClick={() => flip(card.id)} 
                 disabled={isFlipped} 
-                className={`aspect-square rounded-xl text-3xl flex items-center justify-center font-bold transition-all ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-yellow-400 to-orange-500') : 'bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50'}`}
+                className={`aspect-square rounded-xl text-3xl flex items-center justify-center font-bold ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-yellow-400 to-orange-500') : 'bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50'}`}
+                style={{ 
+                  animation: isMatched ? 'correctPop 0.4s ease both' : isFlipped ? 'cardFlipIn 0.3s ease both' : 'none',
+                  transition: 'all 0.2s ease',
+                }}
               >
                 {isFlipped ? card.symbol : '?'}
               </button>
@@ -1803,11 +2054,11 @@ function MemoryGame({ onClose, onWin, closing }) {
         </div>
         
         {complete && (
-          <div className="text-center p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/50">
-            <div className="text-5xl mb-2">🎉</div>
+          <div className="text-center p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/50" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-5xl mb-2" style={{ animation: 'symbolPop 0.5s ease both, float 2s ease-in-out 0.5s infinite' }}>🎉</div>
             <div className="text-2xl font-bold text-green-400 mb-1">Complete!</div>
             <p className="text-gray-300">Finished in {moves} moves</p>
-            <p className="text-yellow-400 font-bold text-xl">+{prize} Coins</p>
+            <p className="text-yellow-400 font-bold text-xl" style={{ animation: 'correctPop 0.4s ease 0.3s both' }}>+{prize} Coins</p>
           </div>
         )}
       </div>
@@ -1856,8 +2107,9 @@ function HighLowGame({ onClose, onWin, closing }) {
     }, 300);
   };
 
-  const Card = ({ value, suit, faceDown }) => (
-    <div className={`w-24 h-36 rounded-xl flex items-center justify-center shadow-2xl ${faceDown ? 'bg-gradient-to-br from-blue-800 to-blue-950' : `bg-white ${isRed(suit) ? 'text-red-600' : 'text-gray-900'}`}`}>
+  const Card = ({ value, suit, faceDown, isRevealing }) => (
+    <div className={`w-24 h-36 rounded-xl flex items-center justify-center shadow-2xl ${faceDown ? 'bg-gradient-to-br from-blue-800 to-blue-950' : `bg-white ${isRed(suit) ? 'text-red-600' : 'text-gray-900'}`}`}
+      style={{ animation: isRevealing ? 'cardFlipIn 0.4s ease both' : 'none' }}>
       {faceDown ? (
         <span className="text-4xl">🎴</span>
       ) : (
@@ -1885,8 +2137,8 @@ function HighLowGame({ onClose, onWin, closing }) {
         </div>
         
         <div className="flex justify-center gap-4 mb-6">
-          <div className="px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl border border-yellow-500/30">
-            <span className="text-yellow-400 font-bold">Streak: {streak}</span>
+          <div className="px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-xl border border-yellow-500/30" style={{ animation: streak >= 3 ? 'streakFire 0.6s ease-in-out infinite' : 'none' }}>
+            <span className="text-yellow-400 font-bold">🔥 Streak: {streak}</span>
           </div>
           <div className="px-4 py-2 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border-2 border-green-500/40">
             <span className="text-green-400 font-bold">{streak * 25} Coins</span>
@@ -1901,7 +2153,7 @@ function HighLowGame({ onClose, onWin, closing }) {
           <div className="text-3xl text-gray-500">→</div>
           <div className="text-center">
             <p className="text-xs text-gray-400 mb-2">Next</p>
-            {next ? <Card value={next.v} suit={next.s} /> : <Card faceDown />}
+            {next ? <Card value={next.v} suit={next.s} isRevealing={revealing} /> : <Card faceDown />}
           </div>
         </div>
         
@@ -1940,8 +2192,8 @@ function HighLowGame({ onClose, onWin, closing }) {
         )}
         
         {gameOver && (
-          <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-500/50">
-            <div className="text-5xl mb-2">💔</div>
+          <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-500/50" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-5xl mb-2" style={{ animation: 'wrongShake 0.6s ease both' }}>💔</div>
             <div className="text-2xl font-bold text-red-400 mb-2">Game Over!</div>
             <p className="text-gray-300 mb-4">
               {streak > 0 ? `You won ${streak * 25} Coins!` : 'Better luck next time!'}
@@ -2101,6 +2353,7 @@ function PlinkoGame({ onClose, onWin, closing }) {
                     : `${SLOT_COLORS[i]}40`,
                   boxShadow: result?.slot === i ? `0 0 20px ${SLOT_COLORS[i]}80` : 'none',
                   color: result?.slot === i ? '#fff' : SLOT_COLORS[i],
+                  animation: result?.slot === i ? 'plinkoLand 0.4s ease both' : 'none',
                 }}
               >
                 {prize}
@@ -2111,9 +2364,9 @@ function PlinkoGame({ onClose, onWin, closing }) {
         
         {/* Drop Button / Result */}
         {result ? (
-          <div className="text-center mt-4 anim-scale-in">
-            <div className="text-4xl mb-2">{result.prize >= 100 ? '🎉' : result.prize >= 25 ? '👍' : '🪙'}</div>
-            <div className="text-2xl font-black text-yellow-400 mb-3">+{result.prize} Coins!</div>
+          <div className="text-center mt-4" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-4xl mb-2" style={{ animation: 'symbolPop 0.5s ease both' }}>{result.prize >= 100 ? '🎉' : result.prize >= 25 ? '👍' : '🪙'}</div>
+            <div className="text-2xl font-black text-yellow-400 mb-3" style={{ animation: 'correctPop 0.4s ease 0.2s both' }}>+{result.prize} Coins!</div>
             <button 
               type="button" 
               onClick={() => { setResult(null); setBalls([]); }} 
@@ -2290,12 +2543,12 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
               {taps.map(tap => (
                 <div
                   key={tap.id}
-                  className="absolute font-bold text-lg pointer-events-none"
+                  className="absolute font-black text-xl pointer-events-none"
                   style={{
                     left: `${tap.x}%`, top: `${tap.y - 5}%`,
                     color: tap.points > 0 ? '#22c55e' : '#ef4444',
-                    animation: 'sparkleFloat 0.5s ease-out forwards',
-                    '--sx': '0px', '--sy': '-40px',
+                    animation: 'scorePopUp 0.7s ease-out forwards',
+                    textShadow: tap.points > 0 ? '0 0 10px rgba(34,197,94,0.5)' : '0 0 10px rgba(239,68,68,0.5)',
                   }}
                 >
                   {tap.points > 0 ? `+${tap.points}` : tap.points}
@@ -2305,10 +2558,10 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
           )}
           
           {gameState === 'done' && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center anim-scale-in">
-              <div className="text-6xl mb-3">{score >= 20 ? '🏆' : score >= 10 ? '⭐' : '👏'}</div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+              <div className="text-6xl mb-3" style={{ animation: 'symbolPop 0.5s ease both, float 2s ease-in-out 0.5s infinite' }}>{score >= 20 ? '🏆' : score >= 10 ? '⭐' : '👏'}</div>
               <div className="text-4xl font-black text-yellow-400 mb-2">{score} Points</div>
-              <div className="text-xl text-green-400 font-bold mb-6">+{getPrize()} Coins!</div>
+              <div className="text-xl text-green-400 font-bold mb-6" style={{ animation: 'correctPop 0.4s ease 0.3s both' }}>+{getPrize()} Coins!</div>
               <button 
                 type="button" 
                 onClick={() => { setGameState('ready'); setScore(0); setTimeLeft(10); }}
@@ -2483,7 +2736,7 @@ function StopClockGame({ onClose, onWin, closing }) {
         )}
         
         {gameState === 'stopped' && (
-          <div className="text-center anim-scale-in">
+          <div className="text-center" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
             <div className="flex items-center justify-center gap-6 mb-3">
               <div className="text-center">
                 <div className="text-sm text-gray-400">Target</div>
@@ -2492,11 +2745,12 @@ function StopClockGame({ onClose, onWin, closing }) {
               <div className="text-2xl text-gray-500">vs</div>
               <div className="text-center">
                 <div className="text-sm text-gray-400">You</div>
-                <div className="text-3xl font-black text-yellow-400">{String(stoppedNum).padStart(2, '0')}</div>
+                <div className="text-3xl font-black text-yellow-400" style={{ animation: 'diceLand 0.3s ease-out both' }}>{String(stoppedNum).padStart(2, '0')}</div>
               </div>
             </div>
             <div className="text-lg text-gray-300 mb-2">Off by {getDiff()}</div>
-            <div className={`text-2xl font-black mb-4 ${getPrize() >= 200 ? 'text-green-400' : getPrize() > 0 ? 'text-yellow-400' : 'text-gray-400'}`}>
+            <div className={`text-2xl font-black mb-4 ${getPrize() >= 200 ? 'text-green-400' : getPrize() > 0 ? 'text-yellow-400' : 'text-gray-400'}`}
+              style={{ animation: getPrize() > 0 ? 'correctPop 0.4s ease 0.3s both' : 'wrongShake 0.5s ease 0.2s both' }}>
               {getPrize() > 0 ? `🎉 +${getPrize()} Coins!` : 'Too far! Try again'}
             </div>
             <button 
@@ -2662,7 +2916,7 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
                 }`}
               >
                 {isFlipped ? (
-                  <span className="anim-scale-in">{tile.emoji}</span>
+                  <span style={{ animation: tile.type === 'trap' ? 'wrongShake 0.5s ease both' : tile.type === 'jackpot' ? 'symbolPop 0.5s ease both' : 'cardFlipIn 0.3s ease both' }}>{tile.emoji}</span>
                 ) : (
                   <span className="text-cyan-500/40 text-lg">?</span>
                 )}
@@ -2673,8 +2927,8 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
         
         {/* Result */}
         {gameState === 'lost' && (
-          <div className="text-center p-4 bg-red-500/10 rounded-2xl border border-red-500/30 anim-scale-in">
-            <div className="text-4xl mb-2">💀</div>
+          <div className="text-center p-4 bg-red-500/10 rounded-2xl border border-red-500/30" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-4xl mb-2" style={{ animation: 'wrongShake 0.6s ease both' }}>💀</div>
             <div className="text-xl font-bold text-red-400 mb-1">Trap!</div>
             <div className="text-gray-400 mb-3">
               {collected > 0 ? `Saved ${collected} Coins before the trap!` : 'No coins collected'}
@@ -2690,9 +2944,9 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
         )}
         
         {gameState === 'won' && (
-          <div className="text-center p-4 bg-green-500/10 rounded-2xl border-2 border-green-500/40 anim-scale-in">
-            <div className="text-4xl mb-2">{collected >= 200 ? '🏆' : collected >= 75 ? '⭐' : '🪙'}</div>
-            <div className="text-2xl font-black text-yellow-400 mb-1">+{collected} Coins!</div>
+          <div className="text-center p-4 bg-green-500/10 rounded-2xl border-2 border-green-500/40" style={{ animation: 'resultZoom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+            <div className="text-4xl mb-2" style={{ animation: 'symbolPop 0.5s ease both, float 2s ease-in-out 0.5s infinite' }}>{collected >= 200 ? '🏆' : collected >= 75 ? '⭐' : '🪙'}</div>
+            <div className="text-2xl font-black text-yellow-400 mb-1" style={{ animation: 'correctPop 0.4s ease 0.3s both' }}>+{collected} Coins!</div>
             <div className="text-gray-400 mb-3">You survived the hunt!</div>
             <button 
               type="button" 
@@ -2897,7 +3151,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                       style={{ transition: 'stroke-dashoffset 1s linear, stroke 0.3s' }}
                     />
                   </svg>
-                  <div className={`absolute inset-0 flex items-center justify-center font-black text-lg ${timer <= 5 ? 'text-red-400' : 'text-white'}`}>
+                  <div className={`absolute inset-0 flex items-center justify-center font-black text-lg ${timer <= 5 ? 'text-red-400' : 'text-white'}`} style={{ animation: timer <= 5 ? 'timerUrgent 0.5s ease-in-out infinite' : 'none' }}>
                     {timer}
                   </div>
                 </div>
@@ -2939,7 +3193,8 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                   }
                   return (
                     <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
-                      className={`relative w-full h-13 rounded-xl border flex items-center px-4 py-3 transition-all duration-200 ${!showAnswer ? 'hover:scale-[1.01] active:scale-[0.98]' : ''} ${classes}`}>
+                      className={`relative w-full h-13 rounded-xl border flex items-center px-4 py-3 transition-all duration-200 ${!showAnswer ? 'hover:scale-[1.01] active:scale-[0.98]' : ''} ${classes}`}
+                      style={{ animation: showAnswer && isCorrect ? 'correctPop 0.4s ease both' : showAnswer && isSelected && !isCorrect ? 'wrongShake 0.5s ease both' : 'none' }}>
                       <span className={`w-7 h-7 rounded-lg ${inner} flex items-center justify-center font-black text-xs mr-3 shadow-md flex-shrink-0`}>{optionLetters[i]}</span>
                       <span className="font-semibold text-sm flex-1 text-left">{opt}</span>
                       {showAnswer && isCorrect && <span className="text-green-400 text-lg ml-2">✓</span>}
@@ -3120,7 +3375,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
                     />
                   </svg>
                   <div className={`absolute inset-0 flex flex-col items-center justify-center ${timer <= 10 ? 'text-red-400' : 'text-yellow-400'}`}>
-                    <span className="font-black text-2xl leading-none">{timer}</span>
+                    <span className="font-black text-2xl leading-none" style={{ animation: timer <= 5 ? 'timerUrgent 0.5s ease-in-out infinite' : 'none' }}>{timer}</span>
                     <span className="text-[10px] opacity-60">sec</span>
                   </div>
                 </div>
@@ -3142,7 +3397,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
                       <span className="text-xs text-gray-500">correct</span>
                     </div>
                     {combo >= 2 && (
-                      <span className="px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-bold animate-pulse">
+                      <span className="px-2 py-0.5 rounded-full bg-orange-500/20 border border-orange-500/30 text-orange-400 text-xs font-bold" style={{ animation: combo >= 3 ? 'streakFire 0.6s ease-in-out infinite' : 'none' }}>
                         🔥 {combo}x combo
                       </span>
                     )}
@@ -3151,7 +3406,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
               </div>
 
               {/* Statement Card */}
-              <div className={`relative mb-6 transition-all duration-200 ${feedback === 'correct' ? 'scale-[0.98]' : feedback === 'wrong' ? 'scale-[0.98]' : ''}`}>
+              <div className={`relative mb-6`} style={{ animation: feedback === 'correct' ? 'correctPop 0.4s ease both' : feedback === 'wrong' ? 'wrongShake 0.5s ease both' : 'none' }}>
                 <div className={`absolute -inset-[1px] rounded-2xl blur-sm transition-all duration-200 ${feedback === 'correct' ? 'bg-green-500/40' : feedback === 'wrong' ? 'bg-red-500/40' : 'bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20'}`} />
                 <div className={`relative bg-black/50 rounded-2xl p-6 border border-white/10 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
                   {feedback === 'correct' && <div className="absolute top-3 right-3 text-green-400 font-bold text-sm animate-pulse">✓ Correct!</div>}
@@ -3357,7 +3612,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
               <div className="flex items-center gap-3 mb-4">
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`flex items-center gap-1.5 font-black ${streakColor}`} style={{ filter: streakGlow }}>
+                    <div className={`flex items-center gap-1.5 font-black ${streakColor}`} style={{ filter: streakGlow, animation: streak >= 3 ? 'streakFire 0.6s ease-in-out infinite' : 'none' }}>
                       <span className="text-lg">🔥</span>
                       <span className="text-xl">{streak}</span>
                     </div>
@@ -3694,7 +3949,8 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
           }
           return (
             <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
-              className={`p-2.5 rounded-xl font-medium text-xs transition-all ${bg}`}>
+              className={`p-2.5 rounded-xl font-medium text-xs transition-all ${bg}`}
+              style={{ animation: showAnswer && isCorrect ? 'correctPop 0.4s ease both' : showAnswer && isSelected && !isCorrect ? 'wrongShake 0.5s ease both' : 'none' }}>
               {opt}
             </button>
           );
@@ -3976,6 +4232,110 @@ export default function GamificationPlatform() {
         0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); box-shadow: none; }
         15%, 35% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); }
         50% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); box-shadow: none; }
+      }
+      /* === NEW ANIMATION KEYFRAMES === */
+      @keyframes symbolPop {
+        0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+        50% { transform: scale(1.25) rotate(5deg); opacity: 1; }
+        70% { transform: scale(0.9) rotate(-2deg); }
+        100% { transform: scale(1) rotate(0deg); opacity: 1; }
+      }
+      @keyframes sparkleOrbit {
+        0% { transform: rotate(0deg) translateX(28px) rotate(0deg) scale(0.8); opacity: 0.6; }
+        50% { transform: rotate(180deg) translateX(28px) rotate(-180deg) scale(1.2); opacity: 1; }
+        100% { transform: rotate(360deg) translateX(28px) rotate(-360deg) scale(0.8); opacity: 0.6; }
+      }
+      @keyframes goldShimmer {
+        0% { left: -40%; }
+        100% { left: 140%; }
+      }
+      @keyframes jackpotShake {
+        0%, 100% { transform: translateX(0); }
+        10% { transform: translateX(-6px) rotate(-1deg); }
+        20% { transform: translateX(6px) rotate(1deg); }
+        30% { transform: translateX(-5px) rotate(-0.5deg); }
+        40% { transform: translateX(5px) rotate(0.5deg); }
+        50% { transform: translateX(-3px); }
+        60% { transform: translateX(3px); }
+        70% { transform: translateX(-2px); }
+        80% { transform: translateX(2px); }
+        90% { transform: translateX(-1px); }
+      }
+      @keyframes jackpotFlash {
+        0% { opacity: 0; }
+        15% { opacity: 0.8; }
+        100% { opacity: 0; }
+      }
+      @keyframes matchPulse {
+        0%, 100% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.08); filter: brightness(1.4); }
+      }
+      @keyframes collectBtnPulse {
+        0%, 100% { box-shadow: 0 4px 0 var(--btn-shadow), 0 0 15px var(--btn-glow); }
+        50% { box-shadow: 0 4px 0 var(--btn-shadow), 0 0 35px var(--btn-glow), 0 0 60px var(--btn-glow2); transform: scale(1.02); }
+      }
+      @keyframes diceRollSpin {
+        0% { transform: rotateX(0deg) rotateZ(0deg) scale(1); }
+        25% { transform: rotateX(180deg) rotateZ(90deg) scale(0.8); }
+        50% { transform: rotateX(360deg) rotateZ(180deg) scale(1.1); }
+        75% { transform: rotateX(540deg) rotateZ(270deg) scale(0.9); }
+        100% { transform: rotateX(720deg) rotateZ(360deg) scale(1); }
+      }
+      @keyframes diceLand {
+        0% { transform: scale(1.15) rotate(5deg); }
+        40% { transform: scale(0.95) rotate(-2deg); }
+        70% { transform: scale(1.03) rotate(1deg); }
+        100% { transform: scale(1) rotate(0deg); }
+      }
+      @keyframes correctPop {
+        0% { transform: scale(1); background-color: rgba(34, 197, 94, 0); }
+        30% { transform: scale(1.06); background-color: rgba(34, 197, 94, 0.15); }
+        60% { transform: scale(0.98); }
+        100% { transform: scale(1); background-color: rgba(34, 197, 94, 0.08); }
+      }
+      @keyframes wrongShake {
+        0%, 100% { transform: translateX(0); background-color: rgba(239, 68, 68, 0); }
+        15% { transform: translateX(-8px); background-color: rgba(239, 68, 68, 0.15); }
+        30% { transform: translateX(8px); }
+        45% { transform: translateX(-6px); }
+        60% { transform: translateX(6px); }
+        75% { transform: translateX(-3px); background-color: rgba(239, 68, 68, 0.08); }
+      }
+      @keyframes timerUrgent {
+        0%, 100% { color: #F87171; transform: scale(1); }
+        50% { color: #FCA5A5; transform: scale(1.1); }
+      }
+      @keyframes streakFire {
+        0%, 100% { transform: scale(1); filter: brightness(1); }
+        25% { transform: scale(1.05) rotate(-2deg); filter: brightness(1.2); }
+        75% { transform: scale(1.05) rotate(2deg); filter: brightness(1.2); }
+      }
+      @keyframes cardFlipIn {
+        0% { transform: rotateY(90deg) scale(0.8); opacity: 0.5; }
+        100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+      }
+      @keyframes revealBurst {
+        0% { transform: scale(0); opacity: 0.8; }
+        100% { transform: scale(2.5); opacity: 0; }
+      }
+      @keyframes coinShower {
+        0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+        70% { opacity: 1; }
+        100% { transform: translateY(calc(100vh + 20px)) rotate(720deg); opacity: 0; }
+      }
+      @keyframes scorePopUp {
+        0% { opacity: 0; transform: translateY(10px) scale(0.5); }
+        50% { opacity: 1; transform: translateY(-15px) scale(1.2); }
+        100% { opacity: 0; transform: translateY(-35px) scale(0.8); }
+      }
+      @keyframes plinkoLand {
+        0% { transform: scale(1.3); filter: brightness(1.5); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+      @keyframes tapRipple {
+        0% { transform: scale(0.5); opacity: 0.6; }
+        100% { transform: scale(3); opacity: 0; }
       }
       
       .anim-fade-up { animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
