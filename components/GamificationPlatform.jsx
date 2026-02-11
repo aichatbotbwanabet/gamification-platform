@@ -3582,6 +3582,7 @@ export default function GamificationPlatform() {
   const [notif, setNotif] = useState(null);
   const [notifLeaving, setNotifLeaving] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [showBuyModal, setShowBuyModal] = useState(null); // 'coins' | 'gems' | 'diamonds' | null
   const [showConfetti, setShowConfetti] = useState(false);
   const [coinBounce, setCoinBounce] = useState(false);
 
@@ -4360,6 +4361,74 @@ export default function GamificationPlatform() {
         </div>
       )}
 
+      {/* Buy Credits Modal */}
+      {showBuyModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80] p-4 anim-fade-in" onClick={() => setShowBuyModal(null)}>
+          <div className="w-full max-w-md anim-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-black tracking-tight">
+                    Buy {showBuyModal === 'coins' ? 'Coins' : showBuyModal === 'gems' ? 'Gems' : 'Diamonds'}
+                  </h2>
+                  <button type="button" onClick={() => setShowBuyModal(null)} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {(showBuyModal === 'coins' ? [
+                    { amount: 500, price: 'K50', bonus: '' },
+                    { amount: 2000, price: 'K150', bonus: '+200 bonus' },
+                    { amount: 5000, price: 'K300', bonus: '+800 bonus', best: true },
+                    { amount: 15000, price: 'K750', bonus: '+3000 bonus' },
+                  ] : showBuyModal === 'gems' ? [
+                    { amount: 50, price: 'K100', bonus: '' },
+                    { amount: 150, price: 'K250', bonus: '+20 bonus' },
+                    { amount: 500, price: 'K600', bonus: '+100 bonus', best: true },
+                    { amount: 1500, price: 'K1500', bonus: '+400 bonus' },
+                  ] : [
+                    { amount: 10, price: 'K200', bonus: '' },
+                    { amount: 30, price: 'K500', bonus: '+5 bonus' },
+                    { amount: 100, price: 'K1500', bonus: '+25 bonus', best: true },
+                    { amount: 300, price: 'K4000', bonus: '+80 bonus' },
+                  ]).map((pkg, i) => {
+                    const colors = showBuyModal === 'coins' 
+                      ? { border: 'rgba(234,179,8,0.3)', bg: 'rgba(234,179,8,0.06)', text: 'text-yellow-400', glow: 'rgba(234,179,8,0.15)' }
+                      : showBuyModal === 'gems'
+                      ? { border: 'rgba(16,185,129,0.3)', bg: 'rgba(16,185,129,0.06)', text: 'text-emerald-400', glow: 'rgba(16,185,129,0.15)' }
+                      : { border: 'rgba(59,130,246,0.3)', bg: 'rgba(59,130,246,0.06)', text: 'text-blue-400', glow: 'rgba(59,130,246,0.15)' };
+                    return (
+                      <button 
+                        key={i} type="button"
+                        onClick={() => {
+                          const key = showBuyModal === 'coins' ? 'kwacha' : showBuyModal;
+                          setUser(u => ({ ...u, [key]: u[key] + pkg.amount }));
+                          showNotif(`+${pkg.amount.toLocaleString()} ${showBuyModal}!`);
+                          setShowBuyModal(null);
+                        }}
+                        className="w-full flex items-center justify-between p-4 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] relative"
+                        style={{ border: `1.5px solid ${pkg.best ? 'rgba(6,182,212,0.6)' : colors.border}`, background: pkg.best ? 'rgba(6,182,212,0.08)' : colors.bg, boxShadow: pkg.best ? '0 0 20px rgba(6,182,212,0.15)' : 'none' }}
+                      >
+                        {pkg.best && <span className="absolute -top-2.5 right-3 px-2 py-0.5 bg-cyan-500 text-black text-xs font-black rounded-md">BEST VALUE</span>}
+                        <div className="flex items-center gap-3">
+                          <img src={CURRENCY_ICONS[showBuyModal === 'coins' ? 'coin' : showBuyModal === 'gems' ? 'gem' : 'diamond']} alt="" className="w-10 h-10 object-contain" />
+                          <div className="text-left">
+                            <div className={`font-black text-xl ${colors.text}`}>{pkg.amount.toLocaleString()}</div>
+                            {pkg.bonus && <div className="text-xs text-cyan-400 font-bold">{pkg.bonus}</div>}
+                          </div>
+                        </div>
+                        <div className="px-4 py-2 rounded-lg font-black text-sm btn-3d btn-3d-green">{pkg.price}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-center text-xs text-gray-500 mt-4">Demo mode — credits are free</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Tutorial Modal */}
       {activeTutorial && <TutorialModal tutorialKey={activeTutorial} onClose={() => animateClose(() => setActiveTutorial(null))} closing={closingModal} />}
 
@@ -4604,7 +4673,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-black/20 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="p-4">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -4759,29 +4828,23 @@ export default function GamificationPlatform() {
             {/* Spacer for centering on desktop */}
             <div className="hidden md:block w-32"></div>
 
-            {/* Currency Display - Centered */}
-            <div className="flex items-center justify-center gap-4 flex-1 md:flex-none">
-              <div className={`flex items-center gap-3 px-5 py-3 rounded-2xl border-2 border-yellow-500/40 bg-black/30 backdrop-blur-sm shadow-[0_0_15px_rgba(234,179,8,0.1)] transition-all duration-300 ${coinBounce ? 'anim-coin-bounce' : ''}`}>
-                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-10 h-10 object-contain" />
-                <div>
-                  <div className="font-black text-2xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
-                  <div className="text-xs text-gray-500 font-bold tracking-wider">COINS</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 px-5 py-3 rounded-2xl border-2 border-emerald-500/40 bg-black/30 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-10 h-10 object-contain" />
-                <div>
-                  <div className="font-black text-2xl text-green-400">{user.gems}</div>
-                  <div className="text-xs text-gray-500 font-bold tracking-wider">GEMS</div>
-                </div>
-              </div>
-              <div className="hidden sm:flex items-center gap-3 px-5 py-3 rounded-2xl border-2 border-blue-500/40 bg-black/30 backdrop-blur-sm shadow-[0_0_15px_rgba(59,130,246,0.1)]">
-                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-10 h-10 object-contain" />
-                <div>
-                  <div className="font-black text-2xl text-blue-400">{user.diamonds}</div>
-                  <div className="text-xs text-gray-500 font-bold tracking-wider">DIAMONDS</div>
-                </div>
-              </div>
+            {/* Currency Display - Clickable compact pills */}
+            <div className="flex items-center justify-center gap-2 flex-1 md:flex-none">
+              <button type="button" onClick={() => setShowBuyModal('coins')} className={`group flex items-center gap-2 pl-3 pr-2 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer ${coinBounce ? 'anim-coin-bounce' : ''}`} style={{ background: 'linear-gradient(135deg, rgba(234,179,8,0.12) 0%, rgba(234,179,8,0.04) 100%)', border: '1.5px solid rgba(234,179,8,0.3)' }}>
+                <img src={CURRENCY_ICONS.coin} alt="" className="w-6 h-6 object-contain" />
+                <span className="font-black text-lg text-yellow-400 tabular-nums">{user.kwacha.toLocaleString()}</span>
+                <span className="w-6 h-6 rounded-md bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-black text-sm group-hover:bg-yellow-500/40 transition-colors">+</span>
+              </button>
+              <button type="button" onClick={() => setShowBuyModal('gems')} className="group flex items-center gap-2 pl-3 pr-2 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(16,185,129,0.04) 100%)', border: '1.5px solid rgba(16,185,129,0.3)' }}>
+                <img src={CURRENCY_ICONS.gem} alt="" className="w-6 h-6 object-contain" />
+                <span className="font-black text-lg text-green-400 tabular-nums">{user.gems}</span>
+                <span className="w-6 h-6 rounded-md bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-sm group-hover:bg-emerald-500/40 transition-colors">+</span>
+              </button>
+              <button type="button" onClick={() => setShowBuyModal('diamonds')} className="hidden sm:flex group items-center gap-2 pl-3 pr-2 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(59,130,246,0.04) 100%)', border: '1.5px solid rgba(59,130,246,0.3)' }}>
+                <img src={CURRENCY_ICONS.diamond} alt="" className="w-6 h-6 object-contain" />
+                <span className="font-black text-lg text-blue-400 tabular-nums">{user.diamonds}</span>
+                <span className="w-6 h-6 rounded-md bg-blue-500/20 flex items-center justify-center text-blue-400 font-black text-sm group-hover:bg-blue-500/40 transition-colors">+</span>
+              </button>
             </div>
 
             {/* Right Side */}
