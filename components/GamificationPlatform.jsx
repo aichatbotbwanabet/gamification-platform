@@ -9,11 +9,29 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
-// ANIMATED GRADIENT BACKGROUND — Pure CSS, GPU-accelerated, always moves
+// ANIMATED GRADIENT BACKGROUND — Self-contained, GPU-accelerated
 // ============================================================================
 function AnimatedGradientBG() {
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', background: '#08051a' }}>
+      <style>{`
+        @keyframes bgDrift1 {
+          0% { transform: translate(-5%, -8%) rotate(0deg) scale(1); }
+          100% { transform: translate(10%, 12%) rotate(8deg) scale(1.1); }
+        }
+        @keyframes bgDrift2 {
+          0% { transform: translate(8%, 5%) rotate(0deg) scale(1.05); }
+          100% { transform: translate(-12%, -8%) rotate(-6deg) scale(0.95); }
+        }
+        @keyframes bgDrift3 {
+          0% { transform: translate(0%, 10%) scale(1); }
+          100% { transform: translate(-8%, -12%) scale(1.3); }
+        }
+        @keyframes bgDrift4 {
+          0% { transform: translate(5%, -5%) rotate(0deg); }
+          100% { transform: translate(-5%, 8%) rotate(5deg); }
+        }
+      `}</style>
       {/* Layer 1 — slow drift */}
       <div style={{
         position: 'absolute', inset: '-50%', width: '200%', height: '200%',
@@ -26,10 +44,10 @@ function AnimatedGradientBG() {
         background: 'radial-gradient(ellipse 70% 80% at 70% 60%, rgba(124,58,237,0.6) 0%, transparent 65%)',
         animation: 'bgDrift2 15s ease-in-out infinite alternate',
       }} />
-      {/* Layer 3 — pink accent */}
+      {/* Layer 3 — accent */}
       <div style={{
         position: 'absolute', inset: '-50%', width: '200%', height: '200%',
-        background: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(168,85,247,0.35) 0%, transparent 60%)',
+        background: 'radial-gradient(ellipse 50% 50% at 50% 50%, rgba(168,85,247,0.4) 0%, transparent 60%)',
         animation: 'bgDrift3 10s ease-in-out infinite alternate',
       }} />
       {/* Layer 4 — deep glow */}
@@ -38,12 +56,11 @@ function AnimatedGradientBG() {
         background: 'radial-gradient(ellipse 60% 70% at 40% 70%, rgba(49,10,130,0.7) 0%, transparent 70%)',
         animation: 'bgDrift4 18s ease-in-out infinite alternate',
       }} />
-      {/* Grain overlay */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
-        opacity: 0.4,
-      }} />
+      {/* Grain texture */}
+      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.3 }}>
+        <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" /></filter>
+        <rect width="100%" height="100%" filter="url(#grain)" opacity="0.08" />
+      </svg>
     </div>
   );
 }
@@ -4716,7 +4733,7 @@ export default function GamificationPlatform() {
       {/* Main Content */}
       <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
-        <header className="bg-transparent/90 backdrop-blur-xl border-b border-purple-500/25 p-4 sticky top-0 z-20">
+        <header className="p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             {/* Mobile Menu Button */}
             <button 
