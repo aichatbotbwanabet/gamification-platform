@@ -149,9 +149,9 @@ void main(){
 
     // Set static uniforms — cyberpunk dark theme
     const hexToRgb = h => [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255];
-    const c1 = hexToRgb('#00E5FF'); // bright cyan
-    const c2 = hexToRgb('#0a0e1a'); // near black blue
-    const c3 = hexToRgb('#06B6D4'); // teal
+    const c1 = hexToRgb('#FF8C00'); // bright orange
+    const c2 = hexToRgb('#1a0a00'); // near black warm
+    const c3 = hexToRgb('#F97316'); // vivid orange
     gl.uniform3f(u.uColor1, c1[0], c1[1], c1[2]);
     gl.uniform3f(u.uColor2, c2[0], c2[1], c2[2]);
     gl.uniform3f(u.uColor3, c3[0], c3[1], c3[2]);
@@ -888,7 +888,7 @@ function TutorialModal({ tutorialKey, onClose, closing }) {
               type="button" 
               onClick={() => setStep(s => Math.max(0, s - 1))} 
               disabled={step === 0} 
-              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-800/40 border border-gray-600/20 opacity-50' : 'bg-transparent hover:bg-cyan-900/20'}`}
+              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-800/40 border border-gray-600/20 opacity-50' : 'bg-black/40 hover:bg-cyan-900/30 border border-white/10'}`}
             >
               ← Back
             </button>
@@ -994,7 +994,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
                 {done ? '✅ Complete!' : `${Math.min(progress, mission.target)} / ${mission.target}`}
               </span>
             </div>
-            <div className="h-3 bg-transparent rounded-full overflow-hidden">
+            <div className="h-3 bg-black/50 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full transition-all duration-500 ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`}
                 style={{ width: `${Math.min(100, (progress / mission.target) * 100)}%` }}
@@ -1003,7 +1003,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
           </div>
           
           {/* Rewards */}
-          <div className="bg-transparent rounded-xl p-4 mb-4">
+          <div className="bg-black/60 rounded-xl p-4 border border-white/10 mb-4">
             <div className="text-sm text-gray-400 mb-2 font-semibold">Rewards</div>
             <div className="flex items-center gap-4 flex-wrap">
               {mission.reward.kwacha && (
@@ -1030,7 +1030,7 @@ function MissionDetailModal({ mission, progress, done, onClose, onNavigate, clos
           
           {/* Tips */}
           {mission.tips && mission.tips.length > 0 && (
-            <div className="bg-transparent rounded-xl p-4 mb-4">
+            <div className="bg-black/60 rounded-xl p-4 border border-white/10 mb-4">
               <div className="text-sm text-gray-400 mb-2 font-semibold">💡 Tips</div>
               <div className="space-y-1.5">
                 {mission.tips.map((tip, i) => (
@@ -1216,7 +1216,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
             {/* Outer gold ring with glow */}
             <circle cx="150" cy="150" r="147" fill="none" stroke="url(#wg1)" strokeWidth="7" filter="url(#gldGlow)" />
             {/* Dark channel */}
-            <circle cx="150" cy="150" r="141" fill="none" stroke="#0f0a1f" strokeWidth="8" />
+            <circle cx="150" cy="150" r="141" fill="none" stroke="#0a0f1a" strokeWidth="8" />
             {/* Inner gold trim */}
             <circle cx="150" cy="150" r="136" fill="none" stroke="url(#wg2)" strokeWidth="2.5" />
             
@@ -1321,7 +1321,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
                 const e = { x: 100 + 100 * Math.cos(eA * Math.PI / 180), y: 100 + 100 * Math.sin(eA * Math.PI / 180) };
                 return (
                   <g key={seg.id}>
-                    <path d={`M 100 100 L ${s.x} ${s.y} A 100 100 0 0 1 ${e.x} ${e.y} Z`} fill={seg.color} stroke="#0f0a1f" strokeWidth="1" />
+                    <path d={`M 100 100 L ${s.x} ${s.y} A 100 100 0 0 1 ${e.x} ${e.y} Z`} fill={seg.color} stroke="#0a0f1a" strokeWidth="1" />
                     <path d={`M 100 100 L ${s.x} ${s.y} A 100 100 0 0 1 ${e.x} ${e.y} Z`} fill="url(#segD)" />
                   </g>
                 );
@@ -1329,7 +1329,7 @@ function WheelGame({ onClose, onWin, playsLeft, closing }) {
               {/* Divider lines */}
               {WHEEL_SEGMENTS.map((_, i) => {
                 const a = i * SEG_ANGLE - 90;
-                return <line key={`d${i}`} x1="100" y1="100" x2={100 + 99 * Math.cos(a * Math.PI / 180)} y2={100 + 99 * Math.sin(a * Math.PI / 180)} stroke="#0f0a1f" strokeWidth="2" opacity="0.4" />;
+                return <line key={`d${i}`} x1="100" y1="100" x2={100 + 99 * Math.cos(a * Math.PI / 180)} y2={100 + 99 * Math.sin(a * Math.PI / 180)} stroke="#0a0f1a" strokeWidth="2" opacity="0.4" />;
               })}
               {/* Shine overlay */}
               <circle cx="100" cy="100" r="99" fill="url(#segShine)" />
@@ -1668,7 +1668,7 @@ function DiceGame({ onClose, onWin, closing }) {
                   type="button" 
                   onClick={() => setGuess(n)} 
                   disabled={rolling} 
-                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-cyan-400 to-blue-500 scale-110 shadow-lg shadow-cyan-500/50' : 'bg-transparent hover:bg-cyan-900/20 hover:scale-105'}`}
+                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-cyan-400 to-blue-500 scale-110 shadow-lg shadow-cyan-500/50' : 'bg-black/40 hover:bg-cyan-900/30 border border-white/10 hover:scale-105'}`}
                 >
                   {n}
                 </button>
@@ -1769,15 +1769,15 @@ function MemoryGame({ onClose, onWin, closing }) {
         </div>
         
         <div className="flex justify-center gap-6 mb-4">
-          <div className="text-center px-4 py-2 bg-transparent rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/50 rounded-xl border border-white/10">
             <div className="text-xl font-bold text-yellow-400">{moves}</div>
             <div className="text-xs text-gray-400">Moves</div>
           </div>
-          <div className="text-center px-4 py-2 bg-transparent rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/50 rounded-xl border border-white/10">
             <div className="text-xl font-bold text-green-400">{matched.length/2}/{symbols.length}</div>
             <div className="text-xs text-gray-400">Pairs</div>
           </div>
-          <div className="text-center px-4 py-2 bg-transparent rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/50 rounded-xl border border-white/10">
             <div className="text-xl font-bold text-cyan-400">{prize}</div>
             <div className="text-xs text-gray-400">Prize</div>
           </div>
@@ -2249,7 +2249,7 @@ function TapFrenzyGame({ onClose, onWin, closing }) {
         {/* Game Area */}
         <div 
           className="relative rounded-2xl border-0 overflow-hidden"
-          style={{ height: 350, background: 'radial-gradient(ellipse at center, #1a1333 0%, #0a0618 100%)' }}
+          style={{ height: 350, background: 'radial-gradient(ellipse at center, #0a1520 0%, #050a15 100%)' }}
         >
           {gameState === 'ready' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -2450,7 +2450,7 @@ function StopClockGame({ onClose, onWin, closing }) {
             })()}
             
             {/* Center dot */}
-            <circle cx="100" cy="100" r="8" fill="#1a1333" stroke="#fbbf24" strokeWidth="2" />
+            <circle cx="100" cy="100" r="8" fill="#0a1520" stroke="#fbbf24" strokeWidth="2" />
           </svg>
           
           {/* Number display */}
@@ -2657,8 +2657,8 @@ function TreasureHuntGame({ onClose, onWin, closing }) {
                             ? 'bg-green-500/20 border border-green-500/40'
                             : 'bg-gray-800/40 border border-gray-600/20/30 border border-gray-600/30 opacity-50'
                     : gameState === 'playing'
-                      ? 'bg-transparent border-0 hover:bg-cyan-900/20 hover:scale-105 hover:border-cyan-400/40 active:scale-90 cursor-pointer'
-                      : 'bg-transparent border-0 opacity-40'
+                      ? 'bg-black/40 border border-white/10 hover:bg-cyan-900/30 hover:scale-105 hover:border-cyan-400/40 active:scale-90 cursor-pointer'
+                      : 'bg-black/30 border border-white/5 opacity-40'
                 }`}
               >
                 {isFlipped ? (
@@ -2878,7 +2878,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                       {streak >= 2 && <span className="text-xs text-orange-400 animate-pulse">🔥{streak}</span>}
                     </div>
                   </div>
-                  <div className="h-2 bg-transparent rounded-full overflow-hidden">
+                  <div className="h-2 bg-black/50 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-500 ease-out" style={{
                       width: `${((qIndex + 1) / 10) * 100}%`,
                       background: 'linear-gradient(90deg, #a855f7, #ec4899, #f97316)'
@@ -2888,7 +2888,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
                 {/* Circular Timer */}
                 <div className="relative w-14 h-14 flex-shrink-0">
                   <svg className="w-14 h-14 -rotate-90" viewBox="0 0 48 48">
-                    <circle cx="24" cy="24" r="22" fill="none" stroke="#1a1333" strokeWidth="3" />
+                    <circle cx="24" cy="24" r="22" fill="none" stroke="#0a1520" strokeWidth="3" />
                     <circle cx="24" cy="24" r="22" fill="none"
                       stroke={timer <= 5 ? '#ef4444' : timer <= 10 ? '#f59e0b' : '#a855f7'}
                       strokeWidth="3" strokeLinecap="round"
@@ -2906,7 +2906,7 @@ function ClassicQuizGame({ onClose, onWin, closing }) {
               {/* Question Card */}
               <div className="relative mb-4">
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-cyan-500/30 rounded-2xl blur-sm" />
-                <div className="relative bg-transparent rounded-2xl p-5">
+                <div className="relative bg-black/50 rounded-2xl p-5 border border-white/10">
                   <p className="font-bold text-center leading-relaxed">{q.q}</p>
                 </div>
               </div>
@@ -3110,7 +3110,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
                 {/* Circular Timer */}
                 <div className="relative w-20 h-20 flex-shrink-0">
                   <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
-                    <circle cx="40" cy="40" r="38" fill="none" stroke="#1a1333" strokeWidth="4" />
+                    <circle cx="40" cy="40" r="38" fill="none" stroke="#0a1520" strokeWidth="4" />
                     <circle cx="40" cy="40" r="38" fill="none"
                       stroke={timer <= 10 ? '#ef4444' : timer <= 20 ? '#f59e0b' : '#eab308'}
                       strokeWidth="4" strokeLinecap="round"
@@ -3130,7 +3130,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
                     <span className="text-xs text-gray-500">Progress</span>
                     <span className="text-xs font-bold text-yellow-400">{qIndex + 1}/20</span>
                   </div>
-                  <div className="h-2 bg-transparent rounded-full overflow-hidden">
+                  <div className="h-2 bg-black/50 rounded-full overflow-hidden">
                     <div className="h-full rounded-full transition-all duration-300" style={{
                       width: `${((qIndex + 1) / 20) * 100}%`,
                       background: 'linear-gradient(90deg, #eab308, #f97316, #ef4444)'
@@ -3153,7 +3153,7 @@ function SpeedRoundGame({ onClose, onWin, closing }) {
               {/* Statement Card */}
               <div className={`relative mb-6 transition-all duration-200 ${feedback === 'correct' ? 'scale-[0.98]' : feedback === 'wrong' ? 'scale-[0.98]' : ''}`}>
                 <div className={`absolute -inset-[1px] rounded-2xl blur-sm transition-all duration-200 ${feedback === 'correct' ? 'bg-green-500/40' : feedback === 'wrong' ? 'bg-red-500/40' : 'bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20'}`} />
-                <div className={`relative bg-transparent rounded-2xl p-6 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
+                <div className={`relative bg-black/50 rounded-2xl p-6 border border-white/10 min-h-[120px] flex items-center justify-center transition-colors duration-200 ${feedback === 'correct' ? 'bg-green-900/20' : feedback === 'wrong' ? 'bg-red-900/20' : ''}`}>
                   {feedback === 'correct' && <div className="absolute top-3 right-3 text-green-400 font-bold text-sm animate-pulse">✓ Correct!</div>}
                   {feedback === 'wrong' && <div className="absolute top-3 right-3 text-red-400 font-bold text-sm animate-pulse">✗ Wrong!</div>}
                   <p className="font-bold text-center leading-relaxed">{questions[qIndex].statement}</p>
@@ -3377,7 +3377,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
                 {/* Timer */}
                 <div className="relative w-14 h-14 flex-shrink-0">
                   <svg className="w-14 h-14 -rotate-90" viewBox="0 0 48 48">
-                    <circle cx="24" cy="24" r="22" fill="none" stroke="#1a1333" strokeWidth="3" />
+                    <circle cx="24" cy="24" r="22" fill="none" stroke="#0a1520" strokeWidth="3" />
                     <circle cx="24" cy="24" r="22" fill="none"
                       stroke={timer <= 5 ? '#ef4444' : timer <= 10 ? '#f59e0b' : '#f97316'}
                       strokeWidth="3" strokeLinecap="round"
@@ -3395,7 +3395,7 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
               {/* Question */}
               <div className="relative mb-4">
                 <div className="absolute -inset-[1px] bg-gradient-to-r from-orange-500/20 via-red-500/20 to-orange-500/20 rounded-2xl blur-sm" />
-                <div className="relative bg-transparent rounded-2xl p-5">
+                <div className="relative bg-black/50 rounded-2xl p-5 border border-white/10">
                   <p className="font-bold text-center leading-relaxed">{question.q}</p>
                 </div>
               </div>
@@ -3529,7 +3529,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
               const done = progress >= step.target;
               const pct = Math.min(100, (progress / step.target) * 100);
               return (
-                <div key={step.id} className={`rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : 'bg-transparent border-cyan-500/30'}`}>
+                <div key={step.id} className={`rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : 'bg-black/40 border-cyan-500/30'}`}>
                   <div className="flex items-center gap-3 p-3.5">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg ${done ? 'bg-green-500/20' : 'bg-cyan-500/10'}`}>
                       {done ? '✅' : step.icon}
@@ -3540,7 +3540,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
                         <span className={`text-xs font-bold ml-2 ${done ? 'text-green-400' : 'text-gray-500'}`}>{Math.min(progress, step.target)}/{step.target}</span>
                       </div>
                       {!done && (
-                        <div className="h-1.5 bg-transparent rounded-full overflow-hidden mt-1.5">
+                        <div className="h-1.5 bg-black/50 rounded-full overflow-hidden mt-1.5">
                           <div className="h-full rounded-full transition-all duration-500" style={{
                             width: `${pct}%`,
                             background: 'linear-gradient(90deg, #a855f7, #ec4899)'
@@ -3562,7 +3562,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
           </div>
 
           {/* Rewards */}
-          <div className={`rounded-xl p-4 mb-4 border ${isComplete ? 'bg-green-500/5 border-green-500/20' : 'bg-transparent border-cyan-500/30'}`}>
+          <div className={`rounded-xl p-4 mb-4 border ${isComplete ? 'bg-green-500/5 border-green-500/20' : 'bg-black/40 border-cyan-500/30'}`}>
             <div className="text-xs font-bold text-gray-500 mb-2">{isComplete ? '✅ REWARDS CLAIMED' : '🎁 QUEST REWARDS'}</div>
             <div className="flex items-center gap-4">
               <span className="text-yellow-400 font-bold text-sm">🪙 {quest.reward.kwacha}</span>
@@ -3639,7 +3639,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
   if (answered || showResult) {
     const correct = user.dailyChallengeCorrect;
     return (
-      <div className={`bg-transparent rounded-3xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-cyan-500/30'} relative`}>
+      <div className={`bg-black/60 rounded-3xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-cyan-500/30'} relative`}>
         <div className="p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${correct ? 'bg-green-500/20' : 'bg-red-500/10'}`}>
@@ -3653,7 +3653,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
             </div>
           </div>
           {!correct && (
-            <div className="bg-transparent rounded-xl p-3">
+            <div className="bg-black/60 rounded-xl p-3 border border-white/10">
               <div className="text-xs text-gray-500 mb-1">The correct answer was:</div>
               <div className="text-sm font-bold text-green-400">{question.a}</div>
             </div>
@@ -3664,10 +3664,10 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
   }
 
   return (
-    <div className="bg-transparent rounded-3xl overflow-hidden border-2 border-amber-400/50 shadow-lg shadow-amber-500/15">
+    <div className="bg-black/60 rounded-3xl overflow-hidden border-2 border-amber-400/50 shadow-lg shadow-amber-500/15">
       <div className="relative h-28 overflow-hidden">
         <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1520] via-[#1a1333]/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1520] via-[#0a1520]/40 to-transparent" />
         <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
           <div>
             <div className="font-bold text-lg">🎯 Daily Challenge</div>
@@ -3679,18 +3679,18 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
         </div>
       </div>
       <div className="p-4">
-        <div className="bg-transparent rounded-xl p-3 mb-3">
+        <div className="bg-black/60 rounded-xl p-3 border border-white/10 mb-3">
           <p className="font-bold text-sm">{question.q}</p>
         </div>
         <div className="grid grid-cols-2 gap-2">
         {question.options.map((opt, i) => {
           const isCorrect = opt === question.a;
           const isSelected = opt === selected;
-          let bg = 'bg-transparent hover:bg-cyan-500/15 ';
+          let bg = 'bg-black/40 hover:bg-cyan-500/20 border border-white/10 ';
           if (showAnswer) {
             if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
             else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
-            else bg = 'bg-transparent border border-cyan-900/20 opacity-50';
+            else bg = 'bg-black/30 border border-cyan-900/20 opacity-50';
           }
           return (
             <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
@@ -4035,36 +4035,36 @@ export default function GamificationPlatform() {
       
       /* ===== BOLD INTERACTIVE ELEMENTS ===== */
       .card-interactive {
-        border: 2px solid rgba(6,182,212,0.35);
+        border: 2px solid rgba(255,255,255,0.15);
         border-radius: 20px;
-        background: rgba(3,8,16,0.5);
-        backdrop-filter: blur(8px);
-        box-shadow: 0 0 15px rgba(6,182,212,0.1), 0 0 30px rgba(6,182,212,0.05), 0 4px 24px rgba(0,0,0,0.5);
+        background: rgba(10,15,25,0.92);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
         transition: all 0.25s cubic-bezier(0.22,1,0.36,1);
       }
       .card-interactive:hover {
-        border-color: rgba(34,211,238,0.7);
-        box-shadow: 0 0 20px rgba(6,182,212,0.3), 0 0 40px rgba(6,182,212,0.1), 0 8px 32px rgba(0,0,0,0.5);
+        border-color: rgba(6,182,212,0.6);
+        box-shadow: 0 0 20px rgba(6,182,212,0.2), 0 8px 32px rgba(0,0,0,0.6);
         transform: translateY(-4px);
       }
       .match-card {
-        border: 2px solid rgba(6,182,212,0.3);
+        border: 2px solid rgba(255,255,255,0.12);
         border-radius: 20px;
-        box-shadow: 0 0 15px rgba(6,182,212,0.08), 0 4px 24px rgba(0,0,0,0.5);
-        background: rgba(3,8,16,0.5);
-        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+        background: rgba(10,15,25,0.92);
+        backdrop-filter: blur(12px);
       }
       .odds-btn {
-        border: 2px solid rgba(6,182,212,0.35);
+        border: 2px solid rgba(255,255,255,0.15);
         border-radius: 14px;
-        background: rgba(6,182,212,0.08);
-        box-shadow: 0 2px 0 rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+        background: rgba(10,15,25,0.85);
+        box-shadow: 0 2px 0 rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
         transition: all 0.2s ease;
       }
       .odds-btn:hover {
-        border-color: rgba(34,211,238,0.8);
+        border-color: rgba(6,182,212,0.7);
         background: rgba(6,182,212,0.2);
-        box-shadow: 0 0 20px rgba(6,182,212,0.4), 0 2px 0 rgba(0,0,0,0.3);
+        box-shadow: 0 0 20px rgba(6,182,212,0.3), 0 2px 0 rgba(0,0,0,0.3);
         transform: translateY(-2px);
       }
       .tab-btn-active {
@@ -4076,14 +4076,14 @@ export default function GamificationPlatform() {
         border-radius: 14px;
       }
       .tab-btn-inactive {
-        background: transparent;
-        border: 2px solid rgba(6,182,212,0.2);
+        background: rgba(10,15,25,0.85);
+        border: 2px solid rgba(255,255,255,0.12);
         border-radius: 14px;
         transition: all 0.2s ease;
       }
       .tab-btn-inactive:hover {
-        border-color: rgba(34,211,238,0.5);
-        background: rgba(6,182,212,0.08);
+        border-color: rgba(6,182,212,0.5);
+        background: rgba(6,182,212,0.15);
       }
     `;
     document.head.appendChild(style);
@@ -4784,7 +4784,7 @@ export default function GamificationPlatform() {
                     showNotif('Avatar updated!');
                     setShowAvatarSelector(false);
                   }}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-cyan-400 to-blue-500 ring-2 ring-cyan-400' : 'bg-transparent hover:bg-cyan-900/20'}`}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-cyan-400 to-blue-500 ring-2 ring-cyan-400' : 'bg-black/40 hover:bg-cyan-900/30 border border-white/10'}`}
                 >
                   {avatar}
                 </button>
@@ -4799,7 +4799,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
         <div className="p-4">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -4813,7 +4813,7 @@ export default function GamificationPlatform() {
           </div>
 
           {/* User Profile Card */}
-          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border-0 glow-border">
+          <div className="mb-6 p-3 rounded-xl border-0" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(6,182,212,0.2)', boxShadow: '0 0 15px rgba(6,182,212,0.08)' }}>
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -4846,7 +4846,7 @@ export default function GamificationPlatform() {
           </div>
 
           {/* Navigation */}
-          <nav className="space-y-1">
+          <nav className="space-y-1.5">
             {tabs.map(t => {
               const Icon = t.icon;
               const active = tab === t.id;
@@ -4855,17 +4855,28 @@ export default function GamificationPlatform() {
                   key={t.id} 
                   type="button" 
                   onClick={() => { setTab(t.id); setMobileMenuOpen(false); }} 
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 relative overflow-hidden ${active ? 'btn-3d btn-3d-purple text-white' : 'hover:bg-transparent text-gray-400 hover:text-white'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 relative overflow-hidden ${active ? 'text-white font-black' : 'text-gray-300 hover:text-white font-bold'}`}
+                  style={active ? {
+                    background: 'linear-gradient(135deg, #0891B2 0%, #0E7490 100%)',
+                    boxShadow: '0 4px 0 #164E63, 0 0 20px rgba(6,182,212,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    border: '2px solid rgba(34,211,238,0.5)',
+                  } : {
+                    background: 'rgba(0,0,0,0.7)',
+                    border: '2px solid rgba(255,255,255,0.12)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+                  }}
+                  onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(6,182,212,0.15)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.4)'; }}}
+                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'rgba(0,0,0,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}}
                 >
-                  <Icon className={`w-5 h-5 transition-transform duration-300 ${!active ? 'group-hover:scale-110' : ''}`} />
-                  <span className="font-bold text-[15px]">{t.label}</span>
+                  <Icon className={`w-5 h-5 ${active ? 'text-white' : ''}`} />
+                  <span className="text-[15px]">{t.label}</span>
                 </button>
               );
             })}
           </nav>
 
           {/* Demo Controls */}
-          <div className="mt-6 p-4 bg-transparent rounded-2xl border border-white/10">
+          <div className="mt-6 p-4 rounded-2xl" style={{ background: 'rgba(0,0,0,0.6)', border: '2px solid rgba(255,255,255,0.1)' }}>
             <div className="flex items-center gap-2 text-xs text-cyan-400 mb-3">
               <Sparkles className="w-4 h-4" />
               <span className="font-bold">DEMO CONTROLS</span>
@@ -4938,7 +4949,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', background: 'rgba(0,0,0,0.4)' }}>
         {/* Header */}
         <header className="p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -5023,7 +5034,7 @@ export default function GamificationPlatform() {
               {/* Quick Actions - 3 Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Daily Reward Card */}
-                <div className="bg-transparent rounded-3xl overflow-hidden  card-interactive transition-all group">
+                <div className="rounded-3xl overflow-hidden card-interactive transition-all group">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.dailyGift} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -5078,7 +5089,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div onClick={() => playGame('wheel')} className="bg-transparent rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
+                <div onClick={() => playGame('wheel')} className="rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -5104,7 +5115,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Predictions Card */}
-                <div onClick={() => setTab('predictions')} className="bg-transparent rounded-3xl overflow-hidden  card-interactive transition-all group cursor-pointer">
+                <div onClick={() => setTab('predictions')} className="rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
@@ -5160,7 +5171,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[...getDailyMissions(), ...PERMANENT_MISSIONS].filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <button key={m.id} type="button" onClick={() => setSelectedMission(m)} className="bg-transparent rounded-3xl overflow-hidden card-interactive transition-all card-interactive group text-left">
+                    <button key={m.id} type="button" onClick={() => setSelectedMission(m)} className="rounded-3xl overflow-hidden card-interactive transition-all card-interactive group text-left">
                       <div className="relative h-40 overflow-hidden">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {m.difficulty && (
@@ -5219,7 +5230,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {STORE_ITEMS.filter(i => i.featured || i.isNew).slice(0, 4).map(item => (
-                    <div key={item.id} className="bg-transparent rounded-xl overflow-hidden  card-interactive group">
+                    <div key={item.id} className="rounded-xl overflow-hidden card-interactive group">
                       <div className="relative h-32 overflow-hidden">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {item.isNew && (
@@ -5255,7 +5266,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} onClick={() => playGame(game.id)} className="bg-transparent rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
+                  <div key={game.id} onClick={() => playGame(game.id)} className="rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
                     <div className="relative h-44 overflow-hidden">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       {user.gamePlays[game.id] > 0 && (
@@ -5300,7 +5311,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {TRIVIA_GAMES.map(game => (
-                    <div key={game.id} onClick={() => playTrivia(game.id)} className="bg-transparent rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
+                    <div key={game.id} onClick={() => playTrivia(game.id)} className="rounded-3xl overflow-hidden card-interactive transition-all group cursor-pointer">
                       <div className="relative h-36 overflow-hidden">
                         <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#0a1520] via-transparent to-transparent" />
@@ -5351,7 +5362,7 @@ export default function GamificationPlatform() {
               </div>
               
               {/* Mission Sub-Tabs */}
-              <div className="flex gap-2 bg-transparent rounded-2xl p-1.5">
+              <div className="flex gap-2 bg-black/60 rounded-2xl p-1.5 border border-white/10">
                 {[
                   { id: 'daily', label: '🔄 Daily', count: getDailyMissions().length },
                   { id: 'weekly', label: '📅 Weekly', count: WEEKLY_MISSIONS.length },
@@ -5386,14 +5397,14 @@ export default function GamificationPlatform() {
                         <span className="font-bold">Daily Progress</span>
                         <span className="text-sm text-gray-400">{completedCount}/{dailyMissions.length} done</span>
                       </div>
-                      <div className="h-3 bg-transparent rounded-full overflow-hidden mb-3">
+                      <div className="h-3 bg-black/50 rounded-full overflow-hidden mb-3">
                         <div 
                           className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 transition-all duration-500" 
                           style={{ width: `${(completedCount / dailyMissions.length) * 100}%` }} 
                         />
                       </div>
                       {/* Bonus chest reward for completing all */}
-                      <div className={`flex items-center justify-between p-3 rounded-xl border ${allDone ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-transparent border-cyan-900/20'}`}>
+                      <div className={`flex items-center justify-between p-3 rounded-xl border ${allDone ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-black/40 border-cyan-900/20'}`}>
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">{allDone ? '🎁' : '🔒'}</span>
                           <div>
@@ -5419,7 +5430,7 @@ export default function GamificationPlatform() {
                             key={m.id}
                             type="button"
                             onClick={() => setSelectedMission(m)}
-                            className={`bg-transparent rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
+                            className={`rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
                           >
                             {/* Full-card completed overlay */}
                             {done && (
@@ -5443,7 +5454,7 @@ export default function GamificationPlatform() {
                                 {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
                                 <span className="text-cyan-400 font-bold">⚡ {m.xp}</span>
                               </div>
-                              <div className="h-1.5 bg-transparent rounded-full overflow-hidden">
+                              <div className="h-1.5 bg-black/50 rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} 
                                   style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
@@ -5470,7 +5481,7 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-transparent rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
+                        className={`rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
@@ -5495,7 +5506,7 @@ export default function GamificationPlatform() {
                           <div className="flex justify-between items-center mb-1.5">
                             <span className="text-xs text-gray-500">{Math.min(progress, m.target)}/{m.target}</span>
                           </div>
-                          <div className="h-2 bg-transparent rounded-full overflow-hidden">
+                          <div className="h-2 bg-black/50 rounded-full overflow-hidden">
                             <div 
                               className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} 
                               style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
@@ -5520,7 +5531,7 @@ export default function GamificationPlatform() {
                         key={m.id}
                         type="button"
                         onClick={() => setSelectedMission(m)}
-                        className={`bg-transparent rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
+                        className={`rounded-3xl overflow-hidden border text-left transition-all duration-300 group relative ${done ? 'border-green-500/50 opacity-60' : 'border-cyan-500/30 card-interactive hover:scale-[1.02] active:scale-[0.98]'}`}
                       >
                         {done && (
                           <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 rounded-2xl">
@@ -5550,7 +5561,7 @@ export default function GamificationPlatform() {
                           <div className="flex justify-between items-center mb-1.5">
                             <span className="text-xs text-gray-500">{Math.min(progress, m.target)}/{m.target}</span>
                           </div>
-                          <div className="h-2 bg-transparent rounded-full overflow-hidden">
+                          <div className="h-2 bg-black/50 rounded-full overflow-hidden">
                             <div 
                               className={`h-full rounded-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} 
                               style={{ width: `${Math.min(100, (progress / m.target) * 100)}%` }} 
@@ -5618,7 +5629,7 @@ export default function GamificationPlatform() {
                           }
                         }} 
                         disabled={!canClaim} 
-                        className={`p-3 rounded-2xl text-center transition-all duration-300 ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 glow-pulse shadow-lg shadow-cyan-500/50 hover:scale-105' : 'bg-cyan-500/15 border-2 border-cyan-500/40' : 'bg-transparent border-2 border-gray-700/50'}`}
+                        className={`p-3 rounded-2xl text-center transition-all duration-300 ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 glow-pulse shadow-lg shadow-cyan-500/50 hover:scale-105' : 'bg-cyan-500/15 border-2 border-cyan-500/40' : 'bg-black/40 border-2 border-gray-700/50'}`}
                       >
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
                         {isPast && (
@@ -5667,7 +5678,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {VIP_TIERS.map(tier => (
-                  <div key={tier.name} className={`bg-transparent rounded-2xl p-4 border card-interactive transition-all duration-300 ${tier.name === vip.name ? 'border-cyan-400/60 bg-cyan-500/10 glow-pulse' : 'border-cyan-500/30'}`}>
+                  <div key={tier.name} className={`rounded-2xl p-4 border card-interactive transition-all duration-300 ${tier.name === vip.name ? 'border-cyan-400/60 bg-cyan-500/10 glow-pulse' : 'border-cyan-500/30'}`}>
                     <div className="text-4xl mb-2">{tier.icon}</div>
                     <div className="font-bold">{tier.name}</div>
                     <div className="text-sm text-gray-400">K{tier.min}+ deposits</div>
@@ -5700,7 +5711,7 @@ export default function GamificationPlatform() {
                 {STORE_ITEMS.map(item => {
                   const canBuy = user.kwacha >= item.price.kwacha && (!item.price.gems || user.gems >= item.price.gems);
                   return (
-                    <div key={item.id} className={`bg-transparent rounded-3xl overflow-hidden border card-interactive group ${item.featured ? 'border-amber-400/50' : 'border-cyan-500/30'}`}>
+                    <div key={item.id} className={`rounded-3xl overflow-hidden border card-interactive group ${item.featured ? 'border-amber-400/50' : 'border-cyan-500/30'}`}>
                       <div className="relative h-44 overflow-hidden">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         {item.featured && (
@@ -5844,13 +5855,13 @@ export default function GamificationPlatform() {
                     className={`w-full text-left rounded-3xl overflow-hidden border transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
                       isComplete ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40' :
                       canClaim ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/40 hover:border-green-400/60 shadow-lg shadow-green-500/10' :
-                      'bg-transparent border-cyan-500/30 hover:border-cyan-500/40'
+                      'bg-black/40 border-cyan-500/30 hover:border-cyan-500/40'
                     }`}>
                     <div className="flex items-stretch">
                       {/* Left Image */}
                       <div className="relative w-28 flex-shrink-0">
                         <img src={IMAGES[quest.image]} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1333]/90" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0a1520]/90" />
                       </div>
                       {/* Right Info */}
                       <div className="flex-1 p-4 min-w-0">
@@ -5863,7 +5874,7 @@ export default function GamificationPlatform() {
                         <p className="text-xs text-gray-500 mb-2.5 line-clamp-1">{quest.desc}</p>
                         {/* Progress */}
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="flex-1 h-1.5 bg-transparent rounded-full overflow-hidden">
+                          <div className="flex-1 h-1.5 bg-black/50 rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all duration-500" style={{
                               width: `${isComplete ? 100 : pct}%`,
                               background: isComplete ? '#22c55e' : 'linear-gradient(90deg, #a855f7, #ec4899)'
@@ -5909,7 +5920,7 @@ export default function GamificationPlatform() {
                   <p className="text-gray-400">Earn 500 Coins + 50 Gems per referral!</p>
                 </div>
                 <div className="flex gap-2 mb-6">
-                  <div className="flex-1 bg-transparent rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
+                  <div className="flex-1 bg-black/50 rounded-xl p-4 border border-white/10 font-mono text-2xl text-center">PLAYER1X</div>
                   <button 
                     type="button" 
                     onClick={() => {
@@ -5922,15 +5933,15 @@ export default function GamificationPlatform() {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="bg-transparent rounded-xl p-4 text-center">
+                  <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                     <div className="text-3xl font-black text-cyan-400">{user.referrals}</div>
                     <div className="text-gray-400">Referrals</div>
                   </div>
-                  <div className="bg-transparent rounded-xl p-4 text-center">
+                  <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                     <div className="text-3xl font-black text-yellow-400">{user.referrals * 500}</div>
                     <div className="text-gray-400">Coins</div>
                   </div>
-                  <div className="bg-transparent rounded-xl p-4 text-center">
+                  <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                     <div className="text-3xl font-black text-green-400">{user.referrals * 50}</div>
                     <div className="text-gray-400">Gems</div>
                   </div>
@@ -5989,8 +6000,8 @@ export default function GamificationPlatform() {
                   { r: 4, n: 'Player1', k: user.kwacha, u: true },
                   { r: 5, n: 'WinMaster', k: 700 }
                 ].map(p => (
-                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.01] ${p.u ? 'bg-cyan-500/15 border border-cyan-500/40 glow-border' : 'bg-transparent'}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-transparent'}`}>
+                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 hover:scale-[1.01] ${p.u ? 'bg-cyan-500/15 border border-cyan-500/40 glow-border' : 'bg-black/20'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-black/20'}`}>
                       {p.r}
                     </div>
                     <div className="flex-1 font-bold">{p.n}</div>
@@ -6025,19 +6036,19 @@ export default function GamificationPlatform() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-transparent rounded-xl p-4 text-center">
+                <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-yellow-400">{user.bets}</div>
                   <div className="text-gray-400">Bets Placed</div>
                 </div>
-                <div className="bg-transparent rounded-xl p-4 text-center">
+                <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-green-400">{user.wins}</div>
                   <div className="text-gray-400">Bets Won</div>
                 </div>
-                <div className="bg-transparent rounded-xl p-4 text-center">
+                <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-cyan-400">{user.gamesPlayed}</div>
                   <div className="text-gray-400">Games Played</div>
                 </div>
-                <div className="bg-transparent rounded-xl p-4 text-center">
+                <div className="bg-black/60 rounded-xl p-4 border border-white/10 text-center">
                   <div className="text-2xl font-bold text-cyan-300">{user.missionsComplete.length}</div>
                   <div className="text-gray-400">Missions Done</div>
                 </div>
