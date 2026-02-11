@@ -598,7 +598,7 @@ function ScratchGame({ onClose, onWin }) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#777';
-    ctx.font = 'bold 18px Arial';
+    ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'center';
     ctx.fillText('🪙 SCRATCH HERE 🪙', canvas.width / 2, canvas.height / 2 + 6);
   }, []);
@@ -1129,36 +1129,36 @@ function KaTouchGame({ onClose, onWin }) {
   const [coins, setCoins] = useState(0);
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  const W = 800, H = 300;
-  const GROUND_Y = H - 50;
+  const W = 1600, H = 600;
+  const GROUND_Y = H - 100;
 
   // Load NPC sprite, logo, and background images
   useEffect(() => {
     const img = new Image();
     img.onload = () => { npcImgRef.current = img; setImgLoaded(true); };
     img.onerror = () => setImgLoaded(true);
-    img.src = '/images/npc-tagger.png';
+    img.src = `${IMG_BASE}/npc-tagger.png`;
     const logo = new Image();
     logo.onload = () => { logoImgRef.current = logo; };
-    logo.src = '/images/ka-touch-logo.png';
+    logo.src = `${IMG_BASE}/ka-touch-logo.png`;
     // Biome background images
     ['city', 'village', 'university', 'jungle', 'stadium'].forEach(key => {
       const bgImg = new Image();
       bgImg.onload = () => { bgImgsRef.current[key] = bgImg; };
-      bgImg.src = `/images/bg-${key}.png`;
+      bgImg.src = `${IMG_BASE}/bg-${key}.png`;
     });
   }, []);
 
   // Slot machine items using existing project images
   const SLOT_ITEMS = [
-    { id: 'diamond', img: '/images/diamond.png', name: 'Diamond', color: '#60a5fa' },
-    { id: 'coin', img: '/images/coin.png', name: 'Coin', color: '#fbbf24' },
-    { id: 'gem', img: '/images/gem.png', name: 'Gem', color: '#a855f7' },
-    { id: 'fire', img: '/images/wheel/fire.png', name: 'Fire', color: '#ef4444' },
-    { id: 'star', img: '/images/wheel/star.png', name: 'Star', color: '#fcd34d' },
-    { id: 'clover', img: '/images/wheel/lucky-clover.png', name: 'Clover', color: '#22c55e' },
-    { id: 'crown', img: '/images/wheel/crown.png', name: 'Crown', color: '#f59e0b' },
-    { id: 'lightning', img: '/images/wheel/lightning.png', name: 'Lightning', color: '#38bdf8' },
+    { id: 'diamond', img: `${IMG_BASE}/diamond.png`, name: 'Diamond', color: '#60a5fa' },
+    { id: 'coin', img: `${IMG_BASE}/coin.png`, name: 'Coin', color: '#fbbf24' },
+    { id: 'gem', img: `${IMG_BASE}/gem.png`, name: 'Gem', color: '#a855f7' },
+    { id: 'fire', img: `${IMG_BASE}/wheel/fire.png`, name: 'Fire', color: '#ef4444' },
+    { id: 'star', img: `${IMG_BASE}/wheel/star.png`, name: 'Star', color: '#fcd34d' },
+    { id: 'clover', img: `${IMG_BASE}/wheel/lucky-clover.png`, name: 'Clover', color: '#22c55e' },
+    { id: 'crown', img: `${IMG_BASE}/wheel/crown.png`, name: 'Crown', color: '#f59e0b' },
+    { id: 'lightning', img: `${IMG_BASE}/wheel/lightning.png`, name: 'Lightning', color: '#38bdf8' },
   ];
   const slotImgsRef = useRef({});
 
@@ -1173,8 +1173,8 @@ function KaTouchGame({ onClose, onWin }) {
 
   const initGame = useCallback(() => {
     return {
-      player: { x: 250, y: GROUND_Y, w: 36, h: 36, vy: 0, jumping: false, ducking: false, frame: 0, hitFlash: 0 },
-      npc: { x: -50, y: GROUND_Y, w: 40, h: 44, vy: 0, jumping: false, targetX: 370, frame: 0, tauntTimer: 0, lookBack: false, phase: 'approaching', tagTimer: 0, landBounce: 0, flipFrame: 0, teaseTimer: 0, teaseMode: false },
+      player: { x: 500, y: GROUND_Y, w: 72, h: 72, vy: 0, jumping: false, ducking: false, frame: 0, hitFlash: 0 },
+      npc: { x: -100, y: GROUND_Y, w: 80, h: 88, vy: 0, jumping: false, targetX: 740, frame: 0, tauntTimer: 0, lookBack: false, phase: 'approaching', tagTimer: 0, landBounce: 0, flipFrame: 0, teaseTimer: 0, teaseMode: false },
       speed: 5, distance: 0, score: 0, scoreAccum: 0, coins: 0, alive: true, groundOffset: 0,
       // 35 coins per 60 sec = 1 every ~1.714s = ~103 frames
       coinTimer: 0, coinInterval: 103,
@@ -1200,7 +1200,7 @@ function KaTouchGame({ onClose, onWin }) {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
         e.preventDefault();
         if (gameState === 'menu' || gameState === 'dead') startGame();
-        else if (gameState === 'playing' && gameRef.current) { const p = gameRef.current.player; if (!p.jumping) { p.vy = -11.5; p.jumping = true; } }
+        else if (gameState === 'playing' && gameRef.current) { const p = gameRef.current.player; if (!p.jumping) { p.vy = -23; p.jumping = true; } }
       }
       if (e.code === 'ArrowDown' && gameState === 'playing' && gameRef.current) gameRef.current.player.ducking = true;
     };
@@ -1211,7 +1211,7 @@ function KaTouchGame({ onClose, onWin }) {
 
   const handleTap = useCallback(() => {
     if (gameState === 'menu' || gameState === 'dead') startGame();
-    else if (gameState === 'playing' && gameRef.current) { const p = gameRef.current.player; if (!p.jumping) { p.vy = -11.5; p.jumping = true; } }
+    else if (gameState === 'playing' && gameRef.current) { const p = gameRef.current.player; if (!p.jumping) { p.vy = -23; p.jumping = true; } }
   }, [gameState, startGame]);
 
   // ========== DRAW: COIN CHARACTER ==========
@@ -1342,7 +1342,7 @@ function KaTouchGame({ onClose, onWin }) {
       // Bubble tail
       ctx.beginPath(); ctx.moveTo(bx + 18, by + 12); ctx.lineTo(bx + 28, by + 22); ctx.lineTo(bx + 22, by + 11); ctx.closePath(); ctx.fill();
       ctx.globalAlpha = 1;
-      ctx.font = '16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = '32px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const taunts = ['😜', '👋', '💨', '🏃'];
       ctx.fillText(taunts[Math.floor(frame / 60) % taunts.length], bx, by);
       ctx.restore();
@@ -1644,10 +1644,10 @@ function KaTouchGame({ onClose, onWin }) {
       const popAlpha = scoreInBiome < 10 ? scoreInBiome / 10 : (30 - scoreInBiome) / 20;
       ctx.save(); ctx.globalAlpha = popAlpha * 0.8;
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.beginPath(); ctx.roundRect(W / 2 - 80, 60, 160, 28, 8); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 13px "Courier New", monospace';
+      ctx.beginPath(); ctx.roundRect(W / 2 - 160, 120, 320, 56, 16); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 26px "Courier New", monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('📍 ' + BIOME_NAMES[biomeIdx], W / 2, 74);
+      ctx.fillText('📍 ' + BIOME_NAMES[biomeIdx], W / 2, 148);
       ctx.restore();
     }
 
@@ -1671,11 +1671,11 @@ function KaTouchGame({ onClose, onWin }) {
 
       if (npc.phase === 'approaching') {
         // NPC runs from left toward player
-        npc.x += 4.5;
+        npc.x += 9;
         npc.lookBack = false;
         // When NPC reaches player
-        if (npc.x >= g.player.x - 5) {
-          npc.x = g.player.x - 5;
+        if (npc.x >= g.player.x - 10) {
+          npc.x = g.player.x - 10;
           npc.phase = 'tagging';
           npc.tagTimer = 0;
         }
@@ -1683,8 +1683,8 @@ function KaTouchGame({ onClose, onWin }) {
         npc.tagTimer++;
         if (npc.tagTimer === 1) {
           // "Ka Touch!" speech bubble above the tag point
-          g.tagText = { text: 'Ka Touch! 👋', x: g.player.x + g.player.w / 2, y: g.player.y - g.player.h - 30, life: 70, scale: 0, isBubble: true };
-          for (let i = 0; i < 14; i++) g.particles.push({ x: g.player.x + g.player.w / 2, y: g.player.y - g.player.h / 2, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 6 - 2, life: 20 + Math.random() * 10, size: 3 + Math.random() * 4, color: ['#FF4500', '#FFD700', '#FF6B35', '#fff'][Math.floor(Math.random() * 4)] });
+          g.tagText = { text: 'Ka Touch! 👋', x: g.player.x + g.player.w / 2, y: g.player.y - g.player.h - 60, life: 70, scale: 0, isBubble: true };
+          for (let i = 0; i < 14; i++) g.particles.push({ x: g.player.x + g.player.w / 2, y: g.player.y - g.player.h / 2, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 6 - 2, life: 20 + Math.random() * 10, size: 6 + Math.random() * 8, color: ['#FF4500', '#FFD700', '#FF6B35', '#fff'][Math.floor(Math.random() * 4)] });
         }
         // Brief pause next to player, then sprint ahead
         if (npc.tagTimer > 35) {
@@ -1693,8 +1693,8 @@ function KaTouchGame({ onClose, onWin }) {
         }
       } else if (npc.phase === 'sprinting') {
         // Sprint ahead of player
-        npc.x += 5;
-        if (npc.x >= g.player.x + 140) {
+        npc.x += 10;
+        if (npc.x >= g.player.x + 280) {
           npc.phase = 'running';
           setGameState('playing');
         }
@@ -1706,7 +1706,7 @@ function KaTouchGame({ onClose, onWin }) {
 
       // NPC dust when running
       if ((npc.phase === 'approaching' || npc.phase === 'sprinting') && frame % 3 === 0) {
-        g.dustParticles.push({ x: npc.x + 5, y: GROUND_Y - 2, vx: (npc.phase === 'approaching' ? -2 : -3), vy: -Math.random() * 2, life: 10 + Math.random() * 8, size: 2 + Math.random() * 2 });
+        g.dustParticles.push({ x: npc.x + 10, y: GROUND_Y - 2, vx: (npc.phase === 'approaching' ? -2 : -3), vy: -Math.random() * 2, life: 10 + Math.random() * 8, size: 2 + Math.random() * 2 });
       }
 
       drawCoinChar(ctx, g.player.x, g.player.y, g.player.w, g.player.h, frame, false, 0);
@@ -1774,12 +1774,12 @@ function KaTouchGame({ onClose, onWin }) {
       g.coinTimer++;
       if (g.coinTimer >= g.coinInterval) {
         g.coinTimer = 0;
-        g.collectCoins.push({ x: W + 20, y: GROUND_Y - 35 - Math.random() * 85, size: 12, collected: false });
+        g.collectCoins.push({ x: W + 40, y: GROUND_Y - 70 - Math.random() * 170, size: 24, collected: false });
       }
 
       // Player physics
       const p = g.player;
-      if (p.jumping) { p.vy += 0.55; p.y += p.vy; if (p.y >= GROUND_Y) { p.y = GROUND_Y; p.vy = 0; p.jumping = false; for (let i = 0; i < 5; i++) g.dustParticles.push({ x: p.x + p.w / 2 + (Math.random() - 0.5) * 20, y: GROUND_Y, vx: (Math.random() - 0.5) * 2, vy: -Math.random() * 2, life: 15 + Math.random() * 10, size: 2 + Math.random() * 3 }); } }
+      if (p.jumping) { p.vy += 1.1; p.y += p.vy; if (p.y >= GROUND_Y) { p.y = GROUND_Y; p.vy = 0; p.jumping = false; for (let i = 0; i < 5; i++) g.dustParticles.push({ x: p.x + p.w / 2 + (Math.random() - 0.5) * 40, y: GROUND_Y, vx: (Math.random() - 0.5) * 4, vy: -Math.random() * 4, life: 15 + Math.random() * 10, size: 4 + Math.random() * 6 }); } }
       if (!p.jumping && fc % 4 === 0) g.dustParticles.push({ x: p.x + 5, y: GROUND_Y - 2, vx: -g.speed * 0.3 + (Math.random() - 0.5), vy: -Math.random() * 1.5, life: 12 + Math.random() * 8, size: 1.5 + Math.random() * 2 });
       if (p.hitFlash > 0) p.hitFlash -= 0.05;
 
@@ -1797,7 +1797,7 @@ function KaTouchGame({ onClose, onWin }) {
         npc.teaseMode = true;
         const teaseProgress = cyclePos / teaseDuration;
         const easeIn = Math.sin(teaseProgress * Math.PI); // smooth in-out
-        npc.targetX = p.x + 120 - easeIn * 85 + Math.sin(fc * 0.03) * 8;
+        npc.targetX = p.x + 480 - easeIn * 340 + Math.sin(fc * 0.03) * 8;
       } else if (cyclePos === teaseDuration) {
         // Bolt away moment — burst of speed particles
         npc.teaseMode = false;
@@ -1805,7 +1805,7 @@ function KaTouchGame({ onClose, onWin }) {
       } else {
         // Normal: comfortably ahead with gentle bob
         npc.teaseMode = false;
-        npc.targetX = p.x + 120 + Math.sin(fc * 0.02) * 20;
+        npc.targetX = p.x + 480 + Math.sin(fc * 0.02) * 80;
       }
 
       // Smooth follow - faster snap-back when bolting, slower when teasing
@@ -1825,7 +1825,7 @@ function KaTouchGame({ onClose, onWin }) {
       // NPC evades dogs
       for (const dog of g.dogs) { const d = dog.x - npc.x; if (d > -20 && d < 60 && !npc.jumping) { npc.vy = -12; npc.jumping = true; } }
       if (npc.jumping) { npc.vy += 0.5; npc.y += npc.vy; if (npc.y >= GROUND_Y) { npc.y = GROUND_Y; npc.vy = 0; npc.jumping = false; } }
-      if (!npc.jumping && fc % 5 === 0) g.dustParticles.push({ x: npc.x + 5, y: GROUND_Y - 2, vx: -g.speed * 0.2, vy: -Math.random() * 1, life: 8 + Math.random() * 5, size: 1.5 + Math.random() * 1.5 });
+      if (!npc.jumping && fc % 5 === 0) g.dustParticles.push({ x: npc.x + 10, y: GROUND_Y - 2, vx: -g.speed * 0.2, vy: -Math.random() * 1, life: 8 + Math.random() * 5, size: 1.5 + Math.random() * 1.5 });
 
       // Spawn obstacles (slot items instead of footballs)
       g.obstacleTimer++;
@@ -1834,13 +1834,13 @@ function KaTouchGame({ onClose, onWin }) {
         g.obstacleInterval = Math.max(40, 90 - fc * 0.003) + Math.random() * 30;
         if (Math.random() < 0.55) {
           const item = SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)];
-          const size = 32 + Math.random() * 12;
+          const size = 64 + Math.random() * 24;
           g.obstacles.push({ type: 'slot', x: W + 20, y: GROUND_Y, w: size, h: size, speed: g.speed, item, crashing: 0 });
         } else {
           const willCrash = Math.random() < 0.3;
           const bobs = Math.random() < 0.5; // 50% of planes bob up/down
-          const startY = willCrash ? 60 + Math.random() * 40 : 80 + Math.random() * (GROUND_Y - 160);
-          g.obstacles.push({ type: 'plane', x: W + 20, y: startY, baseY: startY, w: 70, h: 30, speed: g.speed + 1 + Math.random() * 2, crashing: 0, willCrash, crashStartX: willCrash ? W * 0.3 + Math.random() * W * 0.3 : 0, bobs, bobPhase: Math.random() * Math.PI * 2, bobAmp: 15 + Math.random() * 20 });
+          const startY = willCrash ? 120 + Math.random() * 80 : 160 + Math.random() * (GROUND_Y - 320);
+          g.obstacles.push({ type: 'plane', x: W + 20, y: startY, baseY: startY, w: 140, h: 60, speed: g.speed + 2 + Math.random() * 2, crashing: 0, willCrash, crashStartX: willCrash ? W * 0.3 + Math.random() * W * 0.3 : 0, bobs, bobPhase: Math.random() * Math.PI * 2, bobAmp: 30 + Math.random() * 40 });
         }
       }
 
@@ -1850,7 +1850,7 @@ function KaTouchGame({ onClose, onWin }) {
         g.dogWarning = 90; // Warning frames
       }
       if (g.dogWarning > 0) { g.dogWarning--; if (g.dogWarning === 0) {
-        g.dogs.push({ x: -60, y: GROUND_Y - 16, w: 45, speed: g.speed + 3 + Math.random() * 2, frame: 0 });
+        g.dogs.push({ x: -120, y: GROUND_Y - 32, w: 90, speed: g.speed + 6 + Math.random() * 2, frame: 0 });
       }}
       // Respawn dogs periodically after first
       if (g.score >= 100 && g.dogs.length === 0 && g.dogWarning <= 0 && fc % 600 === 0) {
@@ -1875,7 +1875,7 @@ function KaTouchGame({ onClose, onWin }) {
             }
           }
         }
-        return o.x > -120;
+        return o.x > -240;
       });
 
       // Move dogs (left to right)
@@ -1885,7 +1885,7 @@ function KaTouchGame({ onClose, onWin }) {
       });
 
       // Move coins
-      g.collectCoins = g.collectCoins.filter(c => { c.x -= g.speed; return c.x > -30 && !c.collected; });
+      g.collectCoins = g.collectCoins.filter(c => { c.x -= g.speed * 2; return c.x > -60 && !c.collected; });
 
       // Particles
       g.dustParticles = g.dustParticles.filter(dp => { dp.x += dp.vx; dp.y += dp.vy; dp.life--; return dp.life > 0; });
@@ -1913,9 +1913,9 @@ function KaTouchGame({ onClose, onWin }) {
       for (const c of g.collectCoins) {
         if (c.collected) continue;
         const dx = (p.x + p.w / 2) - c.x, dy = (p.y - ph / 2) - c.y;
-        if (Math.sqrt(dx * dx + dy * dy) < c.size + 18) {
+        if (Math.sqrt(dx * dx + dy * dy) < c.size + 36) {
           c.collected = true; g.coins++; setCoins(g.coins);
-          for (let i = 0; i < 8; i++) g.particles.push({ x: c.x, y: c.y, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5 - 2, life: 15 + Math.random() * 10, size: 2 + Math.random() * 3, color: '#FFD700' });
+          for (let i = 0; i < 8; i++) g.particles.push({ x: c.x, y: c.y, vx: (Math.random() - 0.5) * 10, vy: (Math.random() - 0.5) * 10 - 4, life: 15 + Math.random() * 10, size: 4 + Math.random() * 6, color: '#FFD700' });
         }
       }
 
@@ -1963,11 +1963,11 @@ function KaTouchGame({ onClose, onWin }) {
 
       // HUD
       ctx.fillStyle = g.timeOfDay === 2 ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)';
-      ctx.font = 'bold 16px "Courier New", monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+      ctx.font = 'bold 32px "Courier New", monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
       ctx.fillText(`HI ${String(highScore).padStart(5, '0')}  ${String(g.score).padStart(5, '0')}`, W - 20, 15);
       ctx.textAlign = 'left'; ctx.fillStyle = '#FFD700'; ctx.fillText(`🪙 ${g.coins}`, 20, 15);
       ctx.fillStyle = g.timeOfDay === 2 ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)';
-      ctx.font = '11px "Courier New", monospace'; ctx.fillText(`${g.speed.toFixed(1)}x`, 20, 35);
+      ctx.font = '22px "Courier New", monospace'; ctx.fillText(`${g.speed.toFixed(1)}x`, 40, 70);
 
       if (g.alive) animRef.current = requestAnimationFrame(loop);
     };
@@ -1978,7 +1978,7 @@ function KaTouchGame({ onClose, onWin }) {
   const die = (g) => {
     g.alive = false; setGameState('dead');
     const p = g.player;
-    for (let i = 0; i < 15; i++) g.particles.push({ x: p.x + p.w / 2, y: p.y - p.h / 2, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8 - 3, life: 25 + Math.random() * 15, size: 3 + Math.random() * 4, color: ['#FFD700', '#DAA520', '#FFE066', '#B8860B'][Math.floor(Math.random() * 4)] });
+    for (let i = 0; i < 15; i++) g.particles.push({ x: p.x + p.w / 2, y: p.y - p.h / 2, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8 - 3, life: 25 + Math.random() * 15, size: 6 + Math.random() * 8, color: ['#FFD700', '#DAA520', '#FFE066', '#B8860B'][Math.floor(Math.random() * 4)] });
     const reward = Math.floor(g.score / 1000) + g.coins;
     if (g.score > highScore) setHighScore(g.score);
     if (onWin && reward > 0) onWin(reward);
@@ -1996,12 +1996,12 @@ function KaTouchGame({ onClose, onWin }) {
       g.particles = g.particles.filter(pp => { pp.x += pp.vx; pp.y += pp.vy; pp.vy += 0.15; pp.life--; return pp.life > 0; });
       ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, W, H);
       g.particles.forEach(pp => { ctx.globalAlpha = pp.life / 30; ctx.fillStyle = pp.color || '#FFD700'; ctx.beginPath(); ctx.arc(pp.x, pp.y, pp.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; });
-      if (df > 15) { ctx.save(); ctx.globalAlpha = Math.min(1, (df - 15) / 20); ctx.fillStyle = '#FF4500'; ctx.font = 'bold 16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("😜 Can't catch me!", W / 2, H / 2 - 80); ctx.restore(); }
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 32px "Courier New", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('GAME OVER', W / 2, H / 2 - 50);
-      ctx.font = '18px "Courier New", monospace'; ctx.fillStyle = '#FFD700'; ctx.fillText(`Score: ${g.score}  •  Coins: ${g.coins}`, W / 2, H / 2 - 15);
-      ctx.fillStyle = '#4ADE80'; ctx.font = 'bold 20px "Courier New", monospace';
-      ctx.fillText(`+${Math.floor(g.score / 1000) + g.coins} Coins earned!`, W / 2, H / 2 + 20);
-      ctx.fillStyle = '#aaa'; ctx.font = '14px "Courier New", monospace'; ctx.fillText('Press SPACE or TAP to play again', W / 2, H / 2 + 55);
+      if (df > 15) { ctx.save(); ctx.globalAlpha = Math.min(1, (df - 15) / 20); ctx.fillStyle = '#FF4500'; ctx.font = 'bold 32px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("😜 Can't catch me!", W / 2, H / 2 - 160); ctx.restore(); }
+      ctx.fillStyle = '#fff'; ctx.font = 'bold 64px "Courier New", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('GAME OVER', W / 2, H / 2 - 100);
+      ctx.font = '36px "Courier New", monospace'; ctx.fillStyle = '#FFD700'; ctx.fillText(`Score: ${g.score}  •  Coins: ${g.coins}`, W / 2, H / 2 - 30);
+      ctx.fillStyle = '#4ADE80'; ctx.font = 'bold 40px "Courier New", monospace';
+      ctx.fillText(`+${Math.floor(g.score / 1000) + g.coins} Coins earned!`, W / 2, H / 2 + 40);
+      ctx.fillStyle = '#aaa'; ctx.font = '28px "Courier New", monospace'; ctx.fillText('Press SPACE or TAP to play again', W / 2, H / 2 + 110);
       if (df < 120) requestAnimationFrame(dd);
     };
     dd();
@@ -2014,24 +2014,24 @@ function KaTouchGame({ onClose, onWin }) {
     const ctx = canvas.getContext('2d');
     const g = initGame();
     drawBg(ctx, g, 0);
-    drawCoinChar(ctx, W / 2 - 60, GROUND_Y, 48, 48, 0, false, 0);
-    const menuNpc = { ...g.npc, x: W / 2 + 40, y: GROUND_Y, phase: 'running', lookBack: true, landBounce: 0, teaseMode: false };
+    drawCoinChar(ctx, W / 2 - 120, GROUND_Y, 96, 96, 0, false, 0);
+    const menuNpc = { ...g.npc, x: W / 2 + 80, y: GROUND_Y, phase: 'running', lookBack: true, landBounce: 0, teaseMode: false };
     drawNPC(ctx, menuNpc, 0);
     // Logo
     const logo = logoImgRef.current;
     if (logo) {
-      const lw = 320, lh = lw * (logo.height / logo.width);
-      ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - 100, lw, lh);
+      const lw = 640, lh = lw * (logo.height / logo.width);
+      ctx.drawImage(logo, W / 2 - lw / 2, H / 2 - 200, lw, lh);
     } else {
       ctx.save();
-      ctx.font = 'bold italic 48px "Courier New", monospace';
+      ctx.font = 'bold italic 96px "Courier New", monospace';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(255,69,0,0.3)'; ctx.fillText('KA TOUCH!', W / 2 + 3, H / 2 - 62);
-      ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('KA TOUCH!', W / 2, H / 2 - 65);
-      ctx.fillStyle = '#FF6B00'; ctx.fillText('KA TOUCH!', W / 2, H / 2 - 65);
+      ctx.fillStyle = 'rgba(255,69,0,0.3)'; ctx.fillText('KA TOUCH!', W / 2 + 6, H / 2 - 124);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeText('KA TOUCH!', W / 2, H / 2 - 130);
+      ctx.fillStyle = '#FF6B00'; ctx.fillText('KA TOUCH!', W / 2, H / 2 - 130);
       ctx.restore();
     }
-    ctx.fillStyle = '#666'; ctx.font = '16px "Courier New", monospace'; ctx.textAlign = 'center'; ctx.fillText('Press SPACE or TAP to start', W / 2, H / 2 + 30);
+    ctx.fillStyle = '#666'; ctx.font = '16px "Courier New", monospace'; ctx.textAlign = 'center'; ctx.fillText('Press SPACE or TAP to start', W / 2, H / 2 + 60);
     ctx.fillStyle = '#999'; ctx.font = '12px "Courier New", monospace'; ctx.fillText('SPACE / TAP = Jump  •  ↓ = Duck  •  Catch the tagger!', W / 2, H / 2 + 55);
   }, [gameState, initGame, drawBg, imgLoaded]);
 
@@ -2049,7 +2049,7 @@ function KaTouchGame({ onClose, onWin }) {
         <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 40, height: 40, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, zIndex: 80 }}>✕</button>
       )}
       <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 0 40px rgba(0,0,0,0.5), 0 0 80px rgba(255,215,0,0.1)', border: '2px solid rgba(255,215,0,0.2)', maxWidth: '100%' }}>
-        <canvas ref={canvasRef} width={W} height={H} onClick={handleTap} onTouchStart={(e) => { e.preventDefault(); handleTap(); }} style={{ display: 'block', cursor: 'pointer', width: '100%', maxWidth: W, height: 'auto' }} />
+        <canvas ref={canvasRef} width={W} height={H} onClick={handleTap} onTouchStart={(e) => { e.preventDefault(); handleTap(); }} style={{ display: 'block', cursor: 'pointer', width: '100%', maxWidth: W, height: 'auto', imageRendering: 'pixelated' }} />
       </div>
       <div style={{ marginTop: 16, color: '#666', fontFamily: '"Courier New", monospace', fontSize: 13, textAlign: 'center' }}>
         <span style={{ color: '#FFD700' }}>SPACE</span> or <span style={{ color: '#FFD700' }}>TAP</span> to jump {' • '} <span style={{ color: '#FFD700' }}>↓</span> to duck {' • '} Avoid 💎⭐✈️🐕 • Collect 🪙
@@ -2735,7 +2735,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all">
+                  <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all cursor-pointer" onClick={() => playGame(game.id)}>
                     <div className="relative h-44">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover" />
                       {user.gamePlays[game.id] > 0 && (
