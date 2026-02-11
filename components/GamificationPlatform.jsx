@@ -4949,7 +4949,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', background: 'rgba(0,0,0,0.4)' }}>
+      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
         <header className="p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
