@@ -4799,10 +4799,10 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform duration-300 overflow-y-auto border-r-0`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="p-4">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-6 p-3 rounded-xl" style={{ background: 'rgba(5,10,20,0.95)', border: '2px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 12px rgba(0,0,0,0.6)' }}>
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center font-black text-lg shadow-lg shadow-orange-500/30">
               100x
             </div>
@@ -4813,7 +4813,7 @@ export default function GamificationPlatform() {
           </div>
 
           {/* User Profile Card */}
-          <div className="mb-6 p-3 rounded-xl border-0" style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(6,182,212,0.2)', boxShadow: '0 0 15px rgba(6,182,212,0.08)' }}>
+          <div className="mb-6 p-3 rounded-xl" style={{ background: 'rgba(5,10,20,0.95)', border: '2px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 16px rgba(0,0,0,0.6)' }}>
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -4861,12 +4861,12 @@ export default function GamificationPlatform() {
                     boxShadow: '0 4px 0 #164E63, 0 0 20px rgba(6,182,212,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
                     border: '2px solid rgba(34,211,238,0.5)',
                   } : {
-                    background: 'rgba(0,0,0,0.7)',
-                    border: '2px solid rgba(255,255,255,0.12)',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
+                    background: 'rgba(5,10,20,0.95)',
+                    border: '2px solid rgba(255,255,255,0.15)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)',
                   }}
-                  onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(6,182,212,0.15)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.4)'; }}}
-                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'rgba(0,0,0,0.7)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}}
+                  onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(6,182,212,0.25)'; e.currentTarget.style.borderColor = 'rgba(6,182,212,0.5)'; }}}
+                  onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'rgba(5,10,20,0.95)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}}
                 >
                   <Icon className={`w-5 h-5 ${active ? 'text-white' : ''}`} />
                   <span className="text-[15px]">{t.label}</span>
@@ -4876,7 +4876,7 @@ export default function GamificationPlatform() {
           </nav>
 
           {/* Demo Controls */}
-          <div className="mt-6 p-4 rounded-2xl" style={{ background: 'rgba(0,0,0,0.6)', border: '2px solid rgba(255,255,255,0.1)' }}>
+          <div className="mt-6 p-4 rounded-2xl" style={{ background: 'rgba(5,10,20,0.95)', border: '2px solid rgba(255,255,255,0.12)', boxShadow: '0 4px 12px rgba(0,0,0,0.6)' }}>
             <div className="flex items-center gap-2 text-xs text-cyan-400 mb-3">
               <Sparkles className="w-4 h-4" />
               <span className="font-bold">DEMO CONTROLS</span>
