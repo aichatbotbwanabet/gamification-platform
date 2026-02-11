@@ -9,6 +9,156 @@ import {
 } from 'lucide-react';
 
 // ============================================================================
+// GRAINIENT — Animated WebGL gradient background with film grain
+// ============================================================================
+function Grainient({
+  color1 = '#2D1B69',
+  color2 = '#0f0a1f',
+  color3 = '#6B21A8',
+  timeSpeed = 0.15,
+  warpStrength = 0.8,
+  warpFrequency = 3.0,
+  noiseScale = 1.5,
+  grainAmount = 0.08,
+  contrast = 1.3,
+  saturation = 1.1,
+}) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+  const glRef = useRef(null);
+  const programRef = useRef(null);
+  const startTime = useRef(Date.now());
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: false });
+    if (!gl) return;
+    glRef.current = gl;
+
+    const vertSrc = `attribute vec2 a_pos;varying vec2 v_uv;void main(){v_uv=(a_pos+1.0)*0.5;gl_Position=vec4(a_pos,0,1);}`;
+    const fragSrc = `
+precision mediump float;
+varying vec2 v_uv;
+uniform float u_time;
+uniform vec2 u_res;
+uniform vec3 u_c1,u_c2,u_c3;
+uniform float u_warpStr,u_warpFreq,u_noiseScale,u_grain,u_contrast,u_saturation;
+
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float noise(vec2 p){
+  vec2 i=floor(p),f=fract(p);
+  f=f*f*(3.0-2.0*f);
+  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
+}
+float fbm(vec2 p){
+  float v=0.0,a=0.5;
+  mat2 rot=mat2(cos(0.5),sin(0.5),-sin(0.5),cos(0.5));
+  for(int i=0;i<4;i++){v+=a*noise(p);p=rot*p*2.0;a*=0.5;}
+  return v;
+}
+
+void main(){
+  vec2 uv=v_uv;
+  float aspect=u_res.x/u_res.y;
+  vec2 p=(uv-0.5)*vec2(aspect,1.0);
+  
+  float t=u_time;
+  vec2 warp=vec2(
+    fbm(p*u_warpFreq+t*0.3),
+    fbm(p*u_warpFreq+t*0.2+100.0)
+  );
+  p+=warp*u_warpStr*0.15;
+  
+  float n1=fbm(p*u_noiseScale+t*0.1);
+  float n2=fbm(p*u_noiseScale*1.5-t*0.15+50.0);
+  float n3=fbm(p*u_noiseScale*0.7+t*0.08+200.0);
+  
+  vec3 col=u_c1*n1+u_c2*(1.0-n2)+u_c3*n3;
+  col/=max(n1+(1.0-n2)+n3,0.001);
+  
+  float blend=smoothstep(-0.5,1.5,p.y+n1*0.6);
+  col=mix(col,u_c2,blend*0.4);
+  
+  col=mix(vec3(dot(col,vec3(0.299,0.587,0.114))),col,u_saturation);
+  col=((col-0.5)*u_contrast)+0.5;
+  
+  float grain=hash(uv*u_res+fract(t*100.0))*u_grain;
+  col+=grain-u_grain*0.5;
+  
+  gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
+}`;
+
+    const compile = (type, src) => {
+      const s = gl.createShader(type);
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      return s;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vertSrc));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragSrc));
+    gl.linkProgram(prog);
+    gl.useProgram(prog);
+    programRef.current = prog;
+
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(prog, 'a_pos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+    const hex2rgb = (h) => {
+      const r = parseInt(h.slice(1,3),16)/255;
+      const g = parseInt(h.slice(3,5),16)/255;
+      const b = parseInt(h.slice(5,7),16)/255;
+      return [r,g,b];
+    };
+    const c1 = hex2rgb(color1), c2 = hex2rgb(color2), c3 = hex2rgb(color3);
+    gl.uniform3f(gl.getUniformLocation(prog,'u_c1'),c1[0],c1[1],c1[2]);
+    gl.uniform3f(gl.getUniformLocation(prog,'u_c2'),c2[0],c2[1],c2[2]);
+    gl.uniform3f(gl.getUniformLocation(prog,'u_c3'),c3[0],c3[1],c3[2]);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_warpStr'),warpStrength);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_warpFreq'),warpFrequency);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_noiseScale'),noiseScale);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_grain'),grainAmount);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_contrast'),contrast);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_saturation'),saturation);
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas.width = canvas.clientWidth * dpr;
+      canvas.height = canvas.clientHeight * dpr;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(gl.getUniformLocation(prog,'u_res'),canvas.width,canvas.height);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const render = () => {
+      const elapsed = (Date.now() - startTime.current) * 0.001 * timeSpeed;
+      gl.uniform1f(gl.getUniformLocation(prog,'u_time'), elapsed);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      animRef.current = requestAnimationFrame(render);
+    };
+    animRef.current = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+    />
+  );
+}
+
+// ============================================================================
 // IMAGE PATHS - All images from GitHub repository
 // ============================================================================
 const IMG_BASE = 'https://raw.githubusercontent.com/aichatbotbwanabet/gamification-platform/main/public/images';
@@ -572,105 +722,42 @@ const MATCHES = [
 ];
 
 // ============================================================================
-// SEASONAL QUEST SYSTEM — RPG Narrative Quests
+// QUESTS — Multi-step adventures
 // ============================================================================
-const CURRENT_SEASON = {
-  id: 'feb2026',
-  name: 'Realm of Fortune',
-  subtitle: 'Season 1 — February 2026',
-  icon: '🏰',
-  theme: 'from-indigo-600 to-purple-800',
-  desc: 'A mysterious realm where fortune favors the bold. Complete chapters to unlock the Dragon\'s legendary hoard.',
-  endsAt: '2026-03-01',
-};
-
-const SEASON_QUESTS = [
+const QUESTS = [
   {
-    id: 'ch1_awakening',
-    chapter: 1,
-    name: 'The Awakening',
+    id: 'welcome',
+    name: 'Welcome Journey',
+    desc: 'Complete your first steps and earn big rewards!',
+    image: 'treasureChest',
     difficulty: 'easy',
     diffColor: 'text-green-400 bg-green-500/15 border-green-500/30',
-    narrative: 'You awaken in the Realm of Fortune with nothing but your wits. The village elder speaks: "Prove yourself worthy, traveler. Begin with the basics."',
-    image: 'dailyGift',
-    reward: { kwacha: 200, gems: 20 },
-    xp: 150,
-    steps: [
-      { id: 'ch1_s1', action: 'dailyClaimed', target: 1, desc: 'Claim your daily reward', narrative: 'The elder hands you a small pouch of gold.', icon: '🎁' },
-      { id: 'ch1_s2', action: 'wheelSpun', target: 1, desc: 'Spin the Wheel of Fortune', narrative: 'The mystic wheel glows with ancient power.', icon: '🎡' },
-      { id: 'ch1_s3', action: 'gamePlayed', target: 1, desc: 'Play any minigame', narrative: 'The arena gates open before you.', icon: '🎮' },
-    ],
-  },
-  {
-    id: 'ch2_merchant',
-    chapter: 2,
-    name: "Merchant's Trial",
-    difficulty: 'medium',
-    diffColor: 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30',
-    narrative: 'A cunning merchant blocks the road. "Gold speaks louder than words," he grins. "Show me you can earn, spend, and conquer."',
-    image: 'shoppingBags',
-    reward: { kwacha: 400, gems: 30 },
+    reward: { kwacha: 500, gems: 50 },
     xp: 250,
-    requires: 'ch1_awakening',
     steps: [
-      { id: 'ch2_s1', action: 'coinsEarned', target: 500, desc: 'Earn 500 Coins from games', narrative: 'The merchant watches your earnings grow.', icon: '🪙' },
-      { id: 'ch2_s2', action: 'storePurchase', target: 1, desc: 'Buy from the Store', narrative: '"A wise spender," the merchant nods approvingly.', icon: '🛒' },
-      { id: 'ch2_s3', action: 'missionsDone', target: 3, desc: 'Complete 3 missions', narrative: 'Your reputation spreads through the realm.', icon: '🎯' },
+      { id: 'w_s1', action: 'deposit', target: 1, desc: 'Make your first deposit', icon: '💰', go: { tab: 'overview', label: 'Deposit' } },
+      { id: 'w_s2', action: 'betPlaced', target: 1, desc: 'Place your first prediction', icon: '🎯', go: { tab: 'predictions', label: 'Predict' } },
+      { id: 'w_s3', action: 'wheelSpun', target: 1, desc: 'Spin the Wheel of Fortune', icon: '🎡', go: { tab: 'minigames', game: 'wheel', label: 'Play' } },
+      { id: 'w_s4', action: 'missionCompleted', target: 1, desc: 'Complete any mission', icon: '✅', go: { tab: 'missions', label: 'Missions' } },
     ],
   },
   {
-    id: 'ch3_scholar',
-    chapter: 3,
-    name: "The Scholar's Challenge",
+    id: 'explorer',
+    name: 'Game Explorer',
+    desc: 'Try all the minigames available!',
+    image: 'questMap',
     difficulty: 'medium',
     diffColor: 'text-yellow-400 bg-yellow-500/15 border-yellow-500/30',
-    narrative: 'An ancient scholar sits at the crossroads, surrounded by floating runes. "Only the wise may pass. Answer my riddles, or turn back."',
-    image: 'classicQuiz',
-    reward: { kwacha: 500, gems: 40 },
-    xp: 300,
-    requires: 'ch2_merchant',
+    reward: { kwacha: 300, gems: 30 },
+    xp: 200,
     steps: [
-      { id: 'ch3_s1', action: 'triviaPlayed', target: 1, desc: 'Play a trivia game', narrative: 'You approach the scholar\'s glowing lectern.', icon: '🧠' },
-      { id: 'ch3_s2', action: 'triviaCorrect', target: 15, desc: 'Answer 15 questions correctly', narrative: 'The runes illuminate with each correct answer.', icon: '✨' },
-      { id: 'ch3_s3', action: 'speedScore', target: 12, desc: 'Score 12+ in Speed Round', narrative: '"Impressive speed!" the scholar exclaims.', icon: '⚡' },
-    ],
-  },
-  {
-    id: 'ch4_gauntlet',
-    chapter: 4,
-    name: "Gambler's Gauntlet",
-    difficulty: 'hard',
-    diffColor: 'text-orange-400 bg-orange-500/15 border-orange-500/30',
-    narrative: 'The arena erupts with cheers. Champions from across the realm gather. "Survive the gauntlet," the announcer booms, "and claim your glory."',
-    image: 'winTrophy',
-    reward: { kwacha: 750, gems: 50 },
-    xp: 400,
-    requires: 'ch3_scholar',
-    steps: [
-      { id: 'ch4_s1', action: 'uniqueGames', target: 5, desc: 'Play 5 different games', narrative: 'You enter arena after arena.', icon: '🎲' },
-      { id: 'ch4_s2', action: 'coinsEarned', target: 1000, desc: 'Win 1,000 Coins total', narrative: 'Gold rains from the heavens.', icon: '💰' },
-      { id: 'ch4_s3', action: 'triviaStreak', target: 3, desc: 'Reach streak 3 in Streak Trivia', narrative: 'The crowd chants your name.', icon: '🔥' },
-    ],
-  },
-  {
-    id: 'ch5_dragon',
-    chapter: 5,
-    name: "The Dragon's Hoard",
-    difficulty: 'legendary',
-    diffColor: 'text-red-400 bg-red-500/15 border-red-500/30',
-    narrative: 'Atop the mountain, the dragon sleeps upon mountains of treasure. Its eye opens. "You seek my hoard? Then prove you are the realm\'s greatest champion."',
-    image: 'crown',
-    reward: { kwacha: 1500, gems: 100, diamonds: 3 },
-    xp: 600,
-    requires: 'ch4_gauntlet',
-    steps: [
-      { id: 'ch5_s1', action: 'questsDone', target: 4, desc: 'Complete Chapters 1-4', narrative: 'The dragon acknowledges your journey.', icon: '📜' },
-      { id: 'ch5_s2', action: 'xpEarned', target: 2000, desc: 'Earn 2,000 XP this season', narrative: 'Your power radiates through the realm.', icon: '⚡' },
-      { id: 'ch5_s3', action: 'missionsDone', target: 10, desc: 'Complete 10 missions total', narrative: '"You are worthy." The dragon bows.', icon: '🐉' },
+      { id: 'e_s1', action: 'gamePlayed', gameId: 'wheel', target: 1, desc: 'Play Wheel of Fortune', icon: '🎡', go: { tab: 'minigames', game: 'wheel', label: 'Play' } },
+      { id: 'e_s2', action: 'gamePlayed', gameId: 'scratch', target: 1, desc: 'Play Scratch & Win', icon: '🎫', go: { tab: 'minigames', game: 'scratch', label: 'Play' } },
+      { id: 'e_s3', action: 'gamePlayed', gameId: 'dice', target: 1, desc: 'Play Lucky Dice', icon: '🎲', go: { tab: 'minigames', game: 'dice', label: 'Play' } },
+      { id: 'e_s4', action: 'gamePlayed', gameId: 'memory', target: 1, desc: 'Play Memory Match', icon: '🃏', go: { tab: 'minigames', game: 'memory', label: 'Play' } },
     ],
   },
 ];
-
 
 const DAILY_REWARDS = [
   { day: 1, kwacha: 10 },
@@ -3346,11 +3433,21 @@ function StreakTriviaGame({ onClose, onWin, closing }) {
 // ============================================================================
 // QUEST DETAIL MODAL — RPG Style
 // ============================================================================
-function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onClaim, onNavigate, closing }) {
+function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onClaim, onNavigate, onPlayGame, closing }) {
   const isComplete = questsComplete.includes(quest.id);
-  const isLocked = quest.requires && !questsComplete.includes(quest.requires);
   const allStepsDone = quest.steps.every(s => (questProgress[s.id] || 0) >= s.target);
   const canClaim = allStepsDone && !isComplete;
+
+  const handleStepGo = (step) => {
+    if (!step.go) return;
+    onClose();
+    if (step.go.game) {
+      onNavigate('minigames');
+      setTimeout(() => onPlayGame(step.go.game), 100);
+    } else {
+      onNavigate(step.go.tab);
+    }
+  };
 
   return (
     <div className={`fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 ${closing ? "anim-backdrop-close" : "anim-fade-in"}`} onClick={onClose}>
@@ -3366,41 +3463,33 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
             </button>
           </div>
           <div className="absolute bottom-4 left-5 right-5">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${quest.diffColor}`}>{quest.difficulty}</span>
-              <span className="text-xs text-purple-400">Chapter {quest.chapter}</span>
-            </div>
-            <h2 className="font-black text-xl">{quest.name}</h2>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${quest.diffColor}`}>{quest.difficulty}</span>
+            <h2 className="font-black text-xl mt-1">{quest.name}</h2>
           </div>
         </div>
 
         <div className="px-5 pb-5">
-          {/* Narrative */}
-          <div className="relative my-4 p-4 bg-[#1a1333]/80 rounded-xl border border-purple-900/30">
-            <div className="absolute -top-2 left-4 px-2 bg-[#150e2e] text-purple-500 text-xs font-bold">📜 STORY</div>
-            <p className="text-gray-300 text-sm italic leading-relaxed">{quest.narrative}</p>
-          </div>
+          <p className="text-gray-400 text-sm my-4">{quest.desc}</p>
 
-          {/* Steps */}
+          {/* Steps with Go buttons */}
           <div className="space-y-3 mb-5">
-            {quest.steps.map((step, i) => {
+            {quest.steps.map((step) => {
               const progress = questProgress[step.id] || 0;
               const done = progress >= step.target;
               const pct = Math.min(100, (progress / step.target) * 100);
               return (
-                <div key={step.id} className={`relative rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : isLocked ? 'bg-gray-900/30 border-gray-800/30 opacity-50' : 'bg-[#1a1333] border-purple-900/30'}`}>
-                  <div className="flex items-start gap-3 p-3.5">
+                <div key={step.id} className={`rounded-xl border transition-all ${done ? 'bg-green-500/5 border-green-500/20' : 'bg-[#1a1333] border-purple-900/30'}`}>
+                  <div className="flex items-center gap-3 p-3.5">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg ${done ? 'bg-green-500/20' : 'bg-purple-500/10'}`}>
                       {done ? '✅' : step.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center justify-between mb-0.5">
                         <span className={`font-bold text-sm ${done ? 'text-green-400' : ''}`}>{step.desc}</span>
-                        <span className={`text-xs font-bold ${done ? 'text-green-400' : 'text-gray-500'}`}>{Math.min(progress, step.target)}/{step.target}</span>
+                        <span className={`text-xs font-bold ml-2 ${done ? 'text-green-400' : 'text-gray-500'}`}>{Math.min(progress, step.target)}/{step.target}</span>
                       </div>
-                      <p className="text-xs text-gray-500 italic mb-2">{step.narrative}</p>
-                      {!done && !isLocked && (
-                        <div className="h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden">
+                      {!done && (
+                        <div className="h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden mt-1.5">
                           <div className="h-full rounded-full transition-all duration-500" style={{
                             width: `${pct}%`,
                             background: 'linear-gradient(90deg, #a855f7, #ec4899)'
@@ -3408,6 +3497,13 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
                         </div>
                       )}
                     </div>
+                    {/* Green Go button */}
+                    {!done && step.go && (
+                      <button type="button" onClick={() => handleStepGo(step)}
+                        className="px-3 py-1.5 bg-green-500 hover:bg-green-600 rounded-lg text-xs font-bold flex-shrink-0 transition-all hover:scale-105 active:scale-95">
+                        Go →
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -3438,12 +3534,7 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
               ✅ Quest Complete
             </div>
           )}
-          {isLocked && (
-            <div className="w-full py-3.5 bg-gray-900/50 border border-gray-800/30 rounded-xl font-bold text-center text-gray-500 flex items-center justify-center gap-2">
-              <Lock className="w-4 h-4" /> Complete Chapter {quest.chapter - 1} first
-            </div>
-          )}
-          {!canClaim && !isComplete && !isLocked && (
+          {!canClaim && !isComplete && (
             <button type="button" onClick={() => { onClose(); onNavigate('minigames'); }}
               className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-purple-500/25">
               Go Play →
@@ -3463,6 +3554,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
   const [question] = useState(() => getDailyQuestion());
   const [selected, setSelected] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [showResult, setShowResult] = useState(false);
   const [timer, setTimer] = useState(30);
   const timerRef = useRef(null);
   const answered = user.dailyChallengeAnswered;
@@ -3474,7 +3566,7 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
           if (t <= 1) {
             clearInterval(timerRef.current);
             setShowAnswer(true);
-            onAnswer(false);
+            setTimeout(() => { onAnswer(false); setShowResult(true); }, 1500);
             return 0;
           }
           return t - 1;
@@ -3490,26 +3582,31 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
     setSelected(opt);
     setShowAnswer(true);
     const correct = opt === question.a;
-    onAnswer(correct);
+    setTimeout(() => { onAnswer(correct); setShowResult(true); }, 1500);
   };
 
-  if (answered) {
+  if (answered || showResult) {
+    const correct = user.dailyChallengeCorrect;
     return (
-      <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 relative">
-        <div className="relative h-28 overflow-hidden">
-          <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover opacity-50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`px-4 py-2 rounded-xl font-bold text-lg ${user.dailyChallengeCorrect ? 'bg-green-500/30 text-green-400 border border-green-500/40' : 'bg-red-500/30 text-red-400 border border-red-500/40'}`}>
-              {user.dailyChallengeCorrect ? '✅ Correct!' : '❌ Wrong'}
+      <div className={`bg-[#1a1333] rounded-2xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-purple-900/30'} relative`}>
+        <div className="p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${correct ? 'bg-green-500/20' : 'bg-red-500/10'}`}>
+              {correct ? '🎉' : '🎯'}
+            </div>
+            <div>
+              <div className="font-bold text-base">Daily Challenge</div>
+              <div className={`text-sm ${correct ? 'text-green-400' : 'text-gray-400'}`}>
+                {correct ? 'Correct! +500 Coins + 10 Gems' : '+25 consolation Coins. Come back tomorrow!'}
+              </div>
             </div>
           </div>
-        </div>
-        <div className="p-4">
-          <div className="font-bold">🎯 Daily Challenge</div>
-          <div className="text-sm text-gray-400">
-            {user.dailyChallengeCorrect ? 'You earned 500 Coins + 10 Gems!' : 'You earned 25 consolation Coins. Come back tomorrow!'}
-          </div>
+          {!correct && (
+            <div className="bg-[#0f0a1f] rounded-xl p-3">
+              <div className="text-xs text-gray-500 mb-1">The correct answer was:</div>
+              <div className="text-sm font-bold text-green-400">{question.a}</div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -3765,13 +3862,6 @@ export default function GamificationPlatform() {
     dailyChallengeCorrect: false,
     questProgress: {},
     questsComplete: [],
-    seasonCoinsEarned: 0,
-    seasonXpEarned: 0,
-    seasonMissionsDone: 0,
-    seasonGamesPlayed: [],
-    seasonTriviaCorrect: 0,
-    seasonTriviaStreak: 0,
-    seasonSpeedBest: 0,
   });
 
   const level = getLevel(user.xp);
@@ -3998,101 +4088,19 @@ export default function GamificationPlatform() {
   const trackQuest = useCallback((actionType, metadata = {}) => {
     setUser(prev => {
       const qp = { ...prev.questProgress };
-      let seasonCoins = prev.seasonCoinsEarned;
-      let seasonXp = prev.seasonXpEarned;
-      let seasonMissions = prev.seasonMissionsDone;
-      let seasonGames = [...(prev.seasonGamesPlayed || [])];
-      let seasonTriviaCorrect = prev.seasonTriviaCorrect;
-      let seasonTriviaStreak = prev.seasonTriviaStreak;
-      let seasonSpeedBest = prev.seasonSpeedBest;
-
-      // Update season accumulators based on action
-      if (actionType === 'dailyClaimed') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'dailyClaimed') qp[s.id] = (qp[s.id] || 0) + 1;
-        }));
-      }
-      if (actionType === 'wheelSpun') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'wheelSpun') qp[s.id] = (qp[s.id] || 0) + 1;
-        }));
-      }
-      if (actionType === 'gamePlayed') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'gamePlayed') qp[s.id] = (qp[s.id] || 0) + 1;
-        }));
-        if (metadata.gameId && !seasonGames.includes(metadata.gameId)) seasonGames.push(metadata.gameId);
-        // uniqueGames step
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'uniqueGames') qp[s.id] = seasonGames.length;
-        }));
-      }
-      if (actionType === 'coinsEarned') {
-        seasonCoins += metadata.amount || 0;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'coinsEarned') qp[s.id] = seasonCoins;
-        }));
-      }
-      if (actionType === 'storePurchase') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'storePurchase') qp[s.id] = (qp[s.id] || 0) + 1;
-        }));
-      }
-      if (actionType === 'missionCompleted') {
-        seasonMissions += 1;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'missionsDone') qp[s.id] = seasonMissions;
-        }));
-      }
-      if (actionType === 'triviaPlayed') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'triviaPlayed') qp[s.id] = (qp[s.id] || 0) + 1;
-        }));
-      }
-      if (actionType === 'triviaCorrect') {
-        const count = metadata.count || 1;
-        seasonTriviaCorrect += count;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'triviaCorrect') qp[s.id] = seasonTriviaCorrect;
-        }));
-      }
-      if (actionType === 'speedScore') {
-        const sc = metadata.score || 0;
-        if (sc > seasonSpeedBest) seasonSpeedBest = sc;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'speedScore') qp[s.id] = Math.max(qp[s.id] || 0, seasonSpeedBest);
-        }));
-      }
-      if (actionType === 'triviaStreak') {
-        const st = metadata.streak || 0;
-        if (st > seasonTriviaStreak) seasonTriviaStreak = st;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'triviaStreak') qp[s.id] = Math.max(qp[s.id] || 0, seasonTriviaStreak);
-        }));
-      }
-      if (actionType === 'xpEarned') {
-        seasonXp += metadata.amount || 0;
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'xpEarned') qp[s.id] = seasonXp;
-        }));
-      }
-      if (actionType === 'questCompleted') {
-        SEASON_QUESTS.forEach(q => q.steps.forEach(s => {
-          if (s.action === 'questsDone') qp[s.id] = prev.questsComplete.length + 1;
-        }));
-      }
-
-      return {
-        ...prev,
-        questProgress: qp,
-        seasonCoinsEarned: seasonCoins,
-        seasonXpEarned: seasonXp,
-        seasonMissionsDone: seasonMissions,
-        seasonGamesPlayed: seasonGames,
-        seasonTriviaCorrect: seasonTriviaCorrect,
-        seasonTriviaStreak: seasonTriviaStreak,
-        seasonSpeedBest: seasonSpeedBest,
-      };
+      QUESTS.forEach(quest => {
+        quest.steps.forEach(step => {
+          if (prev.questsComplete.includes(quest.id)) return;
+          if ((qp[step.id] || 0) >= step.target) return;
+          let match = false;
+          if (step.action === actionType) {
+            if (step.gameId) { match = metadata.gameId === step.gameId; }
+            else { match = true; }
+          }
+          if (match) qp[step.id] = (qp[step.id] || 0) + 1;
+        });
+      });
+      return { ...prev, questProgress: qp };
     });
   }, []);
 
@@ -4177,6 +4185,21 @@ export default function GamificationPlatform() {
 
   return (
     <div className="flex h-screen bg-[#0f0a1f] text-white overflow-hidden">
+      {/* Animated gradient background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.6 }}>
+        <Grainient
+          color1="#2D1B69"
+          color2="#0a0618"
+          color3="#7C3AED"
+          timeSpeed={0.12}
+          warpStrength={1.0}
+          warpFrequency={4.0}
+          noiseScale={1.8}
+          grainAmount={0.06}
+          contrast={1.4}
+          saturation={1.2}
+        />
+      </div>
       {/* Confetti Burst - Full screen premium */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-[200] overflow-hidden">
@@ -4404,6 +4427,7 @@ export default function GamificationPlatform() {
           onClose={() => animateClose(() => setSelectedQuest(null))}
           onClaim={claimQuest}
           onNavigate={(tabId) => setTab(tabId)}
+          onPlayGame={playGame}
           closing={closingModal}
         />
       )}
@@ -4607,7 +4631,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 h-full overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
         <header className="bg-[#1a1333]/90 backdrop-blur-xl border-b border-purple-900/30 p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -4753,12 +4777,12 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group">
+                <div onClick={() => playGame('wheel')} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
                       type="button" 
-                      onClick={() => setActiveTutorial('wheel')} 
+                      onClick={(e) => { e.stopPropagation(); setActiveTutorial('wheel'); }} 
                       className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                     >
                       <HelpCircle className="w-5 h-5" />
@@ -4772,23 +4796,19 @@ export default function GamificationPlatform() {
                   <div className="p-4">
                     <div className="font-bold text-lg mb-1">Spin Wheel</div>
                     <div className="text-sm text-gray-400 mb-3">{user.gamePlays.wheel} spins left</div>
-                    <button 
-                      type="button" 
-                      onClick={() => playGame('wheel')} 
-                      className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-xl font-bold btn-glow transition-all duration-300 hover:scale-[1.02] active:scale-95"
-                    >
+                    <div className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-bold btn-glow text-center">
                       Play!
-                    </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* Predictions Card */}
-                <div className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-blue-500/50 transition-all hover-lift group">
+                <div onClick={() => setTab('predictions')} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-blue-500/50 transition-all hover-lift group cursor-pointer">
                   <div className="relative h-44 overflow-hidden">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                     <button 
                       type="button" 
-                      onClick={() => setActiveTutorial('predictions')} 
+                      onClick={(e) => { e.stopPropagation(); setActiveTutorial('predictions'); }} 
                       className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                     >
                       <HelpCircle className="w-5 h-5" />
@@ -4800,13 +4820,9 @@ export default function GamificationPlatform() {
                   <div className="p-4">
                     <div className="font-bold text-lg mb-1">Predictions</div>
                     <div className="text-sm text-gray-400 mb-3">{MATCHES.length} matches available</div>
-                    <button 
-                      type="button" 
-                      onClick={() => setTab('predictions')} 
-                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl font-bold"
-                    >
+                    <div className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl font-bold text-center">
                       Predict!
-                    </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4938,7 +4954,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group">
+                  <div key={game.id} onClick={() => playGame(game.id)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
                     <div className="relative h-44 overflow-hidden">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       {user.gamePlays[game.id] > 0 && (
@@ -4953,7 +4969,7 @@ export default function GamificationPlatform() {
                       )}
                       <button 
                         type="button" 
-                        onClick={() => setActiveTutorial(game.id)} 
+                        onClick={(e) => { e.stopPropagation(); setActiveTutorial(game.id); }} 
                         className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                       >
                         <HelpCircle className="w-5 h-5" />
@@ -4962,13 +4978,11 @@ export default function GamificationPlatform() {
                     <div className="p-4">
                       <div className="font-bold text-lg mb-1">{game.name}</div>
                       <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
-                      <button 
-                        type="button" 
-                        onClick={() => playGame(game.id)} 
-                        className={`w-full py-3 rounded-xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 ${user.gamePlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 btn-glow' : 'bg-gray-700'}`}
+                      <div 
+                        className={`w-full py-3 rounded-xl font-bold text-center transition-all duration-300 ${user.gamePlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 btn-glow' : 'bg-gray-700'}`}
                       >
                         {user.gamePlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
-                      </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -4985,7 +4999,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {TRIVIA_GAMES.map(game => (
-                    <div key={game.id} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group">
+                    <div key={game.id} onClick={() => playTrivia(game.id)} className="bg-[#1a1333] rounded-2xl overflow-hidden border border-purple-900/30 hover:border-purple-500/50 transition-all hover-lift group cursor-pointer">
                       <div className="relative h-36 overflow-hidden">
                         <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
@@ -5001,13 +5015,11 @@ export default function GamificationPlatform() {
                       <div className="p-4">
                         <div className="font-bold text-lg mb-1">{game.name}</div>
                         <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
-                        <button 
-                          type="button" 
-                          onClick={() => playTrivia(game.id)} 
-                          className={`w-full py-3 rounded-xl font-bold transition-all duration-300 hover:scale-[1.02] active:scale-95 ${user.triviaPlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 btn-glow' : 'bg-gray-700'}`}
+                        <div 
+                          className={`w-full py-3 rounded-xl font-bold text-center transition-all duration-300 ${user.triviaPlays[game.id] > 0 ? 'bg-gradient-to-r from-purple-600 to-pink-600 btn-glow' : 'bg-gray-700'}`}
                         >
                           {user.triviaPlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
-                        </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -5507,165 +5519,73 @@ export default function GamificationPlatform() {
           )}
 
           {/* ============================================================= */}
-          {/* QUESTS TAB — Season RPG */}
+          {/* QUESTS TAB */}
           {/* ============================================================= */}
-          {tab === 'quests' && (() => {
-            const daysLeft = Math.max(0, Math.ceil((new Date(CURRENT_SEASON.endsAt) - new Date()) / (1000*60*60*24)));
-            const totalSteps = SEASON_QUESTS.reduce((a, q) => a + q.steps.length, 0);
-            const doneSteps = SEASON_QUESTS.reduce((a, q) => a + q.steps.filter(s => (user.questProgress[s.id] || 0) >= s.target).length, 0);
-            const seasonPct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
-            return (
+          {tab === 'quests' && (
             <div className="space-y-5">
-              {/* Season Banner */}
-              <div className="relative rounded-2xl overflow-hidden border border-indigo-500/30">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-purple-900/60 to-[#0f0a1f]" />
-                <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at 80% 20%, rgba(99,102,241,0.15) 0%, transparent 50%)' }} />
-                <div className="relative p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-2xl">{CURRENT_SEASON.icon}</span>
-                        <h1 className="text-xl font-black">{CURRENT_SEASON.name}</h1>
-                      </div>
-                      <p className="text-sm text-indigo-300">{CURRENT_SEASON.subtitle}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">Season ends in</div>
-                      <div className="text-lg font-black text-amber-400">{daysLeft}d</div>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mb-3 italic">{CURRENT_SEASON.desc}</p>
-                  {/* Season Progress */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <div className="h-2.5 bg-[#0f0a1f] rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-700" style={{
-                          width: `${seasonPct}%`,
-                          background: 'linear-gradient(90deg, #6366f1, #a855f7, #ec4899)'
-                        }} />
-                      </div>
-                    </div>
-                    <span className="text-xs font-bold text-purple-300">{seasonPct}%</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500">{user.questsComplete.length}/{SEASON_QUESTS.length} chapters complete</span>
-                    <span className="text-xs text-gray-500">{doneSteps}/{totalSteps} steps done</span>
-                  </div>
+              <div className="flex items-center gap-4">
+                <img src={IMAGES.questMap} alt="" className="w-14 h-14 rounded-xl object-cover" />
+                <div>
+                  <h1 className="text-2xl font-bold">Quests</h1>
+                  <p className="text-gray-400 text-sm">Multi-step adventures for bigger rewards!</p>
                 </div>
               </div>
 
-              {/* Chapter Journey */}
-              <div className="relative">
-                {SEASON_QUESTS.map((quest, qi) => {
-                  const isComplete = user.questsComplete.includes(quest.id);
-                  const isLocked = quest.requires && !user.questsComplete.includes(quest.requires);
-                  const stepsComplete = quest.steps.filter(s => (user.questProgress[s.id] || 0) >= s.target).length;
-                  const allDone = stepsComplete === quest.steps.length;
-                  const canClaim = allDone && !isComplete;
-                  const pct = Math.round((stepsComplete / quest.steps.length) * 100);
+              {QUESTS.map(quest => {
+                const isComplete = user.questsComplete.includes(quest.id);
+                const stepsComplete = quest.steps.filter(s => (user.questProgress[s.id] || 0) >= s.target).length;
+                const allDone = stepsComplete === quest.steps.length;
+                const canClaim = allDone && !isComplete;
+                const pct = Math.round((stepsComplete / quest.steps.length) * 100);
 
-                  return (
-                    <div key={quest.id} className="relative">
-                      {/* Connector Line */}
-                      {qi > 0 && (
-                        <div className="flex justify-center -mt-1 mb-1">
-                          <div className={`w-0.5 h-6 ${user.questsComplete.includes(SEASON_QUESTS[qi-1].id) ? 'bg-gradient-to-b from-purple-500 to-purple-500/50' : 'bg-gray-800'}`} />
+                return (
+                  <button key={quest.id} type="button" onClick={() => setSelectedQuest(quest)}
+                    className={`w-full text-left rounded-2xl overflow-hidden border transition-all duration-300 hover:scale-[1.01] active:scale-[0.99] ${
+                      isComplete ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40' :
+                      canClaim ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/40 hover:border-green-400/60 shadow-lg shadow-green-500/10' :
+                      'bg-[#1a1333] border-purple-900/30 hover:border-purple-500/40'
+                    }`}>
+                    <div className="flex items-stretch">
+                      {/* Left Image */}
+                      <div className="relative w-28 flex-shrink-0">
+                        <img src={IMAGES[quest.image]} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1333]/90" />
+                      </div>
+                      {/* Right Info */}
+                      <div className="flex-1 p-4 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${quest.diffColor}`}>{quest.difficulty}</span>
+                          {isComplete && <span className="text-xs text-green-400 font-bold">✅ Complete</span>}
+                          {canClaim && <span className="text-xs text-green-400 font-bold animate-pulse">🎉 Claim!</span>}
                         </div>
-                      )}
-                      {/* Quest Card */}
-                      <button type="button" onClick={() => !isLocked && setSelectedQuest(quest)}
-                        className={`w-full text-left rounded-2xl overflow-hidden border transition-all duration-300 ${
-                          isComplete ? 'bg-green-500/5 border-green-500/20 hover:border-green-500/40' :
-                          canClaim ? 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-green-500/40 hover:border-green-400/60 shadow-lg shadow-green-500/10' :
-                          isLocked ? 'bg-[#0d0820] border-gray-800/30 opacity-60' :
-                          'bg-[#1a1333] border-purple-900/30 hover:border-purple-500/40'
-                        } ${!isLocked ? 'hover:scale-[1.01] active:scale-[0.99]' : 'cursor-not-allowed'}`}>
-                        <div className="flex items-stretch">
-                          {/* Left: Chapter Number + Image */}
-                          <div className="relative w-24 flex-shrink-0">
-                            <img src={IMAGES[quest.image]} alt="" className={`w-full h-full object-cover ${isLocked ? 'grayscale opacity-40' : ''}`} />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#1a1333]/90" />
-                            <div className={`absolute top-2 left-2 w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${
-                              isComplete ? 'bg-green-500 text-white' :
-                              canClaim ? 'bg-green-500 text-white animate-pulse' :
-                              isLocked ? 'bg-gray-800 text-gray-600' :
-                              'bg-purple-600 text-white'
-                            }`}>
-                              {isComplete ? '✓' : quest.chapter}
-                            </div>
+                        <h3 className="font-black text-base mb-1">{quest.name}</h3>
+                        <p className="text-xs text-gray-500 mb-2.5 line-clamp-1">{quest.desc}</p>
+                        {/* Progress */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="flex-1 h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all duration-500" style={{
+                              width: `${isComplete ? 100 : pct}%`,
+                              background: isComplete ? '#22c55e' : 'linear-gradient(90deg, #a855f7, #ec4899)'
+                            }} />
                           </div>
-                          {/* Right: Info */}
-                          <div className="flex-1 p-4 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${quest.diffColor}`}>
-                                {quest.difficulty}
-                              </span>
-                              {isComplete && <span className="text-xs text-green-400 font-bold">✅ Complete</span>}
-                              {canClaim && <span className="text-xs text-green-400 font-bold animate-pulse">🎉 Ready to claim!</span>}
-                              {isLocked && <span className="text-xs text-gray-500 flex items-center gap-1"><Lock className="w-3 h-3" /> Locked</span>}
-                            </div>
-                            <h3 className={`font-black text-base mb-1 ${isLocked ? 'text-gray-600' : ''}`}>{quest.name}</h3>
-                            <p className={`text-xs mb-2.5 line-clamp-1 ${isLocked ? 'text-gray-700' : 'text-gray-500'}`}>{quest.narrative}</p>
-                            {/* Progress Bar */}
-                            {!isLocked && (
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="flex-1 h-1.5 bg-[#0f0a1f] rounded-full overflow-hidden">
-                                  <div className="h-full rounded-full transition-all duration-500" style={{
-                                    width: `${isComplete ? 100 : pct}%`,
-                                    background: isComplete ? '#22c55e' : 'linear-gradient(90deg, #a855f7, #ec4899)'
-                                  }} />
-                                </div>
-                                <span className={`text-xs font-bold ${isComplete ? 'text-green-400' : 'text-gray-500'}`}>{stepsComplete}/{quest.steps.length}</span>
-                              </div>
-                            )}
-                            {/* Rewards preview */}
-                            <div className="flex items-center gap-3 text-xs">
-                              <span className="text-yellow-400 font-bold">🪙{quest.reward.kwacha}</span>
-                              <span className="text-green-400 font-bold">💚{quest.reward.gems}</span>
-                              {quest.reward.diamonds && <span className="text-purple-400 font-bold">💎{quest.reward.diamonds}</span>}
-                              <span className="text-purple-400 font-bold">⚡{quest.xp}</span>
-                            </div>
-                          </div>
-                          {/* Arrow */}
-                          {!isLocked && (
-                            <div className="flex items-center pr-3">
-                              <ChevronRight className={`w-5 h-5 ${isComplete ? 'text-green-500/50' : 'text-gray-600'}`} />
-                            </div>
-                          )}
+                          <span className={`text-xs font-bold ${isComplete ? 'text-green-400' : 'text-gray-500'}`}>{stepsComplete}/{quest.steps.length}</span>
                         </div>
-                      </button>
+                        {/* Rewards */}
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className="text-yellow-400 font-bold">🪙{quest.reward.kwacha}</span>
+                          <span className="text-green-400 font-bold">💚{quest.reward.gems}</span>
+                          <span className="text-purple-400 font-bold">⚡{quest.xp}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center pr-3">
+                        <ChevronRight className={`w-5 h-5 ${isComplete ? 'text-green-500/50' : 'text-gray-600'}`} />
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Season Rewards Summary */}
-              <div className="bg-[#1a1333] rounded-2xl p-4 border border-purple-900/30">
-                <div className="text-xs font-bold text-gray-500 mb-3">🏆 TOTAL SEASON REWARDS</div>
-                <div className="grid grid-cols-4 gap-2">
-                  <div className="bg-[#0f0a1f] rounded-xl p-3 text-center">
-                    <div className="text-yellow-400 font-black text-lg">{SEASON_QUESTS.reduce((a,q) => a + q.reward.kwacha, 0).toLocaleString()}</div>
-                    <div className="text-[10px] text-gray-500">Coins</div>
-                  </div>
-                  <div className="bg-[#0f0a1f] rounded-xl p-3 text-center">
-                    <div className="text-green-400 font-black text-lg">{SEASON_QUESTS.reduce((a,q) => a + q.reward.gems, 0)}</div>
-                    <div className="text-[10px] text-gray-500">Gems</div>
-                  </div>
-                  <div className="bg-[#0f0a1f] rounded-xl p-3 text-center">
-                    <div className="text-purple-400 font-black text-lg">{SEASON_QUESTS.reduce((a,q) => a + (q.reward.diamonds||0), 0)}</div>
-                    <div className="text-[10px] text-gray-500">Diamonds</div>
-                  </div>
-                  <div className="bg-[#0f0a1f] rounded-xl p-3 text-center">
-                    <div className="text-indigo-400 font-black text-lg">{SEASON_QUESTS.reduce((a,q) => a + q.xp, 0)}</div>
-                    <div className="text-[10px] text-gray-500">XP</div>
-                  </div>
-                </div>
-              </div>
+                  </button>
+                );
+              })}
             </div>
-            );
-          })()}
-
-
+          )}
 
           {/* ============================================================= */}
           {/* REFERRALS TAB */}
