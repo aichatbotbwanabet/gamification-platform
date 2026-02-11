@@ -1139,12 +1139,14 @@ function KaTouchGame({ onClose, onWin }) {
     img.onerror = () => setImgLoaded(true);
     img.src = `${IMG_BASE}/npc-tagger.png`;
     const logo = new Image();
-    logo.onload = () => { logoImgRef.current = logo; };
+    logo.crossOrigin = 'anonymous'; logo.onload = () => { logoImgRef.current = logo; };
     logo.src = `${IMG_BASE}/ka-touch-logo.png`;
     // Biome background images
     ['city', 'village', 'university', 'jungle', 'stadium'].forEach(key => {
       const bgImg = new Image();
+      bgImg.crossOrigin = 'anonymous';
       bgImg.onload = () => { bgImgsRef.current[key] = bgImg; };
+      bgImg.onerror = () => { console.log('BG load failed:', key); };
       bgImg.src = `${IMG_BASE}/bg-${key}.png`;
     });
   }, []);
@@ -1166,6 +1168,7 @@ function KaTouchGame({ onClose, onWin }) {
   useEffect(() => {
     SLOT_ITEMS.forEach(item => {
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.onload = () => { slotImgsRef.current[item.id] = img; };
       img.src = item.img;
     });
@@ -1178,7 +1181,7 @@ function KaTouchGame({ onClose, onWin }) {
       speed: 5, distance: 0, score: 0, scoreAccum: 0, coins: 0, alive: true, groundOffset: 0,
       // 35 coins per 60 sec = 1 every ~1.714s = ~103 frames
       coinTimer: 0, coinInterval: 103,
-      obstacles: [], obstacleTimer: 0, obstacleInterval: 100,
+      obstacles: [], obstacleTimer: 0, obstacleInterval: 100, waveQueue: [],
       dogs: [], dogSpawned: false, dogWarning: 0,
       collectCoins: [], particles: [], dustParticles: [],
       tagText: null,
@@ -1351,41 +1354,31 @@ function KaTouchGame({ onClose, onWin }) {
 
   // ========== DRAW: SLOT ITEM (replaces football) ==========
   const drawSlotItem = (ctx, x, y, size, item, frame) => {
-    // Floating/spinning effect
-    const bob = Math.sin(frame * 0.08 + x * 0.01) * 3;
-    const spin = Math.sin(frame * 0.05) * 0.1;
+    const bob = Math.sin(frame * 0.06 + x * 0.005) * 5;
+    const spin = Math.sin(frame * 0.04) * 0.08;
+    const cx = x + size / 2, cy = y - size / 2 + bob;
 
-    // Shadow
+    // Ground shadow
     ctx.fillStyle = 'rgba(0,0,0,0.15)';
-    ctx.beginPath(); ctx.ellipse(x + size / 2, y + 2, size * 0.35, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx, y + 4, size * 0.35, 5, 0, 0, Math.PI * 2); ctx.fill();
 
-    // Glow
+    // Soft glow behind icon
     ctx.save();
-    ctx.beginPath(); ctx.arc(x + size / 2, y - size / 2 + bob, size * 0.55, 0, Math.PI * 2);
-    ctx.fillStyle = `${item.color}25`; ctx.fill();
+    const glow = ctx.createRadialGradient(cx, cy, size * 0.1, cx, cy, size * 0.6);
+    glow.addColorStop(0, item.color + '30');
+    glow.addColorStop(1, 'transparent');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(cx, cy, size * 0.6, 0, Math.PI * 2); ctx.fill();
 
-    // Slot machine frame (rounded rect)
-    const fx = x + 2, fy = y - size + bob - 4, fw = size - 4, fh = size + 2;
-    ctx.fillStyle = 'rgba(20,20,30,0.7)';
-    ctx.strokeStyle = item.color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(fx, fy, fw, fh, 6);
-    ctx.fill(); ctx.stroke();
-
-    // Inner glow line
-    ctx.strokeStyle = `${item.color}40`; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.roundRect(fx + 3, fy + 3, fw - 6, fh - 6, 4); ctx.stroke();
-
-    // Icon image (or fallback text)
-    const iconImg = slotImgsRef.current[item.id];
-    ctx.translate(x + size / 2, y - size / 2 + bob);
+    // Draw icon image directly (no dark box)
+    ctx.translate(cx, cy);
     ctx.rotate(spin);
+    const iconImg = slotImgsRef.current[item.id];
     if (iconImg) {
-      const iSize = size * 0.6;
+      const iSize = size * 0.85;
       ctx.drawImage(iconImg, -iSize / 2, -iSize / 2, iSize, iSize);
     } else {
-      ctx.font = `bold ${Math.floor(size * 0.35)}px Arial`;
+      ctx.font = `bold ${Math.floor(size * 0.5)}px Arial`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = item.color;
       ctx.fillText(item.name[0], 0, 2);
@@ -1398,30 +1391,41 @@ function KaTouchGame({ onClose, onWin }) {
     ctx.save();
     const hover = crashing ? 0 : bobOffset;
     const py = y + hover;
+    const h = w * 0.22; // proportional height
     const tilt = crashing ? Math.min((crashing / 60) * 0.5, 0.5) : 0;
     ctx.translate(x + w / 2, py); ctx.scale(-1, 1); ctx.rotate(tilt); ctx.translate(-(x + w / 2), -py);
 
+    // Fuselage - proportional ellipse
     ctx.fillStyle = '#e0e0e0';
-    ctx.beginPath(); ctx.ellipse(x + w * 0.45, py, w * 0.45, 8, 0, 0, Math.PI * 2);
-    ctx.fill(); ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x + w * 0.45, py, w * 0.45, h * 0.45, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.strokeStyle = '#bbb'; ctx.lineWidth = 1.5; ctx.stroke();
+    // Nose cone
+    ctx.fillStyle = '#d0d0d0';
+    ctx.beginPath(); ctx.ellipse(x + w * 0.88, py, w * 0.08, h * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+    // Tail fin
     ctx.fillStyle = '#ff4444';
-    ctx.beginPath(); ctx.moveTo(x + w, py); ctx.lineTo(x + w - 8, py - 4); ctx.lineTo(x + w - 8, py + 4); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x + w * 0.05, py); ctx.lineTo(x - w * 0.04, py - h * 0.9); ctx.lineTo(x + w * 0.12, py); ctx.closePath(); ctx.fill();
+    // Wings
     ctx.fillStyle = '#ccc';
-    ctx.beginPath(); ctx.moveTo(x + w * 0.4, py - 3); ctx.lineTo(x + w * 0.3, py - 22); ctx.lineTo(x + w * 0.55, py - 3); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#aaa'; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x + w * 0.4, py + 3); ctx.lineTo(x + w * 0.3, py + 22); ctx.lineTo(x + w * 0.55, py + 3); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = '#ff4444';
-    ctx.beginPath(); ctx.moveTo(x + 5, py - 3); ctx.lineTo(x - 5, py - 16); ctx.lineTo(x + 15, py - 3); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x + w * 0.4, py - h * 0.15); ctx.lineTo(x + w * 0.28, py - h * 1.2); ctx.lineTo(x + w * 0.58, py - h * 0.15); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#aaa'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + w * 0.4, py + h * 0.15); ctx.lineTo(x + w * 0.28, py + h * 1.2); ctx.lineTo(x + w * 0.58, py + h * 0.15); ctx.closePath(); ctx.fill(); ctx.stroke();
+    // Windows
     ctx.fillStyle = '#4dc9f6';
-    for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(x + w * 0.35 + i * 8, py - 3, 2, 0, Math.PI * 2); ctx.fill(); }
+    const winCount = Math.max(3, Math.floor(w / 30));
+    for (let i = 0; i < winCount; i++) { ctx.beginPath(); ctx.arc(x + w * 0.3 + i * (w * 0.4 / winCount), py - h * 0.15, h * 0.12, 0, Math.PI * 2); ctx.fill(); }
+    // Engine pods
+    ctx.fillStyle = '#888';
+    ctx.beginPath(); ctx.ellipse(x + w * 0.35, py + h * 0.6, w * 0.05, h * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(x + w * 0.55, py + h * 0.6, w * 0.05, h * 0.2, 0, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
 
-    // Trail
-    ctx.save(); ctx.globalAlpha = crashing ? 0.6 : 0.3;
-    ctx.fillStyle = crashing ? '#555' : '#aaa';
-    for (let i = 0; i < 5; i++) { ctx.beginPath(); ctx.arc(x + w + 5 + i * 8, y + hover + (Math.random() - 0.5) * 4, (crashing ? 4 : 3) - i * 0.5, 0, Math.PI * 2); ctx.fill(); }
+    // Trail smoke
+    ctx.save(); ctx.globalAlpha = crashing ? 0.6 : 0.25;
+    ctx.fillStyle = crashing ? '#555' : '#ccc';
+    for (let i = 0; i < 5; i++) { const tr = (crashing ? 6 : 4) - i * 0.8; ctx.beginPath(); ctx.arc(x + w + w * 0.05 + i * w * 0.06, y + hover + (Math.random() - 0.5) * h * 0.3, Math.max(1, tr), 0, Math.PI * 2); ctx.fill(); }
     if (crashing) {
       ctx.fillStyle = `rgba(255,${60 + Math.random() * 100},0,0.5)`;
-      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + w * 0.4 + Math.random() * 20, py - 10 + Math.random() * 20, 3 + Math.random() * 4, 0, Math.PI * 2); ctx.fill(); }
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + w * 0.4 + Math.random() * w * 0.15, py - h * 0.5 + Math.random() * h, h * 0.2 + Math.random() * h * 0.2, 0, Math.PI * 2); ctx.fill(); }
     }
     ctx.globalAlpha = 1; ctx.restore();
   };
@@ -1514,78 +1518,172 @@ function KaTouchGame({ onClose, onWin }) {
   const drawBiomeLayer = useCallback((ctx, biome, scrollX, gy, isNight, nightAmt) => {
     const bgImg = bgImgsRef.current[biome];
     const darken = isNight ? nightAmt * 0.6 : 0;
+    const px = scrollX * 0.3; // parallax offset
 
     if (bgImg) {
-      // === IMAGE-BASED PARALLAX BACKGROUND ===
-      const imgW = bgImg.width;
-      const imgH = bgImg.height;
-      
-      // Draw image tiled with parallax scroll (0.3x speed)
-      const parallaxX = (scrollX * 0.3) % imgW;
-      const drawH = gy; // Fill from top to ground
-      const scale = drawH / imgH;
-      const drawW = imgW * scale;
-      
-      // Tile the image across the width
-      const startX = -(parallaxX * scale) % drawW;
-      for (let x = startX; x < W; x += drawW) {
-        ctx.drawImage(bgImg, x, 0, drawW, drawH);
-      }
-      // Fill gap at left if needed
-      if (startX > 0) {
-        ctx.drawImage(bgImg, startX - drawW, 0, drawW, drawH);
-      }
-      
-      // Night overlay
-      if (darken > 0) {
-        ctx.fillStyle = `rgba(5,5,20,${darken * 0.7})`;
-        ctx.fillRect(0, 0, W, gy);
-      }
-      
-      // Biome-specific ground colors
-      const groundColors = {
-        city: darken > 0 ? '#1a1a22' : '#3a3a3a',
-        village: darken > 0 ? '#1a0a04' : '#a0522d', 
-        university: darken > 0 ? '#0a0f08' : '#7a8a6a',
-        jungle: darken > 0 ? '#040804' : '#1a3a12',
-        stadium: darken > 0 ? '#041004' : '#2d8c2d',
-      };
-      ctx.fillStyle = groundColors[biome] || '#555';
-      ctx.fillRect(0, gy, W, 50);
-      
-      // Ground details per biome
-      if (biome === 'city') {
-        // Road markings
-        ctx.strokeStyle = darken > 0 ? '#333' : '#666'; ctx.lineWidth = 1; ctx.setLineDash([12, 8]);
-        ctx.beginPath(); ctx.moveTo(0, gy + 25); ctx.lineTo(W, gy + 25); ctx.stroke(); ctx.setLineDash([]);
-      } else if (biome === 'village') {
-        // Red dirt texture
-        ctx.fillStyle = darken > 0 ? 'rgba(80,30,10,0.3)' : 'rgba(120,50,20,0.3)';
-        for (let i = 0; i < 20; i++) { const dx = ((i * 45 - scrollX * 0.5) % (W + 60)) - 20; ctx.beginPath(); ctx.arc(dx, gy + 10 + (i % 3) * 12, 2 + i % 3, 0, Math.PI * 2); ctx.fill(); }
-      } else if (biome === 'university') {
-        // Paved walkway strip
-        ctx.fillStyle = darken > 0 ? '#141208' : '#b0a890';
-        ctx.fillRect(0, gy + 2, W, 12);
-      } else if (biome === 'jungle') {
-        // Leaf litter
-        ctx.fillStyle = darken > 0 ? 'rgba(30,50,20,0.4)' : 'rgba(60,100,40,0.3)';
-        for (let i = 0; i < 25; i++) { const lx = ((i * 35 - scrollX * 0.6) % (W + 80)) - 30; ctx.beginPath(); ctx.ellipse(lx, gy + 8 + (i % 4) * 8, 4, 2, i * 0.5, 0, Math.PI * 2); ctx.fill(); }
-      } else if (biome === 'stadium') {
-        // Pitch stripes
-        ctx.strokeStyle = darken > 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(0, gy + 3); ctx.lineTo(W, gy + 3); ctx.stroke();
-        ctx.fillStyle = darken > 0 ? 'rgba(40,120,40,0.2)' : 'rgba(50,160,50,0.15)';
-        for (let i = 0; i < 10; i++) { const sx = ((i * 90 - scrollX * 0.8) % (W + 120)) - 40; ctx.fillRect(sx, gy, 45, 50); }
-      }
+      // === IMAGE-BASED PARALLAX ===
+      const imgW = bgImg.width, imgH = bgImg.height;
+      const scale = gy / imgH;
+      const dW = imgW * scale;
+      const startX = -(px * scale) % dW;
+      for (let x = startX; x < W; x += dW) ctx.drawImage(bgImg, x, 0, dW, gy);
+      if (startX > 0) ctx.drawImage(bgImg, startX - dW, 0, dW, gy);
     } else {
-      // === FALLBACK: simple colored ground if image not loaded ===
-      const fallbackColors = { city: '#4a5568', village: '#b07840', university: '#7a8a6a', jungle: '#1a4a1a', stadium: '#2d8c2d' };
-      const groundColors = { city: '#3a3a3a', village: '#a0522d', university: '#7a8a6a', jungle: '#1a3a12', stadium: '#2d8c2d' };
-      // Simple horizon fill
-      ctx.fillStyle = darken > 0 ? lerpC(fallbackColors[biome] || '#555', '#0a0a0a', darken) : (fallbackColors[biome] || '#555');
-      ctx.fillRect(0, gy - 40, W, 40);
-      ctx.fillStyle = darken > 0 ? lerpC(groundColors[biome] || '#555', '#0a0a0a', darken) : (groundColors[biome] || '#555');
-      ctx.fillRect(0, gy, W, 50);
+      // === RICH CANVAS-DRAWN FALLBACK ===
+      if (biome === 'city') {
+        // Lusaka skyline silhouette
+        const bldgColor = darken > 0 ? '#0a0f18' : '#556';
+        const bldgHi = darken > 0 ? '#0f1520' : '#667';
+        ctx.fillStyle = darken > 0 ? '#080c14' : '#ccd';
+        ctx.fillRect(0, gy - 180, W, 180);
+        // Buildings parallax
+        for (let i = 0; i < 14; i++) {
+          const bx = ((i * 130 - px * 0.4) % (W + 200)) - 100;
+          const bw = 50 + (i * 37 % 60); const bh = 80 + (i * 53 % 120);
+          ctx.fillStyle = i % 3 === 0 ? bldgHi : bldgColor;
+          ctx.fillRect(bx, gy - bh, bw, bh);
+          // Windows
+          ctx.fillStyle = darken > 0 ? 'rgba(255,200,50,0.6)' : 'rgba(150,200,255,0.4)';
+          for (let wy = gy - bh + 10; wy < gy - 8; wy += 16) {
+            for (let wx = bx + 6; wx < bx + bw - 6; wx += 14) {
+              ctx.fillRect(wx, wy, 6, 8);
+            }
+          }
+        }
+        // Findeco-style tall tower
+        const tx = ((600 - px * 0.25) % (W + 300)) - 100;
+        ctx.fillStyle = darken > 0 ? '#101828' : '#778';
+        ctx.fillRect(tx, gy - 220, 40, 220);
+        ctx.fillRect(tx - 15, gy - 230, 70, 15);
+      } else if (biome === 'village') {
+        // Thatched huts and mango trees
+        for (let i = 0; i < 6; i++) {
+          const hx = ((i * 280 - px * 0.35) % (W + 300)) - 100;
+          // Hut wall
+          ctx.fillStyle = darken > 0 ? '#1a0f08' : '#b8844a';
+          ctx.fillRect(hx, gy - 60, 70, 60);
+          // Thatch roof
+          ctx.fillStyle = darken > 0 ? '#0f0a04' : '#8B6914';
+          ctx.beginPath(); ctx.moveTo(hx - 10, gy - 60); ctx.lineTo(hx + 35, gy - 100); ctx.lineTo(hx + 80, gy - 60); ctx.fill();
+          // Tree next to hut
+          const treex = hx + 110;
+          ctx.fillStyle = darken > 0 ? '#0a0804' : '#5a3a1a';
+          ctx.fillRect(treex, gy - 90, 8, 90);
+          ctx.fillStyle = darken > 0 ? '#081008' : '#2d6b1a';
+          ctx.beginPath(); ctx.arc(treex + 4, gy - 100, 35, 0, Math.PI * 2); ctx.fill();
+        }
+      } else if (biome === 'university') {
+        // UNZA campus with long buildings and palms
+        for (let i = 0; i < 5; i++) {
+          const ux = ((i * 350 - px * 0.3) % (W + 400)) - 100;
+          ctx.fillStyle = darken > 0 ? '#0c0c14' : '#c8b898';
+          ctx.fillRect(ux, gy - 70, 160, 70);
+          ctx.fillStyle = darken > 0 ? '#0a0810' : '#884422';
+          ctx.fillRect(ux, gy - 80, 160, 12);
+          // Windows
+          ctx.fillStyle = darken > 0 ? 'rgba(100,150,255,0.3)' : 'rgba(100,180,255,0.5)';
+          for (let w = 0; w < 7; w++) ctx.fillRect(ux + 10 + w * 22, gy - 55, 12, 18);
+          // Palm tree
+          const palmx = ux + 200;
+          ctx.fillStyle = darken > 0 ? '#0a0804' : '#7a5a2a';
+          ctx.fillRect(palmx, gy - 120, 6, 120);
+          ctx.fillStyle = darken > 0 ? '#061008' : '#228B22';
+          for (let f = 0; f < 5; f++) {
+            const angle = (f / 5) * Math.PI * 2 + scrollX * 0.001;
+            ctx.beginPath(); ctx.moveTo(palmx + 3, gy - 120);
+            ctx.quadraticCurveTo(palmx + 3 + Math.cos(angle) * 30, gy - 140 + Math.sin(angle) * 10, palmx + 3 + Math.cos(angle) * 50, gy - 110);
+            ctx.lineWidth = 4; ctx.strokeStyle = darken > 0 ? '#061008' : '#228B22'; ctx.stroke();
+          }
+        }
+      } else if (biome === 'jungle') {
+        // Dense Lower Zambezi vegetation layers
+        // Far trees
+        ctx.fillStyle = darken > 0 ? '#030804' : '#1a5a1a';
+        for (let i = 0; i < 20; i++) {
+          const jx = ((i * 90 - px * 0.2) % (W + 200)) - 50;
+          ctx.beginPath(); ctx.arc(jx, gy - 80, 50 + (i % 3) * 15, 0, Math.PI * 2); ctx.fill();
+        }
+        // Mid trees
+        ctx.fillStyle = darken > 0 ? '#041004' : '#0d7a0d';
+        for (let i = 0; i < 15; i++) {
+          const jx = ((i * 120 + 40 - px * 0.35) % (W + 200)) - 50;
+          ctx.beginPath(); ctx.arc(jx, gy - 40, 40 + (i % 4) * 10, 0, Math.PI * 2); ctx.fill();
+        }
+        // Hanging vines
+        ctx.strokeStyle = darken > 0 ? '#041008' : '#0a6a0a';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 8; i++) {
+          const vx = ((i * 200 - px * 0.3) % (W + 200)) - 50;
+          ctx.beginPath(); ctx.moveTo(vx, 0); ctx.quadraticCurveTo(vx + 15, gy * 0.3, vx - 10, gy * 0.6); ctx.stroke();
+        }
+      } else if (biome === 'stadium') {
+        // Heroes Stadium with stands
+        ctx.fillStyle = darken > 0 ? '#060a04' : '#1a6a1a';
+        ctx.fillRect(0, gy - 20, W, 20); // pitch edge
+        // Stadium stands
+        const sx = ((200 - px * 0.15) % (W + 400)) - 100;
+        ctx.fillStyle = darken > 0 ? '#0a0c14' : '#556';
+        ctx.fillRect(sx, gy - 150, 500, 130);
+        // Rows of seats
+        for (let row = 0; row < 5; row++) {
+          ctx.fillStyle = row % 2 === 0 ? (darken > 0 ? '#0c1018' : '#668') : (darken > 0 ? '#081018' : '#8a4' );
+          ctx.fillRect(sx + 10, gy - 140 + row * 24, 480, 18);
+        }
+        // Roof
+        ctx.fillStyle = darken > 0 ? '#080c14' : '#445';
+        ctx.fillRect(sx - 20, gy - 160, 540, 15);
+        // Floodlights
+        ctx.fillStyle = darken > 0 ? '#ff8' : '#ddd';
+        ctx.fillRect(sx - 10, gy - 210, 6, 50);
+        ctx.fillRect(sx + 510, gy - 210, 6, 50);
+        if (darken > 0) {
+          ctx.fillStyle = 'rgba(255,255,200,0.15)';
+          ctx.beginPath(); ctx.moveTo(sx - 7, gy - 210); ctx.lineTo(sx - 60, gy); ctx.lineTo(sx + 50, gy); ctx.fill();
+        }
+        // Flag
+        ctx.fillStyle = '#008000'; ctx.fillRect(sx + 240, gy - 195, 25, 8);
+        ctx.fillStyle = '#FF8C00'; ctx.fillRect(sx + 240, gy - 187, 25, 5);
+        ctx.fillStyle = '#000'; ctx.fillRect(sx + 240, gy - 182, 25, 5);
+      }
+    }
+
+    // Night overlay
+    if (darken > 0) {
+      ctx.fillStyle = `rgba(5,5,20,${darken * 0.7})`;
+      ctx.fillRect(0, 0, W, gy);
+    }
+
+    // Ground colors per biome
+    const groundColors = {
+      city: darken > 0 ? '#1a1a22' : '#3a3a3a',
+      village: darken > 0 ? '#1a0a04' : '#a0522d', 
+      university: darken > 0 ? '#0a0f08' : '#7a8a6a',
+      jungle: darken > 0 ? '#040804' : '#1a3a12',
+      stadium: darken > 0 ? '#041004' : '#2d8c2d',
+    };
+    ctx.fillStyle = groundColors[biome] || '#555';
+    ctx.fillRect(0, gy, W, 100);
+    
+    // Ground details per biome
+    if (biome === 'city') {
+      ctx.strokeStyle = darken > 0 ? '#333' : '#666'; ctx.lineWidth = 2; ctx.setLineDash([20, 14]);
+      ctx.beginPath(); ctx.moveTo(0, gy + 50); ctx.lineTo(W, gy + 50); ctx.stroke(); ctx.setLineDash([]);
+    } else if (biome === 'village') {
+      ctx.fillStyle = darken > 0 ? 'rgba(80,30,10,0.3)' : 'rgba(120,50,20,0.3)';
+      for (let i = 0; i < 20; i++) { const dx = ((i * 90 - scrollX * 0.5) % (W + 60)) - 20; ctx.beginPath(); ctx.arc(dx, gy + 20 + (i % 3) * 24, 3 + i % 3, 0, Math.PI * 2); ctx.fill(); }
+    } else if (biome === 'university') {
+      ctx.fillStyle = darken > 0 ? '#141208' : '#b0a890';
+      ctx.fillRect(0, gy + 4, W, 20);
+    } else if (biome === 'jungle') {
+      // Leaf litter
+      ctx.fillStyle = darken > 0 ? 'rgba(30,50,20,0.4)' : 'rgba(60,100,40,0.3)';
+      for (let i = 0; i < 25; i++) { const lx = ((i * 70 - scrollX * 0.6) % (W + 80)) - 30; ctx.beginPath(); ctx.ellipse(lx, gy + 16 + (i % 4) * 16, 6, 3, i * 0.5, 0, Math.PI * 2); ctx.fill(); }
+    } else if (biome === 'stadium') {
+      // Pitch stripes
+      ctx.strokeStyle = darken > 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.35)'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, gy + 6); ctx.lineTo(W, gy + 6); ctx.stroke();
+      ctx.fillStyle = darken > 0 ? 'rgba(40,120,40,0.2)' : 'rgba(50,160,50,0.15)';
+      for (let i = 0; i < 10; i++) { const sx = ((i * 180 - scrollX * 0.8) % (W + 200)) - 80; ctx.fillRect(sx, gy, 90, 100); }
     }
   }, []);
 
@@ -1774,7 +1872,19 @@ function KaTouchGame({ onClose, onWin }) {
       g.coinTimer++;
       if (g.coinTimer >= g.coinInterval) {
         g.coinTimer = 0;
-        g.collectCoins.push({ x: W + 40, y: GROUND_Y - 70 - Math.random() * 170, size: 24, collected: false });
+        // Spawn coins in arcs between obstacle waves (at jump height = rewarding jumps)
+        const hasNearbyObs = g.obstacles.some(o => o.x > W - 200 && o.x < W + 200);
+        if (!hasNearbyObs) {
+          // Safe gap — place a coin arc (3 coins in a jump arc)
+          const baseY = GROUND_Y - 120;
+          for (let i = 0; i < 3; i++) {
+            const arcY = baseY - Math.sin((i / 2) * Math.PI) * 80; // arc shape
+            g.collectCoins.push({ x: W + 60 + i * 70, y: arcY, size: 24, collected: false });
+          }
+        } else {
+          // Near obstacles — single coin above obstacle height as reward for good timing
+          g.collectCoins.push({ x: W + 100, y: GROUND_Y - 200 - Math.random() * 80, size: 24, collected: false });
+        }
       }
 
       // Player physics
@@ -1827,20 +1937,62 @@ function KaTouchGame({ onClose, onWin }) {
       if (npc.jumping) { npc.vy += 0.5; npc.y += npc.vy; if (npc.y >= GROUND_Y) { npc.y = GROUND_Y; npc.vy = 0; npc.jumping = false; } }
       if (!npc.jumping && fc % 5 === 0) g.dustParticles.push({ x: npc.x + 10, y: GROUND_Y - 2, vx: -g.speed * 0.2, vy: -Math.random() * 1, life: 8 + Math.random() * 5, size: 1.5 + Math.random() * 1.5 });
 
-      // Spawn obstacles (slot items instead of footballs)
+      // Spawn obstacles in synced waves with clear gaps
       g.obstacleTimer++;
-      if (g.obstacleTimer >= g.obstacleInterval) {
+      
+      if (g.waveQueue.length === 0 && g.obstacleTimer >= g.obstacleInterval) {
         g.obstacleTimer = 0;
-        g.obstacleInterval = Math.max(40, 90 - fc * 0.003) + Math.random() * 30;
-        if (Math.random() < 0.55) {
+        // Difficulty scales with score
+        const diff = Math.min(g.score / 500, 1); // 0-1 over 500pts
+        g.obstacleInterval = Math.max(50, 100 - diff * 40) + Math.random() * 20;
+        
+        // Generate a wave pattern (group of 1-3 obstacles with synced timing)
+        const waveType = Math.random();
+        const spd = g.speed;
+        const gap = 200 + (1 - diff) * 100; // gap between obstacles in a wave (closer at higher diff)
+        
+        if (waveType < 0.35) {
+          // Single ground obstacle — easy jump
           const item = SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)];
-          const size = 64 + Math.random() * 24;
-          g.obstacles.push({ type: 'slot', x: W + 20, y: GROUND_Y, w: size, h: size, speed: g.speed, item, crashing: 0 });
+          const size = 64 + Math.random() * 20;
+          g.waveQueue.push({ delay: 0, type: 'slot', y: GROUND_Y, w: size, h: size, speed: spd, item });
+        } else if (waveType < 0.55) {
+          // Two ground obstacles spaced for a single jump-over
+          const item1 = SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)];
+          const item2 = SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)];
+          const size = 56 + Math.random() * 16;
+          g.waveQueue.push({ delay: 0, type: 'slot', y: GROUND_Y, w: size, h: size, speed: spd, item: item1 });
+          g.waveQueue.push({ delay: Math.floor(gap / spd), type: 'slot', y: GROUND_Y, w: size, h: size, speed: spd, item: item2 });
+        } else if (waveType < 0.7) {
+          // High plane — duck under it
+          const planeY = GROUND_Y - 140 - Math.random() * 40;
+          g.waveQueue.push({ delay: 0, type: 'plane', y: planeY, w: 140, h: 60, speed: spd + 1, isHigh: true });
+        } else if (waveType < 0.85) {
+          // Ground obstacle + high plane combo — jump the ground one (plane is above)
+          const item = SLOT_ITEMS[Math.floor(Math.random() * SLOT_ITEMS.length)];
+          const size = 60 + Math.random() * 16;
+          g.waveQueue.push({ delay: 0, type: 'slot', y: GROUND_Y, w: size, h: size, speed: spd, item: item });
+          g.waveQueue.push({ delay: 0, type: 'plane', y: 80 + Math.random() * 60, w: 140, h: 60, speed: spd + 1.5, isHigh: true });
         } else {
-          const willCrash = Math.random() < 0.3;
-          const bobs = Math.random() < 0.5; // 50% of planes bob up/down
-          const startY = willCrash ? 120 + Math.random() * 80 : 160 + Math.random() * (GROUND_Y - 320);
-          g.obstacles.push({ type: 'plane', x: W + 20, y: startY, baseY: startY, w: 140, h: 60, speed: g.speed + 2 + Math.random() * 2, crashing: 0, willCrash, crashStartX: willCrash ? W * 0.3 + Math.random() * W * 0.3 : 0, bobs, bobPhase: Math.random() * Math.PI * 2, bobAmp: 30 + Math.random() * 40 });
+          // Crashing plane — must time the dodge
+          const crashY = 100 + Math.random() * 60;
+          g.waveQueue.push({ delay: 0, type: 'plane', y: crashY, w: 140, h: 60, speed: spd + 2, willCrash: true, crashX: W * 0.3 + Math.random() * W * 0.3 });
+        }
+      }
+      
+      // Process wave queue (spawn with delays)
+      if (g.waveQueue.length > 0) {
+        const next = g.waveQueue[0];
+        if (next.delay <= 0) {
+          g.waveQueue.shift();
+          if (next.type === 'slot') {
+            g.obstacles.push({ type: 'slot', x: W + 40, y: next.y, w: next.w, h: next.h, speed: next.speed, item: next.item, crashing: 0 });
+          } else {
+            const bobs = !next.willCrash && Math.random() < 0.4;
+            g.obstacles.push({ type: 'plane', x: W + 40, y: next.y, baseY: next.y, w: next.w, h: next.h, speed: next.speed, crashing: 0, willCrash: !!next.willCrash, crashStartX: next.crashX || 0, bobs, bobPhase: Math.random() * Math.PI * 2, bobAmp: bobs ? 20 + Math.random() * 25 : 0 });
+          }
+        } else {
+          next.delay--;
         }
       }
 
@@ -1885,7 +2037,7 @@ function KaTouchGame({ onClose, onWin }) {
       });
 
       // Move coins
-      g.collectCoins = g.collectCoins.filter(c => { c.x -= g.speed * 2; return c.x > -60 && !c.collected; });
+      g.collectCoins = g.collectCoins.filter(c => { c.x -= g.speed; return c.x > -60 && !c.collected; });
 
       // Particles
       g.dustParticles = g.dustParticles.filter(dp => { dp.x += dp.vx; dp.y += dp.vy; dp.life--; return dp.life > 0; });
