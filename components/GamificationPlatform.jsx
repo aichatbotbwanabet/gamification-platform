@@ -472,7 +472,7 @@ function TutorialModal({ tutorialKey, onClose }) {
           </div>
           
           {/* Step Content */}
-          <div className="bg-[#030810] rounded-2xl p-5 mb-6 min-h-[120px]">
+          <div className="rounded-2xl p-5 mb-6 backdrop-blur-sm bg-black/30 min-h-[120px]">
             <div className="text-4xl mb-3">{tutorial.steps[step].icon}</div>
             <h3 className="font-bold text-lg mb-2">{tutorial.steps[step].title}</h3>
             <p className="text-gray-300">{tutorial.steps[step].desc}</p>
@@ -484,7 +484,7 @@ function TutorialModal({ tutorialKey, onClose }) {
               type="button" 
               onClick={() => setStep(s => Math.max(0, s - 1))} 
               disabled={step === 0} 
-              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-700 opacity-50' : 'bg-[#030810] hover:bg-white/[0.06]'}`}
+              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-700 opacity-50' : 'bg-black/30 hover:bg-white/[0.06]'}`}
             >
               ← Back
             </button>
@@ -562,10 +562,10 @@ function WheelGame({ onClose, onWin, playsLeft }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="wheel" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 anim-scale-in" onClick={(e) => e.stopPropagation()} style={{ border: "2px solid rgba(6,182,212,0.25)", boxShadow: "0 0 40px rgba(6,182,212,0.1), 0 20px 60px rgba(0,0,0,0.5)" }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
@@ -641,7 +641,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                     <path 
                       d={`M 100 100 L ${start.x} ${start.y} A 100 100 0 0 1 ${end.x} ${end.y} Z`} 
                       fill={seg.color} 
-                      stroke="#1a1333" 
+                      stroke="rgba(0,0,0,0.4)" 
                       strokeWidth="2" 
                     />
                     <text 
@@ -657,7 +657,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
                   </g>
                 );
               })}
-              <circle cx="100" cy="100" r="25" fill="#1a1333" stroke="#fbbf24" strokeWidth="4" />
+              <circle cx="100" cy="100" r="25" fill="#030810" stroke="#fbbf24" strokeWidth="4" />
             </svg>
           </div>
           
@@ -674,13 +674,13 @@ function WheelGame({ onClose, onWin, playsLeft }) {
         
         {/* Result */}
         {result && (
-          <div className="text-center p-5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-2xl border border-green-500/50 animate-pulse">
+          <div className="text-center p-5 rounded-2xl anim-result-zoom" style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(16,185,129,0.05) 100%)", border: "2px solid rgba(34,197,94,0.4)", boxShadow: "0 0 30px rgba(34,197,94,0.15)" }}>
             <div className="text-6xl mb-3">{result.icon}</div>
             <div className="text-2xl font-black text-yellow-400 mb-4">{result.label}</div>
             <button 
               type="button" 
               onClick={() => { onWin(result.prize, result.label); setResult(null); }} 
-              className="px-8 py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
+              className="px-8 py-3 rounded-2xl font-black btn-3d btn-3d-green text-lg"
             >
               🎉 Claim Prize!
             </button>
@@ -692,146 +692,283 @@ function WheelGame({ onClose, onWin, playsLeft }) {
 }
 
 // ============================================================================
-// SCRATCH GAME COMPONENT
+// SCRATCH GAME COMPONENT — Lottery-style 3-zone with gold foil
 // ============================================================================
 function ScratchGame({ onClose, onWin }) {
-  const canvasRef = useRef(null);
-  const [scratching, setScratching] = useState(false);
-  const [percent, setPercent] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [showTutorial, setShowTutorial] = useState(false);
+  const canvas0 = useRef(null);
+  const canvas1 = useRef(null);
+  const canvas2 = useRef(null);
+  const canvasRefs = [canvas0, canvas1, canvas2];
+  const [scratching, setScratching] = useState(-1);
+  const [revealed, setRevealed] = useState([false, false, false]);
+  const [allRevealed, setAllRevealed] = useState(false);
+  const [confettiParts, setConfettiParts] = useState([]);
+  const [prizeAnim, setPrizeAnim] = useState(false);
   const lastPos = useRef({ x: 0, y: 0 });
-  
-  const [prize] = useState(() => {
-    const prizes = [25, 50, 75, 100, 150, 200, 500];
-    const weights = [30, 25, 20, 12, 7, 4, 2];
-    const rand = Math.random() * 100;
-    let sum = 0;
-    for (let i = 0; i < prizes.length; i++) {
-      sum += weights[i];
-      if (rand <= sum) return prizes[i];
+  const percents = useRef([0, 0, 0]);
+
+  // Symbol pool and prize generation
+  const SYMBOLS = [
+    { icon: '💎', name: 'Diamond', color: '#60A5FA' },
+    { icon: '🪙', name: 'Gold', color: '#FBBF24' },
+    { icon: '💰', name: 'Cash', color: '#34D399' },
+    { icon: '🔥', name: 'Fire', color: '#F87171' },
+    { icon: '⭐', name: 'Star', color: '#A78BFA' },
+    { icon: '🍀', name: 'Lucky', color: '#4ADE80' },
+  ];
+
+  const [symbols] = useState(() => {
+    const roll = Math.random();
+    if (roll < 0.20) {
+      const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+      return [s, s, s];
+    } else if (roll < 0.55) {
+      const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+      let other;
+      do { other = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]; } while (other.icon === s.icon);
+      const arr = [s, s, other];
+      const pos = Math.floor(Math.random() * 3);
+      [arr[pos], arr[2]] = [arr[2], arr[pos]];
+      return arr;
+    } else {
+      const picked = [];
+      while (picked.length < 3) {
+        const s = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+        if (picked.length < 2 || !picked.every(p => p.icon === s.icon)) picked.push(s);
+        else picked.push(SYMBOLS[(SYMBOLS.indexOf(s) + 1) % SYMBOLS.length]);
+      }
+      return picked;
     }
-    return prizes[0];
   });
 
+  const matchCount = symbols[0].icon === symbols[1].icon && symbols[1].icon === symbols[2].icon ? 3
+    : (symbols[0].icon === symbols[1].icon || symbols[1].icon === symbols[2].icon || symbols[0].icon === symbols[2].icon) ? 2 : 0;
+
+  const prize = matchCount === 3 ? [200, 300, 500][Math.floor(Math.random() * 3)]
+    : matchCount === 2 ? [50, 75, 100][Math.floor(Math.random() * 3)]
+    : [10, 15, 25][Math.floor(Math.random() * 3)];
+
+  // Draw gold foil on each canvas
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#c0c0c0');
-    gradient.addColorStop(0.5, '#d8d8d8');
-    gradient.addColorStop(1, '#b0b0b0');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#777';
-    ctx.font = 'bold 36px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('🪙 SCRATCH HERE 🪙', canvas.width / 2, canvas.height / 2 + 6);
+    canvasRefs.forEach((ref) => {
+      const c = ref.current;
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      const w = c.width, h = c.height;
+      const g = ctx.createLinearGradient(0, 0, w, h);
+      g.addColorStop(0, '#D4A017');
+      g.addColorStop(0.2, '#F5D060');
+      g.addColorStop(0.4, '#C8960C');
+      g.addColorStop(0.6, '#F5D060');
+      g.addColorStop(0.8, '#D4A017');
+      g.addColorStop(1, '#E8C840');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      for (let i = 0; i < 800; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.15})`;
+        ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+      }
+      for (let i = 0; i < 400; i++) {
+        ctx.fillStyle = `rgba(0,0,0,${Math.random() * 0.1})`;
+        ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
+      }
+      ctx.fillStyle = 'rgba(180,140,20,0.7)';
+      ctx.font = 'bold 16px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('SCRATCH', w / 2, h / 2);
+    });
   }, []);
 
-  const scratch = (e) => {
-    if (!scratching || revealed) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    const rect = canvas.getBoundingClientRect();
-    const x = ((e.clientX || e.touches?.[0]?.clientX) - rect.left) * (canvas.width / rect.width);
-    const y = ((e.clientY || e.touches?.[0]?.clientY) - rect.top) * (canvas.height / rect.height);
-    
+  const doScratch = (e, idx) => {
+    if (scratching !== idx || revealed[idx]) return;
+    const c = canvasRefs[idx].current;
+    const ctx = c.getContext('2d');
+    const rect = c.getBoundingClientRect();
+    const cx = (e.clientX || e.touches?.[0]?.clientX);
+    const cy = (e.clientY || e.touches?.[0]?.clientY);
+    if (!cx || !cy) return;
+    const x = (cx - rect.left) * (c.width / rect.width);
+    const y = (cy - rect.top) * (c.height / rect.height);
+
     ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
-    ctx.arc(x, y, 22, 0, Math.PI * 2);
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
     ctx.fill();
-    
     if (lastPos.current.x) {
-      ctx.lineWidth = 44;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(lastPos.current.x, lastPos.current.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
+      ctx.lineWidth = 40; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(lastPos.current.x, lastPos.current.y); ctx.lineTo(x, y); ctx.stroke();
     }
     lastPos.current = { x, y };
-    
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    const imageData = ctx.getImageData(0, 0, c.width, c.height);
     let transparent = 0;
-    for (let i = 3; i < imageData.data.length; i += 4) {
-      if (imageData.data[i] === 0) transparent++;
-    }
-    const pct = (transparent / (canvas.width * canvas.height)) * 100;
-    setPercent(pct);
-    
-    if (pct > 50 && !revealed) {
-      setRevealed(true);
-      onWin(prize);
+    for (let i = 3; i < imageData.data.length; i += 4) { if (imageData.data[i] === 0) transparent++; }
+    const pct = (transparent / (c.width * c.height)) * 100;
+    percents.current[idx] = pct;
+
+    if (pct > 45 && !revealed[idx]) {
+      ctx.clearRect(0, 0, c.width, c.height);
+      const newRevealed = [...revealed];
+      newRevealed[idx] = true;
+      setRevealed(newRevealed);
+
+      if (newRevealed.every(r => r)) {
+        setAllRevealed(true);
+        setPrizeAnim(true);
+        const parts = [];
+        for (let i = 0; i < 60; i++) {
+          parts.push({
+            id: i, x: 50 + (Math.random() - 0.5) * 20, y: 40,
+            color: ['#FBBF24', '#F87171', '#34D399', '#60A5FA', '#A78BFA', '#F472B6'][i % 6],
+            size: 4 + Math.random() * 6, rotation: Math.random() * 360,
+          });
+        }
+        setConfettiParts(parts);
+        onWin(prize);
+      }
     }
   };
 
+  const startScratch = (idx) => { setScratching(idx); lastPos.current = { x: 0, y: 0 }; };
+  const stopScratch = () => setScratching(-1);
+
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
-      {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
-      
-      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
-        <div className="flex items-center justify-between mb-4">
-          <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-cyan-400" />
-          </button>
-          <h2 className="text-3xl font-black tracking-tight">🎫 Scratch & Win</h2>
-          <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <p className="text-center text-gray-400 mb-4">Scratch the card to reveal your prize!</p>
-        
-        <div className="relative mx-auto rounded-2xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl mb-2">🎁</div>
-              <div className="text-5xl font-black text-white" style={{ textShadow: '0 4px 8px rgba(0,0,0,0.3)' }}>{prize}</div>
-              <div className="text-white font-bold text-lg">KWACHA</div>
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
+      <div className="max-w-lg w-full anim-scale-in" onClick={(e) => e.stopPropagation()}>
+        {/* Card body */}
+        <div className="rounded-3xl overflow-hidden relative" style={{ background: 'linear-gradient(180deg, #1a1000 0%, #0d0800 100%)', border: '3px solid #D4A017', boxShadow: '0 0 40px rgba(212,160,23,0.2), 0 20px 60px rgba(0,0,0,0.5)' }}>
+          
+          {/* Header */}
+          <div className="relative px-6 pt-5 pb-4">
+            <div className="flex items-center justify-between">
+              <div />
+              <div className="text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-yellow-600 mb-1">✦ PREMIUM ✦</div>
+                <h2 className="text-2xl font-black text-yellow-400" style={{ textShadow: '0 2px 8px rgba(251,191,36,0.3)' }}>SCRATCH & WIN</h2>
+              </div>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+            <p className="text-center text-yellow-700 text-sm mt-2 font-medium">Match 3 symbols for the jackpot!</p>
+            <div className="mt-4 h-px bg-gradient-to-r from-transparent via-yellow-600/40 to-transparent" />
+          </div>
+
+          {/* Prize tiers */}
+          <div className="flex justify-center gap-4 px-6 pb-4">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+              <span className="text-yellow-400 text-xs font-bold">3×</span>
+              <span className="text-yellow-300 text-xs font-black">JACKPOT</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+              <span className="text-gray-400 text-xs font-bold">2×</span>
+              <span className="text-gray-300 text-xs font-black">WIN</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+              <span className="text-gray-500 text-xs font-bold">0×</span>
+              <span className="text-gray-400 text-xs font-black">BONUS</span>
             </div>
           </div>
-          <canvas 
-            ref={canvasRef} 
-            width={300} 
-            height={180} 
-            className="absolute inset-0 cursor-crosshair touch-none"
-            onMouseDown={() => { setScratching(true); lastPos.current = { x: 0, y: 0 }; }}
-            onMouseUp={() => setScratching(false)}
-            onMouseLeave={() => setScratching(false)}
-            onMouseMove={scratch}
-            onTouchStart={() => { setScratching(true); lastPos.current = { x: 0, y: 0 }; }}
-            onTouchEnd={() => setScratching(false)}
-            onTouchMove={scratch}
-          />
-        </div>
-        
-        <div className="mt-6">
-          <div className="flex justify-between text-sm text-gray-400 mb-2">
-            <span>Progress</span>
-            <span>{Math.min(Math.round(percent * 2), 100)}%</span>
+
+          {/* 3 Scratch Zones */}
+          <div className="flex gap-4 px-6 pb-2 justify-center">
+            {[0, 1, 2].map(idx => (
+              <div key={idx} className="relative" style={{ width: 130, height: 150 }}>
+                <div className="absolute inset-0 rounded-2xl overflow-hidden" style={{
+                  border: revealed[idx] ? `3px solid ${symbols[idx].color}` : '3px solid rgba(212,160,23,0.4)',
+                  boxShadow: revealed[idx] ? `0 0 20px ${symbols[idx].color}40, inset 0 0 20px ${symbols[idx].color}15` : '0 0 10px rgba(212,160,23,0.1)',
+                  transition: 'all 0.5s ease',
+                }}>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ background: revealed[idx] ? `radial-gradient(circle, ${symbols[idx].color}15 0%, rgba(5,10,20,0.95) 70%)` : 'rgba(5,10,20,0.95)' }}>
+                    <div className={`text-5xl transition-all duration-500 ${revealed[idx] ? 'scale-100 opacity-100' : 'scale-50 opacity-30'}`} style={{ filter: revealed[idx] ? `drop-shadow(0 0 12px ${symbols[idx].color}80)` : 'none' }}>
+                      {symbols[idx].icon}
+                    </div>
+                    <div className={`text-xs font-black mt-2 tracking-wider transition-opacity duration-500 ${revealed[idx] ? 'opacity-100' : 'opacity-0'}`} style={{ color: symbols[idx].color }}>
+                      {symbols[idx].name.toUpperCase()}
+                    </div>
+                  </div>
+                  {!revealed[idx] && (
+                    <canvas
+                      ref={canvasRefs[idx]}
+                      width={130} height={150}
+                      className="absolute inset-0 cursor-crosshair touch-none rounded-2xl"
+                      style={{ width: '100%', height: '100%' }}
+                      onMouseDown={() => startScratch(idx)} onMouseUp={stopScratch} onMouseLeave={stopScratch}
+                      onMouseMove={(e) => doScratch(e, idx)}
+                      onTouchStart={() => startScratch(idx)} onTouchEnd={stopScratch}
+                      onTouchMove={(e) => doScratch(e, idx)}
+                    />
+                  )}
+                </div>
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-yellow-600/80 flex items-center justify-center text-xs font-black text-black">
+                  {idx + 1}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-yellow-500 transition-all" 
-              style={{ width: `${Math.min(percent * 2, 100)}%` }} 
-            />
+
+          {/* Status */}
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              {[0, 1, 2].map(idx => (
+                <div key={idx} className={`w-3 h-3 rounded-full transition-all duration-300 ${revealed[idx] ? 'bg-green-400 shadow-lg shadow-green-400/50 scale-125' : 'bg-gray-700'}`} />
+              ))}
+              <span className="text-xs text-gray-500 ml-2">{revealed.filter(r => r).length}/3 revealed</span>
+            </div>
+
+            {allRevealed && (
+              <div className={`text-center py-4 rounded-2xl mb-4 transition-all duration-500 ${prizeAnim ? 'anim-scale-in' : ''}`} style={{
+                background: matchCount === 3 ? 'linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.05) 100%)' : matchCount === 2 ? 'linear-gradient(135deg, rgba(96,165,250,0.1) 0%, rgba(59,130,246,0.05) 100%)' : 'rgba(255,255,255,0.03)',
+                border: matchCount === 3 ? '2px solid rgba(251,191,36,0.4)' : matchCount === 2 ? '2px solid rgba(96,165,250,0.3)' : '2px solid rgba(255,255,255,0.1)',
+              }}>
+                <div className="text-4xl mb-2">{matchCount === 3 ? '🎰' : matchCount === 2 ? '🎉' : '🪙'}</div>
+                <div className={`text-sm font-bold mb-1 ${matchCount === 3 ? 'text-yellow-400' : matchCount === 2 ? 'text-blue-400' : 'text-gray-400'}`}>
+                  {matchCount === 3 ? '🔥 JACKPOT! 3 MATCHES! 🔥' : matchCount === 2 ? '✨ 2 MATCHES!' : 'Bonus Prize'}
+                </div>
+                <div className={`text-5xl font-black ${matchCount === 3 ? 'text-yellow-400' : matchCount === 2 ? 'text-blue-400' : 'text-gray-300'}`} style={{ textShadow: matchCount === 3 ? '0 0 30px rgba(251,191,36,0.5)' : 'none' }}>
+                  {prize}
+                </div>
+                <div className={`text-sm font-bold ${matchCount === 3 ? 'text-yellow-500' : matchCount === 2 ? 'text-blue-300' : 'text-gray-500'}`}>
+                  KWACHA
+                </div>
+              </div>
+            )}
+
+            {allRevealed ? (
+              <button type="button" onClick={onClose}
+                className="w-full py-4 rounded-2xl font-black text-lg transition-all hover:scale-[1.02] active:scale-95"
+                style={{
+                  background: matchCount === 3 ? 'linear-gradient(180deg, #FBBF24 0%, #D97706 100%)' : 'linear-gradient(180deg, #22D3EE 0%, #0891B2 100%)',
+                  color: '#000',
+                  boxShadow: matchCount === 3 ? '0 4px 0 #92400E, 0 0 30px rgba(251,191,36,0.3)' : '0 4px 0 #164E63, 0 0 20px rgba(6,182,212,0.2)',
+                }}
+              >
+                🎁 Collect {prize} Coins!
+              </button>
+            ) : (
+              <p className="text-center text-gray-500 text-sm">Scratch each zone to reveal your symbols</p>
+            )}
           </div>
-          <p className="text-center text-gray-400 mt-2">
-            {revealed ? '🎉 Prize Revealed!' : 'Scratch at least 50% to reveal'}
-          </p>
+
+          {/* Confetti */}
+          {confettiParts.length > 0 && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+              {confettiParts.map(p => (
+                <div key={p.id} className="absolute rounded-sm"
+                  style={{
+                    left: `${p.x}%`, top: `${p.y}%`,
+                    width: p.size, height: p.size * 0.6,
+                    background: p.color,
+                    transform: `rotate(${p.rotation}deg)`,
+                    animation: `confettiFall ${1.5 + Math.random()}s ease-out forwards`,
+                    animationDelay: `${Math.random() * 0.3}s`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        
-        {revealed && (
-          <button 
-            type="button" 
-            onClick={onClose} 
-            className="w-full mt-4 py-4 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
-          >
-            💰 Collect {prize} Coins!
-          </button>
-        )}
       </div>
     </div>
   );
@@ -903,10 +1040,10 @@ function DiceGame({ onClose, onWin }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="dice" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 anim-scale-in" onClick={(e) => e.stopPropagation()} style={{ border: "2px solid rgba(6,182,212,0.25)", boxShadow: "0 0 40px rgba(6,182,212,0.1), 0 20px 60px rgba(0,0,0,0.5)" }}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-cyan-400" />
@@ -934,7 +1071,7 @@ function DiceGame({ onClose, onWin }) {
                   type="button" 
                   onClick={() => setGuess(n)} 
                   disabled={rolling} 
-                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-cyan-400 to-blue-500 scale-110 shadow-lg shadow-cyan-500/50' : 'bg-[#030810] hover:bg-white/[0.06] hover:scale-105'}`}
+                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-cyan-400 to-blue-500 scale-110 shadow-lg shadow-cyan-500/50' : 'bg-black/30 hover:bg-white/[0.06] hover:scale-105'}`}
                 >
                   {n}
                 </button>
@@ -1020,10 +1157,10 @@ function MemoryGame({ onClose, onWin }) {
   const prize = Math.max(300 - moves * 10, 50);
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="memory" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 anim-scale-in" onClick={(e) => e.stopPropagation()} style={{ border: "2px solid rgba(6,182,212,0.25)", boxShadow: "0 0 40px rgba(6,182,212,0.1), 0 20px 60px rgba(0,0,0,0.5)" }}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-cyan-400" />
@@ -1035,15 +1172,15 @@ function MemoryGame({ onClose, onWin }) {
         </div>
         
         <div className="flex justify-center gap-6 mb-4">
-          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/30 rounded-xl backdrop-blur-sm">
             <div className="text-xl font-bold text-yellow-400">{moves}</div>
             <div className="text-xs text-gray-400">Moves</div>
           </div>
-          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/30 rounded-xl backdrop-blur-sm">
             <div className="text-xl font-bold text-green-400">{matched.length/2}/{symbols.length}</div>
             <div className="text-xs text-gray-400">Pairs</div>
           </div>
-          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+          <div className="text-center px-4 py-2 bg-black/30 rounded-xl backdrop-blur-sm">
             <div className="text-xl font-bold text-cyan-400">{prize}</div>
             <div className="text-xs text-gray-400">Prize</div>
           </div>
@@ -1136,10 +1273,10 @@ function HighLowGame({ onClose, onWin }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
+    <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4 anim-fade-in" onClick={onClose}>
       {showTutorial && <TutorialModal tutorialKey="highlow" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 anim-scale-in" onClick={(e) => e.stopPropagation()} style={{ border: "2px solid rgba(6,182,212,0.25)", boxShadow: "0 0 40px rgba(6,182,212,0.1), 0 20px 60px rgba(0,0,0,0.5)" }}>
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
             <HelpCircle className="w-6 h-6 text-cyan-400" />
@@ -3007,7 +3144,7 @@ export default function GamificationPlatform() {
       {/* Avatar Selector Modal */}
       {showAvatarSelector && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4">
-          <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
+          <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 anim-scale-in" onClick={(e) => e.stopPropagation()} style={{ border: "2px solid rgba(6,182,212,0.25)", boxShadow: "0 0 40px rgba(6,182,212,0.1), 0 20px 60px rgba(0,0,0,0.5)" }}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-3xl font-black tracking-tight">Choose Avatar</h2>
               <button 
@@ -3037,7 +3174,7 @@ export default function GamificationPlatform() {
                     showNotif('Avatar updated!');
                     setShowAvatarSelector(false);
                   }}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-cyan-400 to-blue-500 ring-2 ring-cyan-400' : 'bg-[#030810] hover:bg-white/[0.06]'}`}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-cyan-400 to-blue-500 ring-2 ring-cyan-400' : 'bg-black/30 hover:bg-white/[0.06]'}`}
                 >
                   {avatar}
                 </button>
@@ -3052,7 +3189,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-[#030810] h-full md:h-screen flex-shrink-0 transition-transform overflow-y-auto`} style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(6,182,212,0.1)', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 h-full md:h-screen flex-shrink-0 transition-transform overflow-y-auto`} style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRight: '1px solid rgba(6,182,212,0.1)', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="p-4">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -3209,28 +3346,31 @@ export default function GamificationPlatform() {
             <div className="hidden md:block w-32"></div>
 
             {/* Currency Display - Centered */}
-            <div className="flex items-center justify-center gap-6 flex-1 md:flex-none">
-              <div className="flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
-                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-14 h-14 object-contain" />
-                <div>
-                  <div className="font-black text-3xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
-                  <div className="text-sm text-gray-400">Coins</div>
+            <div className="flex items-center justify-center gap-3 flex-1 md:flex-none">
+              <button type="button" onClick={() => setShowBuyModal('coins')} className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border-2 border-yellow-500/40 backdrop-blur-sm transition-all duration-300 hover:border-yellow-400/60 hover:shadow-[0_0_20px_rgba(234,179,8,0.2)] group ${coinBounce ? 'anim-coin-bounce' : ''}`} style={{ background: 'rgba(0,0,0,0.4)', boxShadow: '0 0 15px rgba(234,179,8,0.1)' }}>
+                <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-8 h-8 object-contain" />
+                <div className="text-left">
+                  <div className="font-black text-lg text-yellow-400 leading-tight">{user.kwacha.toLocaleString()}</div>
+                  <div className="text-[10px] text-gray-500 font-bold tracking-wider">COINS</div>
                 </div>
-              </div>
-              <div className="flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-green-500/30 shadow-lg shadow-green-500/10">
-                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-14 h-14 object-contain" />
-                <div>
-                  <div className="font-black text-3xl text-green-400">{user.gems}</div>
-                  <div className="text-sm text-gray-400">Gems</div>
+                <span className="ml-1 w-6 h-6 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 font-black text-sm group-hover:bg-yellow-500/30 transition-colors">+</span>
+              </button>
+              <button type="button" onClick={() => setShowBuyModal('gems')} className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border-2 border-emerald-500/40 backdrop-blur-sm transition-all hover:border-emerald-400/60 hover:shadow-[0_0_20px_rgba(16,185,129,0.2)] group" style={{ background: 'rgba(0,0,0,0.4)', boxShadow: '0 0 15px rgba(16,185,129,0.1)' }}>
+                <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-8 h-8 object-contain" />
+                <div className="text-left">
+                  <div className="font-black text-lg text-green-400 leading-tight">{user.gems}</div>
+                  <div className="text-[10px] text-gray-500 font-bold tracking-wider">GEMS</div>
                 </div>
-              </div>
-              <div className="hidden sm:flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
-                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-14 h-14 object-contain" />
-                <div>
-                  <div className="font-black text-3xl text-blue-400">{user.diamonds}</div>
-                  <div className="text-sm text-gray-400">Diamonds</div>
+                <span className="ml-1 w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-sm group-hover:bg-emerald-500/30 transition-colors">+</span>
+              </button>
+              <button type="button" onClick={() => setShowBuyModal('diamonds')} className="hidden sm:flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border-2 border-blue-500/40 backdrop-blur-sm transition-all hover:border-blue-400/60 hover:shadow-[0_0_20px_rgba(59,130,246,0.2)] group" style={{ background: 'rgba(0,0,0,0.4)', boxShadow: '0 0 15px rgba(59,130,246,0.1)' }}>
+                <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-8 h-8 object-contain" />
+                <div className="text-left">
+                  <div className="font-black text-lg text-blue-400 leading-tight">{user.diamonds}</div>
+                  <div className="text-[10px] text-gray-500 font-bold tracking-wider">DIAMONDS</div>
                 </div>
-              </div>
+                <span className="ml-1 w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-black text-sm group-hover:bg-blue-500/30 transition-colors">+</span>
+              </button>
             </div>
 
             {/* Right Side */}
@@ -3283,7 +3423,7 @@ export default function GamificationPlatform() {
               {/* Quick Actions - 3 Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Daily Reward Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-green-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('daily')}>
+                <div className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-green-500/50 backdrop-blur-sm bg-black/30 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('daily')}>
                   <div className="relative h-44">
                     <img src={IMAGES.dailyGift} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -3334,7 +3474,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => playGame('wheel')}>
+                <div className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 backdrop-blur-sm bg-black/30 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => playGame('wheel')}>
                   <div className="relative h-44">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -3362,7 +3502,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Predictions Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-blue-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('predictions')}>
+                <div className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-blue-500/50 backdrop-blur-sm bg-black/30 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('predictions')}>
                   <div className="relative h-44">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -3420,7 +3560,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {MISSIONS.filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <div key={m.id} onClick={() => setTab('missions')} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
+                    <div key={m.id} onClick={() => setTab('missions')} className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 backdrop-blur-sm bg-black/30 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && (
@@ -3467,7 +3607,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {STORE_ITEMS.filter(i => i.featured || i.isNew).slice(0, 4).map(item => (
-                    <div key={item.id} onClick={() => setTab('store')} className="bg-[#030810] rounded-xl overflow-hidden border border-cyan-500/20 cursor-pointer hover:scale-[1.02] active:scale-[0.98] hover:border-cyan-500/50 transition-all">
+                    <div key={item.id} onClick={() => setTab('store')} className="rounded-xl overflow-hidden border border-cyan-500/20 backdrop-blur-sm bg-black/30 cursor-pointer hover:scale-[1.02] active:scale-[0.98] hover:border-cyan-500/50 transition-all">
                       <div className="relative h-32">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
                         {item.isNew && (
@@ -3503,7 +3643,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer" onClick={() => playGame(game.id)}>
+                  <div key={game.id} className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 backdrop-blur-sm bg-black/30 transition-all cursor-pointer" onClick={() => playGame(game.id)}>
                     <div className="relative h-44">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover" />
                       {user.gamePlays[game.id] > 0 && (
@@ -3583,7 +3723,7 @@ export default function GamificationPlatform() {
                           showNotif(`✅ ${m.name} completed! +${m.reward.kwacha} Coins`);
                         }
                       }}
-                      className={`bg-[#030810] rounded-2xl overflow-hidden border cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${done ? 'border-green-500/50 opacity-70' : 'border-cyan-500/20 hover:border-cyan-500/50'} transition-all`}>
+                      className={`rounded-2xl overflow-hidden border cursor-pointer backdrop-blur-sm bg-black/30 hover:scale-[1.02] active:scale-[0.98] ${done ? 'border-green-500/50 opacity-70' : 'border-cyan-500/20 hover:border-cyan-500/50'} transition-all`}>
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && !done && (
@@ -3607,7 +3747,7 @@ export default function GamificationPlatform() {
                           {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
                           <span className="text-cyan-400 font-bold">⚡ {m.xp} XP</span>
                         </div>
-                        <div className="h-2 bg-[#030810] rounded-full overflow-hidden">
+                        <div className="h-2 bg-white/[0.08] rounded-full overflow-hidden">
                           <div 
                             className={`h-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} 
                             style={{ width: `${(progress / m.target) * 100}%` }} 
@@ -3640,7 +3780,7 @@ export default function GamificationPlatform() {
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="bg-[#030810] rounded-2xl p-6 border border-cyan-500/20">
+              <div className="rounded-2xl p-6 border border-cyan-500/20 backdrop-blur-sm bg-black/30">
                 <div className="flex items-center justify-center gap-2 mb-6">
                   <Flame className="w-6 h-6 text-orange-500" />
                   <span className="text-3xl font-black tracking-tight">{user.streak} Day Streak</span>
@@ -3670,7 +3810,7 @@ export default function GamificationPlatform() {
                           }
                         }} 
                         disabled={!canClaim} 
-                        className={`p-3 rounded-2xl text-center transition-all ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 animate-pulse shadow-lg shadow-cyan-500/50' : 'bg-cyan-500/15 border-2 border-cyan-500/50' : 'bg-[#030810] border-2 border-gray-700/50'}`}
+                        className={`p-3 rounded-2xl text-center transition-all ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 animate-pulse shadow-lg shadow-cyan-500/50' : 'bg-cyan-500/15 border-2 border-cyan-500/50' : 'bg-black/30 border-2 border-gray-700/50'}`}
                       >
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
                         <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
@@ -3714,7 +3854,7 @@ export default function GamificationPlatform() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {VIP_TIERS.map(tier => (
-                  <div key={tier.name} className={`bg-[#030810] rounded-2xl p-4 border ${tier.name === vip.name ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-500/20'}`}>
+                  <div key={tier.name} className={`rounded-2xl p-4 border backdrop-blur-sm bg-black/30 ${tier.name === vip.name ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-500/20'}`}>
                     <div className="text-4xl mb-2">{tier.icon}</div>
                     <div className="font-bold">{tier.name}</div>
                     <div className="text-sm text-gray-400">K{tier.min}+ deposits</div>
@@ -3758,7 +3898,7 @@ export default function GamificationPlatform() {
                           showNotif('Not enough currency!', 'error');
                         }
                       }}
-                      className={`bg-[#030810] rounded-2xl overflow-hidden border cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${item.featured ? 'border-amber-500/50 hover:border-amber-400' : 'border-cyan-500/20 hover:border-cyan-500/50'}`}
+                      className={`rounded-2xl overflow-hidden border cursor-pointer backdrop-blur-sm bg-black/30 transition-all hover:scale-[1.02] active:scale-[0.98] ${item.featured ? 'border-amber-500/50 hover:border-amber-400' : 'border-cyan-500/20 hover:border-cyan-500/50'}`}
                     >
                       <div className="relative h-44">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
@@ -3810,7 +3950,7 @@ export default function GamificationPlatform() {
                 {MATCHES.map(m => {
                   const pred = user.predictions.find(p => p.id === m.id);
                   return (
-                    <div key={m.id} className={`bg-[#030810] rounded-2xl p-5 border ${m.featured ? 'border-amber-500/50' : 'border-cyan-500/20'}`}>
+                    <div key={m.id} className={`rounded-2xl p-5 border backdrop-blur-sm bg-black/30 ${m.featured ? 'border-amber-500/50' : 'border-cyan-500/20'}`}>
                       {m.featured && (
                         <div className="text-xs text-amber-400 font-bold mb-2">⭐ FEATURED MATCH</div>
                       )}
@@ -3851,7 +3991,7 @@ export default function GamificationPlatform() {
                                 addXP(5);
                                 showNotif('+5 XP!');
                               }} 
-                              className="p-3 bg-[#030810] hover:bg-cyan-600/20 border border-transparent hover:border-cyan-500 rounded-xl transition-all"
+                              className="p-3 bg-black/30 hover:bg-cyan-600/20 border border-transparent hover:border-cyan-500 rounded-xl transition-all"
                             >
                               <div className="font-bold text-lg">
                                 {choice === 'home' ? m.h : choice === 'draw' ? m.d : m.a}
@@ -3881,7 +4021,7 @@ export default function GamificationPlatform() {
                 </div>
               </div>
               {QUESTS.map(q => (
-                <div key={q.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+                <div key={q.id} className="rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 backdrop-blur-sm bg-black/30 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
                   onClick={() => showNotif(`🗺️ Quest "${q.name}" — coming soon!`)}
                 >
                   <div className="flex flex-col md:flex-row">
@@ -3896,7 +4036,7 @@ export default function GamificationPlatform() {
                       <p className="text-gray-400 mb-3">{q.desc}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {q.steps.map((s, i) => (
-                          <span key={i} className="px-3 py-1 bg-[#030810] border border-cyan-500/15 rounded-lg text-xs text-gray-400">{s}</span>
+                          <span key={i} className="px-3 py-1 bg-black/30 border border-cyan-500/15 rounded-lg text-xs text-gray-400">{s}</span>
                         ))}
                       </div>
                       <div className="flex items-center gap-4">
@@ -3932,7 +4072,7 @@ export default function GamificationPlatform() {
                   <p className="text-gray-400">Earn 500 Coins + 50 Gems per referral!</p>
                 </div>
                 <div className="flex gap-2 mb-6">
-                  <div className="flex-1 bg-[#030810] rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
+                  <div className="flex-1 rounded-xl p-4 font-mono backdrop-blur-sm bg-black/50 text-2xl text-center">PLAYER1X</div>
                   <button 
                     type="button" 
                     onClick={() => {
@@ -3945,15 +4085,15 @@ export default function GamificationPlatform() {
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                     <div className="text-3xl font-black text-cyan-400">{user.referrals}</div>
                     <div className="text-gray-400">Referrals</div>
                   </div>
-                  <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                     <div className="text-3xl font-black text-yellow-400">{user.referrals * 500}</div>
                     <div className="text-gray-400">Coins</div>
                   </div>
-                  <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                     <div className="text-3xl font-black text-green-400">{user.referrals * 50}</div>
                     <div className="text-gray-400">Gems</div>
                   </div>
@@ -4012,8 +4152,8 @@ export default function GamificationPlatform() {
                   { r: 4, n: 'Player1', k: user.kwacha, u: true },
                   { r: 5, n: 'WinMaster', k: 700 }
                 ].map(p => (
-                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl ${p.u ? 'bg-cyan-500/15 border border-cyan-500/50' : 'bg-[#030810]'}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-[#030810]'}`}>
+                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl ${p.u ? 'bg-cyan-500/15 border border-cyan-500/50' : 'bg-black/20'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-black/30'}`}>
                       {p.r}
                     </div>
                     <div className="flex-1 font-bold">{p.n}</div>
@@ -4048,24 +4188,24 @@ export default function GamificationPlatform() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                   <div className="text-3xl font-black tracking-tight text-yellow-400">{user.bets}</div>
                   <div className="text-gray-400">Bets Placed</div>
                 </div>
-                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                   <div className="text-3xl font-black tracking-tight text-green-400">{user.wins}</div>
                   <div className="text-gray-400">Bets Won</div>
                 </div>
-                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                   <div className="text-3xl font-black tracking-tight text-cyan-400">{user.gamesPlayed}</div>
                   <div className="text-gray-400">Games Played</div>
                 </div>
-                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                <div className="rounded-xl p-4 text-center backdrop-blur-sm bg-black/30">
                   <div className="text-3xl font-black tracking-tight text-cyan-300">{user.missionsComplete.length}</div>
                   <div className="text-gray-400">Missions Done</div>
                 </div>
               </div>
-              <div className="bg-[#030810] rounded-2xl p-5 border border-cyan-500/20">
+              <div className="rounded-2xl p-5 border backdrop-blur-sm bg-black/30 border-cyan-500/20">
                 <h3 className="font-bold text-lg mb-4">Wallet</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
