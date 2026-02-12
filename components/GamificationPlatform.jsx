@@ -235,7 +235,7 @@ const IMAGES = {
   tshirt: `${IMG_BASE}/tshirt.jpg`,
   freeBets: `${IMG_BASE}/free-bets.jpg`,
   slotMachine: `${IMG_BASE}/slot-machine.jpg`,
-  plinko: `${IMG_BASE}/slot-machine.jpg`,
+  plinko: `${IMG_BASE}/plinko.png`,
   playingCards: `${IMG_BASE}/playing-cards.jpg`,
   dice: `${IMG_BASE}/dice.jpg`,
   brainQuiz: `${IMG_BASE}/brain-quiz.jpg`,
@@ -768,9 +768,26 @@ const STORE_ITEMS = [
 ];
 
 const MATCHES = [
-  { id: 'm1', league: 'Premier League', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', home: 'Manchester City', away: 'Liverpool', h: 1.85, d: 3.60, a: 4.20, date: 'Today 20:00', reward: 50 },
-  { id: 'm2', league: 'La Liga', flag: '🇪🇸', home: 'Real Madrid', away: 'Barcelona', h: 2.10, d: 3.40, a: 3.50, date: 'Tomorrow 21:00', reward: 75, featured: true },
-  { id: 'm3', league: 'Champions League', flag: '🏆', home: 'Bayern Munich', away: 'PSG', h: 1.95, d: 3.70, a: 3.80, date: 'Feb 1, 20:00', reward: 100, featured: true },
+  // Premier League
+  { id: 'm1', league: 'Premier League', leagueShort: 'EPL', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', home: 'Manchester City', away: 'Liverpool', homeShort: 'MCI', awayShort: 'LIV', h: 1.85, d: 3.60, a: 4.20, time: 'Today 20:00', status: 'today', reward: 50 },
+  { id: 'm2', league: 'Premier League', leagueShort: 'EPL', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', home: 'Arsenal', away: 'Chelsea', homeShort: 'ARS', awayShort: 'CHE', h: 1.72, d: 3.80, a: 4.50, time: 'Today 17:30', status: 'today', reward: 50 },
+  { id: 'm3', league: 'Premier League', leagueShort: 'EPL', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', home: 'Tottenham', away: 'Manchester Utd', homeShort: 'TOT', awayShort: 'MUN', h: 2.20, d: 3.40, a: 3.10, time: 'Tomorrow 15:00', status: 'upcoming', reward: 50 },
+  // La Liga
+  { id: 'm4', league: 'La Liga', leagueShort: 'LaLiga', flag: '🇪🇸', home: 'Real Madrid', away: 'Barcelona', homeShort: 'RMA', awayShort: 'BAR', h: 2.10, d: 3.40, a: 3.50, time: 'Tomorrow 21:00', status: 'upcoming', reward: 75, featured: true },
+  { id: 'm5', league: 'La Liga', leagueShort: 'LaLiga', flag: '🇪🇸', home: 'Atletico Madrid', away: 'Sevilla', homeShort: 'ATM', awayShort: 'SEV', h: 1.65, d: 3.90, a: 5.00, time: 'Sat 18:00', status: 'upcoming', reward: 50 },
+  { id: 'm6', league: 'La Liga', leagueShort: 'LaLiga', flag: '🇪🇸', home: 'Real Sociedad', away: 'Villarreal', homeShort: 'RSO', awayShort: 'VIL', h: 2.30, d: 3.20, a: 3.10, time: 'Sat 20:30', status: 'upcoming', reward: 50 },
+  // Champions League
+  { id: 'm7', league: 'Champions League', leagueShort: 'UCL', flag: '🏆', home: 'Bayern Munich', away: 'PSG', homeShort: 'BAY', awayShort: 'PSG', h: 1.95, d: 3.70, a: 3.80, time: 'Wed 21:00', status: 'upcoming', reward: 100, featured: true },
+  { id: 'm8', league: 'Champions League', leagueShort: 'UCL', flag: '🏆', home: 'Inter Milan', away: 'Man City', homeShort: 'INT', awayShort: 'MCI', h: 2.80, d: 3.30, a: 2.50, time: 'Wed 21:00', status: 'upcoming', reward: 100, featured: true },
+  { id: 'm9', league: 'Champions League', leagueShort: 'UCL', flag: '🏆', home: 'Real Madrid', away: 'Dortmund', homeShort: 'RMA', awayShort: 'BVB', h: 1.55, d: 4.20, a: 5.50, time: 'Thu 21:00', status: 'upcoming', reward: 100 },
+  // Serie A
+  { id: 'm10', league: 'Serie A', leagueShort: 'Serie A', flag: '🇮🇹', home: 'AC Milan', away: 'Juventus', homeShort: 'MIL', awayShort: 'JUV', h: 2.40, d: 3.10, a: 3.00, time: 'Sun 20:45', status: 'upcoming', reward: 60 },
+  { id: 'm11', league: 'Serie A', leagueShort: 'Serie A', flag: '🇮🇹', home: 'Napoli', away: 'Roma', homeShort: 'NAP', awayShort: 'ROM', h: 1.80, d: 3.60, a: 4.30, time: 'Sun 18:00', status: 'upcoming', reward: 60 },
+  { id: 'm12', league: 'Serie A', leagueShort: 'Serie A', flag: '🇮🇹', home: 'Inter Milan', away: 'Atalanta', homeShort: 'INT', awayShort: 'ATA', h: 1.90, d: 3.50, a: 3.90, time: 'Mon 20:45', status: 'upcoming', reward: 60 },
+  // Bundesliga
+  { id: 'm13', league: 'Bundesliga', leagueShort: 'BuLi', flag: '🇩🇪', home: 'Bayern Munich', away: 'Dortmund', homeShort: 'BAY', awayShort: 'BVB', h: 1.50, d: 4.50, a: 5.80, time: 'Sat 18:30', status: 'upcoming', reward: 75, featured: true },
+  { id: 'm14', league: 'Bundesliga', leagueShort: 'BuLi', flag: '🇩🇪', home: 'RB Leipzig', away: 'Leverkusen', homeShort: 'RBL', awayShort: 'LEV', h: 2.60, d: 3.40, a: 2.70, time: 'Sun 15:30', status: 'upcoming', reward: 60 },
+  { id: 'm15', league: 'Bundesliga', leagueShort: 'BuLi', flag: '🇩🇪', home: 'Freiburg', away: 'Stuttgart', homeShort: 'FRE', awayShort: 'STU', h: 2.35, d: 3.30, a: 3.00, time: 'Sun 17:30', status: 'upcoming', reward: 50 },
 ];
 
 // ============================================================================
@@ -4440,6 +4457,7 @@ export default function GamificationPlatform() {
     }, 230);
   }, []);
   const [activeTutorial, setActiveTutorial] = useState(null);
+  const [predLeague, setPredLeague] = useState('All');
   const [notif, setNotif] = useState(null);
   const [notifLeaving, setNotifLeaving] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
@@ -6573,85 +6591,182 @@ export default function GamificationPlatform() {
           {/* ============================================================= */}
           {/* PREDICTIONS TAB */}
           {/* ============================================================= */}
-          {tab === 'predictions' && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <img src={IMAGES.soccerBall} alt="" className="w-14 h-14 rounded-xl object-cover" />
-                <div>
-                  <h1 className="text-2xl font-bold">Match Predictions</h1>
-                  <p className="text-gray-400">Predict outcomes and win Coins!</p>
-                </div>
-                <button 
-                  type="button" 
-                  onClick={() => setActiveTutorial('predictions')} 
-                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
-                >
-                  <HelpCircle className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="space-y-4">
-                {MATCHES.map(m => {
-                  const pred = user.predictions.find(p => p.id === m.id);
-                  return (
-                    <div key={m.id} className={`match-card p-5 ${m.featured ? 'border-amber-400/50' : ''}`}>
-                      {m.featured && (
-                        <div className="text-xs text-amber-400 font-bold mb-2">⭐ FEATURED MATCH</div>
-                      )}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-sm text-gray-400">
-                          <span>{m.flag}</span>
-                          <span>{m.league}</span>
-                          <span>•</span>
-                          <span>{m.date}</span>
-                        </div>
-                        <div className="flex items-center gap-1 text-yellow-400 font-bold">
-                          🪙 +{m.reward}
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-center flex-1">
-                          <div className="font-black text-xl">{m.home}</div>
-                        </div>
-                        <div className="text-2xl font-black text-cyan-400 px-4">VS</div>
-                        <div className="text-center flex-1">
-                          <div className="font-black text-xl">{m.away}</div>
-                        </div>
-                      </div>
-                      {pred ? (
-                        <div className="text-center p-3 bg-cyan-500/15 rounded-xl border-0 anim-scale-in">
-                          <span className="text-cyan-300">
-                            Your prediction: <strong>{pred.choice === 'home' ? m.home : pred.choice === 'away' ? m.away : 'Draw'}</strong>
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-3 gap-3">
-                          {['home', 'draw', 'away'].map(choice => (
-                            <button 
-                              key={choice} 
-                              type="button" 
-                              onClick={() => {
-                                setUser(u => ({ ...u, predictions: [...u.predictions, { id: m.id, choice }] }));
-                                addXP(5);
-                                showNotif('+5 XP!');
-                              }} 
-                              className="odds-btn p-3 transition-all duration-200 hover:scale-105 active:scale-95"
-                            >
-                              <div className="font-black text-xl">
-                                {choice === 'home' ? m.h : choice === 'draw' ? m.d : m.a}
-                              </div>
-                              <div className="text-xs text-gray-400 capitalize font-bold">{choice}</div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {tab === 'predictions' && (() => {
+            const leagues = ['All', ...new Set(MATCHES.map(m => m.leagueShort))];
+            const filtered = predLeague === 'All' ? MATCHES : MATCHES.filter(m => m.leagueShort === predLeague);
+            const todayMatches = filtered.filter(m => m.status === 'today');
+            const upcomingMatches = filtered.filter(m => m.status === 'upcoming');
+            const totalPredicted = user.predictions.length;
+            const featuredFirst = [...filtered].sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
 
-          {/* ============================================================= */}
+            const renderMatch = (m) => {
+              const pred = user.predictions.find(p => p.id === m.id);
+              return (
+                <div key={m.id} className={`match-card overflow-hidden transition-all duration-300 ${m.featured ? 'border-amber-400/30' : ''}`}>
+                  {/* Match header bar */}
+                  <div className={`flex items-center justify-between px-4 py-2 ${m.featured ? 'bg-gradient-to-r from-amber-500/10 to-transparent' : 'bg-white/[0.02]'}`}>
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
+                      <span>{m.flag}</span>
+                      <span>{m.league}</span>
+                      {m.featured && <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded text-[10px]">⭐ FEATURED</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-black ${m.status === 'live' ? 'bg-red-500 text-white' : m.status === 'today' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-white/5 text-gray-500'}`}>
+                        {m.status === 'live' ? '🔴 LIVE' : m.time}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4">
+                    {/* Teams row */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1 text-center">
+                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-lg font-black text-cyan-400 mb-1.5">
+                          {m.homeShort}
+                        </div>
+                        <div className="font-bold text-sm leading-tight">{m.home}</div>
+                      </div>
+
+                      <div className="px-3 flex flex-col items-center">
+                        <div className="text-[10px] text-gray-600 font-bold mb-1">VS</div>
+                        <div className="flex items-center gap-1 text-yellow-500">
+                          <span className="text-xs font-bold">🪙 {m.reward}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 text-center">
+                        <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-lg font-black text-cyan-400 mb-1.5">
+                          {m.awayShort}
+                        </div>
+                        <div className="font-bold text-sm leading-tight">{m.away}</div>
+                      </div>
+                    </div>
+
+                    {/* Odds buttons or prediction result */}
+                    {pred ? (
+                      <div className="flex items-center justify-center gap-2 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20 anim-scale-in">
+                        <Check className="w-4 h-4 text-cyan-400" />
+                        <span className="text-sm font-bold text-cyan-300">
+                          {pred.choice === 'home' ? m.home + ' Win' : pred.choice === 'away' ? m.away + ' Win' : 'Draw'}
+                        </span>
+                        <span className="text-xs text-cyan-500 ml-1">
+                          @ {pred.choice === 'home' ? m.h : pred.choice === 'draw' ? m.d : m.a}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { key: 'home', label: '1', sublabel: 'Home', odds: m.h },
+                          { key: 'draw', label: 'X', sublabel: 'Draw', odds: m.d },
+                          { key: 'away', label: '2', sublabel: 'Away', odds: m.a },
+                        ].map(opt => (
+                          <button
+                            key={opt.key}
+                            type="button"
+                            onClick={() => {
+                              setUser(u => ({ ...u, predictions: [...u.predictions, { id: m.id, choice: opt.key }] }));
+                              addXP(m.featured ? 10 : 5);
+                              addCoins(m.featured ? 10 : 5);
+                              showNotif(`🎯 Prediction placed! +${m.featured ? 10 : 5} XP`);
+                            }}
+                            className="odds-btn p-3 text-center transition-all duration-200 hover:scale-105 active:scale-95 group"
+                          >
+                            <div className="text-[10px] text-gray-500 font-bold mb-0.5">{opt.sublabel}</div>
+                            <div className="text-xl font-black text-white group-hover:text-cyan-400 transition-colors tabular-nums">{opt.odds.toFixed(2)}</div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            };
+
+            return (
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="flex items-center gap-4">
+                  <img src={IMAGES.soccerBall} alt="" className="w-12 h-12 rounded-xl object-cover" />
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-black tracking-tight">Predictions</h1>
+                    <p className="text-gray-500 text-sm">{MATCHES.length} matches available</p>
+                  </div>
+                  <button type="button" onClick={() => setActiveTutorial('predictions')} className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl">
+                    <HelpCircle className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Stats bar */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="match-card p-3 text-center">
+                    <div className="text-2xl font-black text-cyan-400">{totalPredicted}</div>
+                    <div className="text-[10px] text-gray-500 font-bold">Predicted</div>
+                  </div>
+                  <div className="match-card p-3 text-center">
+                    <div className="text-2xl font-black text-yellow-400">{MATCHES.filter(m => m.featured).length}</div>
+                    <div className="text-[10px] text-gray-500 font-bold">Featured</div>
+                  </div>
+                  <div className="match-card p-3 text-center">
+                    <div className="text-2xl font-black text-green-400">{MATCHES.length - totalPredicted}</div>
+                    <div className="text-[10px] text-gray-500 font-bold">Remaining</div>
+                  </div>
+                </div>
+
+                {/* League filter tabs */}
+                <div className="flex gap-1.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
+                  {leagues.map(l => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setPredLeague(l)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-black whitespace-nowrap transition-all ${predLeague === l
+                        ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40'
+                        : 'bg-white/5 text-gray-500 border border-transparent hover:text-gray-300'
+                      }`}
+                    >
+                      {l === 'All' ? `⚽ All (${MATCHES.length})` : l}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Today matches */}
+                {todayMatches.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" style={{ animation: 'pulseGlow 2s ease-in-out infinite' }} />
+                      <span className="text-sm font-black text-green-400">TODAY</span>
+                      <span className="text-xs text-gray-600">{todayMatches.length} matches</span>
+                    </div>
+                    <div className="space-y-3">
+                      {todayMatches.map(renderMatch)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upcoming matches */}
+                {upcomingMatches.length > 0 && (
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-black text-gray-400">UPCOMING</span>
+                      <span className="text-xs text-gray-600">{upcomingMatches.length} matches</span>
+                    </div>
+                    <div className="space-y-3">
+                      {upcomingMatches.map(renderMatch)}
+                    </div>
+                  </div>
+                )}
+
+                {filtered.length === 0 && (
+                  <div className="text-center py-10 text-gray-500">
+                    <div className="text-4xl mb-3">⚽</div>
+                    <div className="font-bold">No matches in this league</div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+
           {/* QUESTS TAB */}
           {/* ============================================================= */}
           {tab === 'quests' && (
