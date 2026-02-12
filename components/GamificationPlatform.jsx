@@ -5,7 +5,7 @@ import {
   Trophy, Star, Gift, Target, Crown, Gem, Diamond, Gamepad2, Store, Medal, 
   Zap, ChevronRight, Check, X, Users, Award, Sparkles, 
   Bell, Flame, ChevronDown, ChevronUp, User, Home, Menu, Copy, 
-  Map, HelpCircle, Play, RotateCcw
+  Map, HelpCircle, Play, RotateCcw, Clock, CheckCircle
 } from 'lucide-react';
 
 // ============================================================================
@@ -361,6 +361,42 @@ const getQuestions = (category, count = 10) => {
 };
 
 // Get daily challenge question (same for everyone each day)
+// Category rotation by day of week: Mon=sports, Tue=general, Wed=music, Thu=african, Fri=sports, Sat=music, Sun=general
+const DAILY_CAT_ROTATION = ['sports', 'general', 'music', 'african', 'sports', 'music', 'general'];
+const DAILY_CAT_INFO = { sports: { name: 'Sports', icon: '⚽', color: '#22c55e' }, general: { name: 'General Knowledge', icon: '🧠', color: '#22D3EE' }, music: { name: 'Music', icon: '🎵', color: '#ec4899' }, african: { name: 'African Culture', icon: '🌍', color: '#f59e0b' } };
+const DAILY_DIFFICULTY = [
+  { label: 'Easy', color: '#22c55e', bg: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.25)', reward: 100, time: 20 },
+  { label: 'Medium', color: '#f59e0b', bg: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.25)', reward: 200, time: 15 },
+  { label: 'Hard', color: '#ef4444', bg: 'rgba(239,68,68,.1)', border: 'rgba(239,68,68,.25)', reward: 300, time: 10 },
+];
+const DAILY_PERFECT_BONUS = { coins: 200, gems: 5 };
+const DAILY_STREAK_MULTIPLIERS = [1, 1, 1.25, 1.5, 1.75, 2];
+const getDailyStreakMult = (streak) => DAILY_STREAK_MULTIPLIERS[Math.min(streak, DAILY_STREAK_MULTIPLIERS.length - 1)];
+
+const getDailyQuestions = () => {
+  const today = new Date();
+  const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; // Mon=0 ... Sun=6
+  const category = DAILY_CAT_ROTATION[dayOfWeek];
+  const pool = [...(TRIVIA_QUESTIONS[category] || [])];
+  // Deterministic shuffle based on seed
+  const seededShuffle = (arr, s) => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = ((s * (i + 1) * 9301 + 49297) % 233280) % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+  const shuffled = seededShuffle(pool, seed);
+  return shuffled.slice(0, 3).map((q, i) => ({
+    ...q,
+    options: [q.a, ...q.wrong].sort(() => Math.random() - 0.5),
+    difficulty: i,
+    category,
+  }));
+};
+
 const getDailyQuestion = () => {
   const today = new Date();
   const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
@@ -370,6 +406,21 @@ const getDailyQuestion = () => {
   const catKeys = Object.keys(TRIVIA_QUESTIONS);
   const category = catKeys.find(k => TRIVIA_QUESTIONS[k].includes(q));
   return { ...q, options: [q.a, ...q.wrong].sort(() => Math.random() - 0.5), category };
+};
+
+// Daily free spins — 3 rotating games per day
+const DAILY_FREE_SPIN_ROTATION = [
+  ['wheel', 'scratch', 'dice'],
+  ['plinko', 'memory', 'highlow'],
+  ['tapfrenzy', 'stopclock', 'treasure'],
+  ['wheel', 'plinko', 'mines'],
+  ['scratch', 'tapfrenzy', 'dice'],
+  ['memory', 'stopclock', 'highlow'],
+  ['treasure', 'mines', 'wheel'],
+];
+const getDailyFreeSpinGames = () => {
+  const dayOfWeek = new Date().getDay() === 0 ? 6 : new Date().getDay() - 1;
+  return DAILY_FREE_SPIN_ROTATION[dayOfWeek];
 };
 
 // True/False questions for Speed Round
@@ -531,16 +582,16 @@ const TUTORIALS = {
     tips: ['Start with fewer mines to learn', 'Watch the multiplier climb — know when to stop!', 'The next-pick preview shows what you could win'],
   },
   daily: {
-    title: '🎁 Daily Rewards',
-    subtitle: 'Login every day for bigger prizes!',
+    title: '🎁 Daily Hub',
+    subtitle: 'Complete 3 daily tasks for bonus rewards!',
     image: 'dailyGift',
     steps: [
-      { icon: '📅', title: 'Visit Daily', desc: 'Come back every day to claim your reward. Consistency pays!' },
-      { icon: '📈', title: 'Growing Rewards', desc: 'Day 1: 10K → Day 7: 250K + Gems + Diamonds!' },
-      { icon: '⚠️', title: 'Keep Your Streak', desc: 'Missing a day resets your streak back to Day 1!' },
+      { icon: '🎯', title: '3 Daily Tasks', desc: 'Claim your streak, answer trivia, and play a game each day.' },
+      { icon: '🏆', title: 'Bonus Reward', desc: 'Complete all 3 tasks for a 200 Coin + 5 Gem + 100 XP bonus!' },
+      { icon: '📈', title: 'Streak Calendar', desc: 'Day 1: 10 → Day 7: 250 + Gems + Diamonds. Don\'t break the streak!' },
     ],
-    prizes: ['Day 1: 10 Coins', 'Day 4: 75K + 5 Gems', 'Day 7: 250K + 25 Gems + 1 Diamond 💎'],
-    tips: ['Set a daily reminder!', 'Claim within 24 hours', 'VIP gets 2x rewards'],
+    prizes: ['Daily Trivia: 500 Coins + 10 Gems', 'All Tasks Bonus: 200 🪙 + 5 💚', 'Day 7 Streak: 250 + 25g + 💎'],
+    tips: ['Complete all 3 tasks every day', 'Trivia gives the biggest single reward', 'Missing a day resets your streak!'],
   },
   missions: {
     title: '🎯 Missions',
@@ -4550,63 +4601,110 @@ function QuestDetailModal({ quest, questProgress, questsComplete, onClose, onCla
 
 
 // ============================================================================
-// DAILY CHALLENGE COMPONENT (inline card for Overview)
+// DAILY TRIVIA CHALLENGE (3 questions: Easy → Medium → Hard)
 // ============================================================================
-function DailyChallengeCard({ user, onAnswer, onClose }) {
-  const [question] = useState(() => getDailyQuestion());
+function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
+  const [questions] = useState(() => getDailyQuestions());
+  const [qIndex, setQIndex] = useState(user.dailyTriviaProgress?.answered || 0);
   const [selected, setSelected] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
-  const [showResult, setShowResult] = useState(false);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(0);
+  const [results, setResults] = useState(user.dailyTriviaProgress?.results || []);
+  const [phase, setPhase] = useState(user.dailyTriviaProgress?.answered >= 3 ? 'complete' : 'playing'); // playing | reveal | next | complete
+  const [countdownAnim, setCountdownAnim] = useState(false);
   const timerRef = useRef(null);
-  const answered = user.dailyChallengeAnswered;
 
+  const todayCat = questions[0]?.category || 'general';
+  const catInfo = DAILY_CAT_INFO[todayCat] || DAILY_CAT_INFO.general;
+  const allDone = phase === 'complete' || qIndex >= 3;
+  const correctCount = results.filter(r => r).length;
+  const isPerfect = correctCount === 3;
+  const streakMult = getDailyStreakMult(user.dailyTriviaStreak || 0);
+
+  // Start timer for current question
   useEffect(() => {
-    if (!answered && !showAnswer) {
-      timerRef.current = setInterval(() => {
-        setTimer(t => {
-          if (t <= 1) {
-            clearInterval(timerRef.current);
-            setShowAnswer(true);
-            setTimeout(() => { onAnswer(false); setShowResult(true); }, 1500);
-            return 0;
-          }
-          return t - 1;
-        });
-      }, 1000);
-      return () => clearInterval(timerRef.current);
-    }
-  }, [answered, showAnswer]);
+    if (phase !== 'playing' || allDone || qIndex >= 3) return;
+    const diff = DAILY_DIFFICULTY[qIndex];
+    setTimer(diff.time);
+    setSelected(null);
+    setShowAnswer(false);
+    timerRef.current = setInterval(() => {
+      setTimer(t => {
+        if (t <= 6 && t > 0) setCountdownAnim(true);
+        if (t <= 1) {
+          clearInterval(timerRef.current);
+          setShowAnswer(true);
+          setPhase('reveal');
+          const newResults = [...results, false];
+          setResults(newResults);
+          setTimeout(() => advance(newResults), 2000);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => { clearInterval(timerRef.current); setCountdownAnim(false); };
+  }, [qIndex, phase]);
 
   const selectAnswer = (opt) => {
-    if (showAnswer || selected || answered) return;
+    if (showAnswer || selected || phase !== 'playing') return;
     clearInterval(timerRef.current);
     setSelected(opt);
     setShowAnswer(true);
-    const correct = opt === question.a;
-    setTimeout(() => { onAnswer(correct); setShowResult(true); }, 1500);
+    setPhase('reveal');
+    setCountdownAnim(false);
+    const correct = opt === questions[qIndex].a;
+    const newResults = [...results, correct];
+    setResults(newResults);
+    setTimeout(() => advance(newResults), 1800);
   };
 
-  if (answered || showResult) {
-    const correct = user.dailyChallengeCorrect;
+  const advance = (newResults) => {
+    const nextIdx = qIndex + 1;
+    if (nextIdx >= 3) {
+      setPhase('complete');
+      onAnswer(newResults);
+    } else {
+      setQIndex(nextIdx);
+      setPhase('playing');
+    }
+  };
+
+  // COMPLETE STATE
+  if (allDone) {
+    const finalResults = results.length >= 3 ? results : user.dailyTriviaProgress?.results || [];
+    const finalCorrect = finalResults.filter(r => r).length;
+    const finalPerfect = finalCorrect === 3;
+    const baseReward = finalResults.reduce((sum, r, i) => sum + (r ? DAILY_DIFFICULTY[i].reward : 0), 0);
+    const totalCoins = Math.floor((baseReward + (finalPerfect ? DAILY_PERFECT_BONUS.coins : 0)) * streakMult);
     return (
-      <div className={`bg-black/60 rounded-3xl overflow-hidden border ${correct ? 'border-green-500/30' : 'border-cyan-500/30'} relative`}>
+      <div className="match-card overflow-hidden" style={{ border: finalPerfect ? '1.5px solid rgba(255,215,0,.3)' : '1.5px solid rgba(6,182,212,.15)' }}>
+        <style>{`@keyframes dtConfetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-60px) rotate(360deg);opacity:0}}`}</style>
         <div className="p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${correct ? 'bg-green-500/20' : 'bg-red-500/10'}`}>
-              {correct ? '🎉' : '🎯'}
+          <div className="flex items-center gap-3 mb-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${finalPerfect ? 'bg-amber-500/20' : 'bg-cyan-500/15'}`}>
+              {finalPerfect ? '🏆' : finalCorrect > 0 ? '🎯' : '😅'}
             </div>
-            <div>
-              <div className="font-bold text-base">Daily Challenge</div>
-              <div className={`text-sm ${correct ? 'text-green-400' : 'text-gray-400'}`}>
-                {correct ? 'Correct! +500 Coins + 10 Gems' : '+25 consolation Coins. Come back tomorrow!'}
+            <div className="flex-1">
+              <div className="font-bold text-base">Daily Trivia Complete!</div>
+              <div className={`text-sm ${finalPerfect ? 'text-amber-400' : 'text-gray-400'}`}>
+                {finalPerfect ? `Perfect! +${totalCoins} Coins + ${DAILY_PERFECT_BONUS.gems} Gems` : `${finalCorrect}/3 Correct — +${totalCoins} Coins`}
+                {streakMult > 1 && <span className="text-cyan-400 ml-1">({streakMult}x streak)</span>}
               </div>
             </div>
           </div>
-          {!correct && (
-            <div className="bg-black/60 rounded-xl p-3 border border-white/10">
-              <div className="text-xs text-gray-500 mb-1">The correct answer was:</div>
-              <div className="text-sm font-bold text-green-400">{question.a}</div>
+          <div className="flex gap-2 mb-3">
+            {finalResults.map((r, i) => (
+              <div key={i} className={`flex-1 p-2.5 rounded-xl text-center border ${r ? 'bg-green-500/10 border-green-500/25' : 'bg-red-500/8 border-red-500/20'}`}>
+                <div className="text-xs font-bold mb-1" style={{ color: DAILY_DIFFICULTY[i].color }}>{DAILY_DIFFICULTY[i].label}</div>
+                <div className="text-lg">{r ? '✅' : '❌'}</div>
+              </div>
+            ))}
+          </div>
+          {(user.dailyTriviaStreak || 0) > 1 && (
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/8 border border-amber-500/15">
+              <span className="text-lg">🔥</span>
+              <span className="text-xs font-bold text-amber-400">{user.dailyTriviaStreak} Day Streak — {streakMult}x Multiplier!</span>
             </div>
           )}
         </div>
@@ -4614,43 +4712,97 @@ function DailyChallengeCard({ user, onAnswer, onClose }) {
     );
   }
 
+  // PLAYING STATE
+  const q = questions[qIndex];
+  const diff = DAILY_DIFFICULTY[qIndex];
+  if (!q) return null;
+
   return (
-    <div className="bg-black/60 rounded-3xl overflow-hidden border-2 border-amber-400/50 shadow-lg shadow-amber-500/15">
-      <div className="relative h-28 overflow-hidden">
-        <img src={IMAGES.dailyChallenge} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1520] via-[#0a1520]/40 to-transparent" />
-        <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between">
-          <div>
-            <div className="font-bold text-lg">🎯 Daily Challenge</div>
-            <div className="text-xs text-amber-300">500 Coins + 10 Gems if correct!</div>
+    <div className="match-card overflow-hidden" style={{ border: `1.5px solid ${diff.border}` }}>
+      <style>{`
+        @keyframes dtPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+        @keyframes dtShake{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
+        @keyframes dtTimerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+        @keyframes dtGlow{0%,100%{box-shadow:0 0 0 0 ${diff.color}30}50%{box-shadow:0 0 20px 4px ${diff.color}15}}
+        @keyframes dtSlideUp{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+        .dt-correct{animation:dtPop .4s ease both}
+        .dt-wrong{animation:dtShake .5s ease both}
+      `}</style>
+
+      {/* Header with category + progress */}
+      <div className="px-5 pt-4 pb-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${diff.border}` }}>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: diff.bg }}>
+            {catInfo.icon}
           </div>
-          <div className={`text-sm font-bold px-3 py-1 rounded-full ${timer <= 10 ? 'bg-red-500/30 text-red-400 animate-pulse' : 'bg-amber-500/30 text-amber-300'}`}>
+          <div>
+            <div className="font-bold text-sm flex items-center gap-2">
+              🎯 Daily Trivia
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wider" style={{ background: diff.bg, color: diff.color, border: `1px solid ${diff.border}` }}>
+                {diff.label.toUpperCase()}
+              </span>
+            </div>
+            <div className="text-xs text-gray-500">{catInfo.name} — Q{qIndex + 1} of 3</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {/* Progress dots */}
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="w-2.5 h-2.5 rounded-full transition-all" style={{
+                background: i < qIndex ? (results[i] ? '#22c55e' : '#ef4444') : i === qIndex ? diff.color : 'rgba(255,255,255,.1)',
+                boxShadow: i === qIndex ? `0 0 8px ${diff.color}40` : 'none',
+              }} />
+            ))}
+          </div>
+          {/* Timer */}
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold font-mono ${timer <= 5 ? 'bg-red-500/20 text-red-400' : 'text-white'}`}
+            style={{ background: timer > 5 ? diff.bg : undefined, animation: countdownAnim ? 'dtTimerPulse .5s ease infinite' : 'none' }}>
             ⏱️ {timer}s
           </div>
         </div>
       </div>
-      <div className="p-4">
-        <div className="bg-black/60 rounded-xl p-3 border border-white/10 mb-3">
-          <p className="font-bold text-sm">{question.q}</p>
+
+      {/* Question */}
+      <div className="p-5" style={{ animation: 'dtSlideUp .35s ease-out' }}>
+        <div className="p-3.5 rounded-xl mb-4 border border-white/8" style={{ background: 'rgba(0,0,0,.3)' }}>
+          <p className="font-bold text-sm leading-relaxed">{q.q}</p>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-        {question.options.map((opt, i) => {
-          const isCorrect = opt === question.a;
-          const isSelected = opt === selected;
-          let bg = 'bg-black/40 hover:bg-cyan-500/20 border border-white/10 ';
-          if (showAnswer) {
-            if (isCorrect) bg = 'bg-green-500/20 border border-green-500/50';
-            else if (isSelected && !isCorrect) bg = 'bg-red-500/20 border border-red-500/50';
-            else bg = 'bg-black/30 border border-cyan-900/20 opacity-50';
-          }
-          return (
-            <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
-              className={`p-2.5 rounded-xl font-medium text-xs transition-all ${bg}`}
-              style={{ animation: showAnswer && isCorrect ? 'correctPop 0.4s ease both' : showAnswer && isSelected && !isCorrect ? 'wrongShake 0.5s ease both' : 'none' }}>
-              {opt}
-            </button>
-          );
-        })}
+
+        {/* Reward preview */}
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-bold text-gray-500 tracking-widest">PICK YOUR ANSWER</span>
+          <span className="text-xs font-bold" style={{ color: diff.color }}>+{diff.reward} 🪙</span>
+        </div>
+
+        {/* Options */}
+        <div className="grid grid-cols-2 gap-2.5">
+          {q.options.map((opt, i) => {
+            const isCorrect = opt === q.a;
+            const isSelected = opt === selected;
+            let classes = 'bg-black/30 border border-white/8 hover:border-cyan-500/30 hover:bg-cyan-500/8';
+            let extraStyle = {};
+            if (showAnswer) {
+              if (isCorrect) { classes = 'dt-correct border-2'; extraStyle = { background: 'rgba(34,197,94,.12)', borderColor: 'rgba(34,197,94,.5)', boxShadow: '0 0 15px rgba(34,197,94,.15)' }; }
+              else if (isSelected && !isCorrect) { classes = 'dt-wrong border-2'; extraStyle = { background: 'rgba(239,68,68,.12)', borderColor: 'rgba(239,68,68,.5)' }; }
+              else { classes = 'bg-black/20 border border-white/3 opacity-40'; }
+            }
+            return (
+              <button key={i} type="button" onClick={() => selectAnswer(opt)} disabled={showAnswer}
+                className={`p-3 rounded-xl font-medium text-xs transition-all ${classes}`}
+                style={{ ...extraStyle, animationDelay: showAnswer && isCorrect ? '.1s' : '0s' }}>
+                <span className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold" style={{
+                    background: showAnswer ? (isCorrect ? 'rgba(34,197,94,.2)' : isSelected ? 'rgba(239,68,68,.2)' : 'rgba(255,255,255,.05)') : 'rgba(255,255,255,.06)',
+                    color: showAnswer ? (isCorrect ? '#22c55e' : isSelected ? '#ef4444' : '#555') : '#888',
+                  }}>
+                    {showAnswer ? (isCorrect ? '✓' : isSelected ? '✗' : String.fromCharCode(65 + i)) : String.fromCharCode(65 + i)}
+                  </span>
+                  {opt}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -4676,6 +4828,18 @@ export default function GamificationPlatform() {
   }, []);
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [predLeague, setPredLeague] = useState('All');
+  const [dailyCountdown, setDailyCountdown] = useState('');
+  useEffect(() => {
+    const calc = () => {
+      const now = new Date(), mid = new Date(now);
+      mid.setHours(24,0,0,0);
+      const d = mid - now;
+      setDailyCountdown(`${Math.floor(d/3600000)}h ${Math.floor((d%3600000)/60000)}m ${Math.floor((d%60000)/1000)}s`);
+    };
+    calc();
+    const iv = setInterval(calc, 1000);
+    return () => clearInterval(iv);
+  }, []);
   const [notif, setNotif] = useState(null);
   const [notifLeaving, setNotifLeaving] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
@@ -5179,6 +5343,12 @@ export default function GamificationPlatform() {
     triviaPlays: { classicQuiz: 3, speedRound: 5, streakTrivia: 3 },
     dailyChallengeAnswered: false,
     dailyChallengeCorrect: false,
+    dailyTasksDone: [],
+    dailyBonusClaimed: false,
+    dailyTriviaProgress: { answered: 0, correct: 0, results: [] },
+    dailyTriviaStreak: 0,
+    dailyFreeSpinsUsed: [],
+    dailyCoinBonusClaims: 0,
     questProgress: {},
     questsComplete: [],
   });
@@ -5222,7 +5392,7 @@ export default function GamificationPlatform() {
       if (prize.xp) addXP(prize.xp);
       showNotif(`🎉 Won: ${name}!`);
     }
-    setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+    setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
     setGamesPlayedToday(prev => new Set([...prev, 'wheel']));
     trackMission('gamePlayed', { gameId: 'wheel', coinsWon: typeof prize === 'number' ? prize : (prize.kwacha || 0), gamesSet: gamesPlayedToday });
     trackQuest('wheelSpun', {});
@@ -5471,21 +5641,41 @@ export default function GamificationPlatform() {
     }
   };
 
-  const handleDailyChallenge = (correct) => {
-    if (correct) {
-      addCoins(500);
-      addGems(10);
-      addXP(50);
-      showNotif('🎯 Daily Challenge: +500 Coins + 10 Gems!');
-    } else {
-      addCoins(25);
-      showNotif('🎯 +25 consolation Coins');
-    }
-    setUser(u => ({ ...u, dailyChallengeAnswered: true, dailyChallengeCorrect: correct }));
-    trackMission('triviaPlayed', { triviaType: 'daily', correct });
+  const handleDailyChallenge = (resultsArr) => {
+    // resultsArr is [bool, bool, bool] for the 3 questions
+    const correctCount = resultsArr.filter(r => r).length;
+    const isPerfect = correctCount === 3;
+    const streak = isPerfect ? (user.dailyTriviaStreak || 0) + 1 : 0;
+    const streakMult = getDailyStreakMult(streak);
+    const baseCoins = resultsArr.reduce((sum, r, i) => sum + (r ? DAILY_DIFFICULTY[i].reward : 0), 0);
+    const bonusCoins = isPerfect ? DAILY_PERFECT_BONUS.coins : 0;
+    const totalCoins = Math.floor((baseCoins + bonusCoins) * streakMult);
+    const totalGems = isPerfect ? DAILY_PERFECT_BONUS.gems : 0;
+    const xpEarned = correctCount * 20 + (isPerfect ? 50 : 0);
+
+    if (totalCoins > 0) addCoins(totalCoins);
+    if (totalGems > 0) addGems(totalGems);
+    if (xpEarned > 0) addXP(xpEarned);
+
+    const msg = isPerfect
+      ? `🏆 Perfect Trivia! +${totalCoins} Coins + ${totalGems} Gems${streakMult > 1 ? ` (${streakMult}x streak!)` : '!'}`
+      : correctCount > 0
+        ? `🎯 ${correctCount}/3 Correct — +${totalCoins} Coins`
+        : '🎯 0/3 — Better luck tomorrow!';
+    showNotif(msg);
+
+    setUser(u => ({
+      ...u,
+      dailyChallengeAnswered: true,
+      dailyChallengeCorrect: isPerfect,
+      dailyTriviaProgress: { answered: 3, correct: correctCount, results: resultsArr },
+      dailyTriviaStreak: streak,
+      dailyTasksDone: [...new Set([...u.dailyTasksDone, 'trivia'])],
+    }));
+    trackMission('triviaPlayed', { triviaType: 'daily', correct: isPerfect });
     trackQuest('triviaPlayed', {});
-    if (correct) { trackMission('triviaCorrect', {}); trackQuest('triviaCorrect', { count: 1 }); }
-    trackQuest('xpEarned', { amount: correct ? 50 : 0 });
+    if (correctCount > 0) { trackMission('triviaCorrect', { count: correctCount }); trackQuest('triviaCorrect', { count: correctCount }); }
+    trackQuest('xpEarned', { amount: xpEarned });
   };
 
   const tabs = [
@@ -5640,7 +5830,7 @@ export default function GamificationPlatform() {
           onWin={(n) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'scratch']));
             trackMission('gamePlayed', { gameId: 'scratch', coinsWon: n, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'scratch' });
@@ -5654,7 +5844,7 @@ export default function GamificationPlatform() {
           onWin={(n) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'dice']));
             trackMission('gamePlayed', { gameId: 'dice', coinsWon: n, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'dice' });
@@ -5669,7 +5859,7 @@ export default function GamificationPlatform() {
             addCoins(n);
             addXP(20);
             showNotif(`🎉 +${n} Coins + 20 XP!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'memory']));
             trackMission('gamePlayed', { gameId: 'memory', coinsWon: n, memoryMoves: meta?.moves, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'memory' });
@@ -5683,7 +5873,7 @@ export default function GamificationPlatform() {
           onWin={(n) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'highlow']));
             trackMission('gamePlayed', { gameId: 'highlow', coinsWon: n, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'highlow' });
@@ -5699,7 +5889,7 @@ export default function GamificationPlatform() {
           onWin={(n) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'plinko']));
             trackMission('gamePlayed', { gameId: 'plinko', coinsWon: n, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'plinko' });
@@ -5713,7 +5903,7 @@ export default function GamificationPlatform() {
           onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'tapfrenzy']));
             trackMission('gamePlayed', { gameId: 'tapfrenzy', coinsWon: n, tapScore: meta?.score, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'tapfrenzy' });
@@ -5727,7 +5917,7 @@ export default function GamificationPlatform() {
           onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'stopclock']));
             trackMission('gamePlayed', { gameId: 'stopclock', coinsWon: n, clockDiff: meta?.diff, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'stopclock' });
@@ -5741,7 +5931,7 @@ export default function GamificationPlatform() {
           onWin={(n, meta) => {
             addCoins(n);
             showNotif(`🎉 +${n} Coins!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'treasure']));
             trackMission('gamePlayed', { gameId: 'treasure', coinsWon: n, foundCrown: meta?.foundCrown, survivedNoTrap: meta?.survivedNoTrap, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'treasure' });
@@ -5759,7 +5949,7 @@ export default function GamificationPlatform() {
           onWin={(n) => {
             addCoins(n);
             showNotif(`💎 +${n} Coins from Mines!`);
-            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1 }));
+            setUser(u => ({ ...u, gamesPlayed: u.gamesPlayed + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'game'])] }));
             setGamesPlayedToday(prev => new Set([...prev, 'mines']));
             trackMission('gamePlayed', { gameId: 'mines', coinsWon: n, gamesSet: gamesPlayedToday });
             trackQuest('gamePlayed', { gameId: 'mines' });
@@ -6156,7 +6346,8 @@ export default function GamificationPlatform() {
                           setUser(u => ({ 
                             ...u, 
                             dailyClaimed: true, 
-                            dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1 
+                            dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1,
+                            dailyTasksDone: [...new Set([...u.dailyTasksDone, 'claim'])]
                           }));
                           trackMission('dailyClaimed');
                           trackMission('xpEarned', { amount: 20 });
@@ -6285,11 +6476,51 @@ export default function GamificationPlatform() {
               </div>
 
 
-                {/* Daily Trivia Challenge */}
-                <DailyChallengeCard 
-                  user={user} 
-                  onAnswer={handleDailyChallenge}
-                />
+                {/* Daily Hub Promo */}
+                {(() => {
+                  const dtCount = [
+                    user.dailyTasksDone.includes('trivia'),
+                    (user.dailyFreeSpinsUsed || []).length > 0,
+                    (user.dailyCoinBonusClaims || 0) > 0,
+                  ].filter(Boolean).length;
+                  const dtAll = dtCount >= 3;
+                  const todayCat = DAILY_CAT_INFO[DAILY_CAT_ROTATION[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]] || DAILY_CAT_INFO.general;
+                  return (
+                    <div 
+                      onClick={() => setTab('daily')} 
+                      className="match-card p-4 cursor-pointer hover:border-cyan-500/30 transition-all group"
+                      style={{ border: dtAll ? '1px solid rgba(34,197,94,0.25)' : '1px solid rgba(251,191,36,0.25)' }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${dtAll ? 'bg-green-500/15' : 'bg-amber-500/15'}`}>
+                          {dtAll ? '🎉' : '🎯'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-bold text-base">Daily Hub</div>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {['trivia','freespin','coinbonus'].map((t, i) => (
+                              <div key={t} className={`w-2 h-2 rounded-full transition-colors ${[
+                                user.dailyTasksDone.includes('trivia'),
+                                (user.dailyFreeSpinsUsed || []).length > 0,
+                                (user.dailyCoinBonusClaims || 0) > 0,
+                              ][i] ? 'bg-green-400' : 'bg-gray-600'}`} />
+                            ))}
+                            <span className={`text-xs font-bold ml-1 ${dtAll ? 'text-green-400' : 'text-amber-400'}`}>
+                              {dtAll ? 'All done! Claim bonus →' : !user.dailyTasksDone.includes('trivia') ? `${todayCat.icon} ${todayCat.name} trivia + free spins + bonus` : `${dtCount}/3 tasks — earn bonus rewards`}
+                            </span>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-500 group-hover:text-cyan-400 transition-colors" />
+                      </div>
+                      <div className="h-1.5 bg-black/40 rounded-full overflow-hidden mt-3">
+                        <div className="h-full rounded-full transition-all duration-700" style={{
+                          width: `${(dtCount / 3) * 100}%`,
+                          background: dtAll ? 'linear-gradient(90deg,#22c55e,#10b981)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
+                        }} />
+                      </div>
+                    </div>
+                  );
+                })()}
 
               {/* Featured Store Section */}
               <div>
@@ -6663,26 +6894,208 @@ export default function GamificationPlatform() {
           {/* ============================================================= */}
           {/* DAILY TAB */}
           {/* ============================================================= */}
-          {tab === 'daily' && (
-            <div className="space-y-6">
+          {tab === 'daily' && (() => {
+            const dtFreeSpinGames = getDailyFreeSpinGames();
+            const dtFreeSpinsUsed = user.dailyFreeSpinsUsed || [];
+            const dtCoinClaims = user.dailyCoinBonusClaims || 0;
+            const dtTasksDone = [
+              user.dailyTasksDone.includes('trivia'),
+              dtFreeSpinsUsed.length > 0,
+              dtCoinClaims > 0,
+            ];
+            const dtCount = dtTasksDone.filter(Boolean).length;
+            const dtAll = dtCount >= 3;
+            const dtPct = (dtCount / 3) * 100;
+            const DAILY_TASKS = [
+              { id: 'trivia', icon: '🎯', title: 'Daily Trivia', desc: 'Answer 3 questions (Easy→Hard)', done: user.dailyTasksDone.includes('trivia'), reward: 'Up to 600 🪙' },
+              { id: 'freespin', icon: '🎰', title: 'Free Spin', desc: 'Use a daily free game play', done: dtFreeSpinsUsed.length > 0, reward: 'Free Play' },
+              { id: 'coinbonus', icon: '💰', title: 'Coin Bonus', desc: 'Claim your 4-hourly bonus', done: dtCoinClaims > 0, reward: '50 🪙' },
+            ];
+            return (
+            <div className="space-y-5">
+              {/* Header */}
               <div className="flex items-center gap-4">
-                <img src={IMAGES.dailyGift} alt="" className="w-14 h-14 rounded-xl object-cover" />
-                <div>
-                  <h1 className="text-3xl font-black tracking-tight">Daily Rewards</h1>
-                  <p className="text-gray-400">Login every day for bigger rewards!</p>
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-3xl">🎁</div>
+                <div className="flex-1">
+                  <h1 className="text-3xl font-black tracking-tight">Daily Hub</h1>
+                  <p className="text-gray-400 text-sm">Complete tasks for bonus rewards!</p>
                 </div>
-                <button 
-                  type="button" 
-                  onClick={() => setActiveTutorial('daily')} 
-                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
-                >
-                  <HelpCircle className="w-5 h-5" />
-                </button>
+                <div className="text-right">
+                  <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Resets in</span>
+                  </div>
+                  <div className="text-amber-400 font-bold text-sm font-mono">{dailyCountdown}</div>
+                </div>
               </div>
-              <div className="match-card p-6">
-                <div className="flex items-center justify-center gap-2 mb-6">
-                  <Flame className="w-6 h-6 text-orange-500" />
-                  <span className="text-2xl font-bold">{user.streak} Day Streak</span>
+
+              {/* ===== DAILY PROGRESS ===== */}
+              <div className="match-card p-5" style={{ animation: dtAll && !user.dailyBonusClaimed ? 'bonusGlow 2s ease-in-out infinite' : 'none' }}>
+                <style>{`@keyframes bonusGlow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.2)}50%{box-shadow:0 0 25px 5px rgba(251,191,36,.12)}}`}</style>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-amber-400" />
+                    <span className="font-bold text-base">Daily Progress</span>
+                  </div>
+                  <span className="text-sm font-bold text-cyan-400">{dtCount}/3</span>
+                </div>
+                <div className="h-3 bg-black/40 rounded-full overflow-hidden mb-4 border border-white/5">
+                  <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
+                    width: `${dtPct}%`,
+                    background: dtAll ? 'linear-gradient(90deg,#fbbf24,#f59e0b,#d97706)' : 'linear-gradient(90deg,#22D3EE,#06B6D4)',
+                  }} />
+                </div>
+
+                {/* Task checklist */}
+                <div className="space-y-2.5">
+                  {DAILY_TASKS.map(task => (
+                    <div key={task.id} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${task.done ? 'bg-green-500/8 border border-green-500/15' : 'bg-black/20 border border-white/5'}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${task.done ? 'bg-green-500/20' : 'bg-black/30'}`}>
+                        {task.done ? <CheckCircle className="w-5 h-5 text-green-400" /> : <span>{task.icon}</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className={`font-bold text-sm ${task.done ? 'text-green-400 line-through opacity-70' : ''}`}>{task.title}</div>
+                        <div className="text-xs text-gray-500">{task.desc}</div>
+                      </div>
+                      <div className={`text-xs font-bold px-2 py-1 rounded-lg ${task.done ? 'bg-green-500/15 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                        {task.done ? '✓ Done' : task.reward}
+                      </div>
+                      {!task.done && (
+                        <div className="px-2 py-1 rounded-lg text-xs font-bold text-cyan-400 opacity-50">↓</div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Completion bonus */}
+                <div className={`mt-4 p-3.5 rounded-xl border transition-all duration-500 ${
+                  dtAll && !user.dailyBonusClaimed
+                    ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-400/30'
+                    : user.dailyBonusClaimed
+                      ? 'bg-green-500/8 border-green-500/20'
+                      : 'bg-black/20 border-white/5 opacity-50'
+                }`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${dtAll ? 'bg-amber-500/20' : 'bg-black/30'}`}>
+                      {user.dailyBonusClaimed ? '🎉' : dtAll ? '🎁' : '🔒'}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-sm">{user.dailyBonusClaimed ? 'Bonus Claimed!' : 'Complete All 3 Tasks'}</div>
+                      <div className="text-xs text-gray-500">{user.dailyBonusClaimed ? '+200 Coins, +5 Gems, +100 XP' : 'Bonus: 200 🪙 + 5 💚 + 100 XP'}</div>
+                    </div>
+                    {dtAll && !user.dailyBonusClaimed && (
+                      <button type="button" onClick={() => {
+                        addCoins(200); addGems(5); addXP(100);
+                        setUser(u => ({ ...u, dailyBonusClaimed: true }));
+                        showNotif('🎉 Daily Bonus: +200 Coins + 5 Gems + 100 XP!');
+                      }} className="px-4 py-2 rounded-xl font-bold text-sm text-black" style={{
+                        background: 'linear-gradient(180deg,#fbbf24 0%,#d97706 100%)',
+                        boxShadow: '0 3px 0 #92400e, 0 4px 15px rgba(251,191,36,0.3)',
+                      }}>
+                        Claim!
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ===== DAILY TRIVIA (3 Questions) ===== */}
+              <DailyTriviaChallenge
+                user={user}
+                onAnswer={handleDailyChallenge}
+                onNavigate={setTab}
+              />
+
+              {/* ===== DAILY FREE SPINS ===== */}
+              <div className="match-card p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🎰</span>
+                    <span className="font-bold text-base">Daily Free Spins</span>
+                  </div>
+                  <span className="text-xs font-bold text-gray-500">{dtFreeSpinsUsed.length}/3 used</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {dtFreeSpinGames.map(gameId => {
+                    const game = MINIGAMES.find(g => g.id === gameId);
+                    if (!game) return null;
+                    const used = dtFreeSpinsUsed.includes(gameId);
+                    return (
+                      <button key={gameId} type="button" disabled={used} onClick={() => {
+                        setUser(u => ({ ...u, dailyFreeSpinsUsed: [...new Set([...(u.dailyFreeSpinsUsed || []), gameId])] }));
+                        setTab('minigames');
+                        setTimeout(() => setActiveGame(gameId), 300);
+                      }} className={`p-3 rounded-2xl text-center transition-all ${used ? 'bg-green-500/8 border border-green-500/20 opacity-60' : 'bg-black/30 border border-cyan-500/15 hover:border-cyan-500/40 hover:bg-cyan-500/8 hover:scale-[1.02] active:scale-95'}`}>
+                        <div className="relative w-12 h-12 mx-auto mb-2 rounded-xl overflow-hidden">
+                          <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover" />
+                          {used && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><CheckCircle className="w-6 h-6 text-green-400" /></div>}
+                        </div>
+                        <div className="font-bold text-xs mb-0.5">{game.name}</div>
+                        <div className={`text-[10px] font-bold ${used ? 'text-green-400' : 'text-cyan-400'}`}>{used ? '✓ Played' : 'FREE'}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ===== DAILY COIN BONUS ===== */}
+              {(() => {
+                const maxClaims = 3;
+                const claimed = user.dailyCoinBonusClaims || 0;
+                const canClaim = claimed < maxClaims;
+                const bonusAmount = 50 + (claimed * 25); // 50, 75, 100 escalating
+                return (
+                  <div className="match-card p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">💰</span>
+                        <span className="font-bold text-base">Coin Bonus</span>
+                      </div>
+                      <span className="text-xs font-bold text-gray-500">{claimed}/{maxClaims} claimed</span>
+                    </div>
+                    <div className="flex gap-2 mb-3">
+                      {[0, 1, 2].map(i => (
+                        <div key={i} className={`flex-1 h-2.5 rounded-full transition-all ${i < claimed ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-black/30 border border-white/5'}`} />
+                      ))}
+                    </div>
+                    {canClaim ? (
+                      <button type="button" onClick={() => {
+                        addCoins(bonusAmount);
+                        setUser(u => ({ ...u, dailyCoinBonusClaims: (u.dailyCoinBonusClaims || 0) + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'coinbonus'])] }));
+                        showNotif(`💰 +${bonusAmount} Coin Bonus!`);
+                        trackMission('dailyClaimed');
+                        trackQuest('dailyClaimed', {});
+                      }} className="w-full py-3.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-[1.02] active:scale-95" style={{
+                        background: 'linear-gradient(180deg,#fbbf24 0%,#d97706 100%)',
+                        boxShadow: '0 3px 0 #92400e, 0 4px 15px rgba(251,191,36,0.25)',
+                      }}>
+                        Claim {bonusAmount} 🪙 {claimed === 0 ? '' : `(Claim ${claimed + 1})`}
+                      </button>
+                    ) : (
+                      <div className="w-full py-3 rounded-xl text-center text-sm font-bold text-green-400 bg-green-500/8 border border-green-500/15">
+                        ✅ All bonuses claimed today!
+                      </div>
+                    )}
+                    {canClaim && claimed > 0 && (
+                      <div className="text-center text-[10px] text-gray-500 mt-2">Each claim increases: 50 → 75 → 100 🪙</div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* ===== STREAK CALENDAR ===== */}
+              <div className="match-card p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-orange-500" />
+                    <span className="font-bold text-base">{user.streak} Day Streak</span>
+                  </div>
+                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
+                    <Flame className="w-3.5 h-3.5 text-orange-400" />
+                    <span className="text-xs font-bold text-orange-400">
+                      {user.streak >= 7 ? 'MAX STREAK!' : `${7 - user.streak} to max`}
+                    </span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-7 gap-2">
                   {DAILY_REWARDS.map((r, i) => {
@@ -6690,6 +7103,7 @@ export default function GamificationPlatform() {
                     const isPast = day < user.dailyDay;
                     const isCurrent = day === user.dailyDay;
                     const canClaim = isCurrent && !user.dailyClaimed;
+                    const isFuture = day > user.dailyDay;
                     return (
                       <button 
                         key={day} 
@@ -6703,7 +7117,8 @@ export default function GamificationPlatform() {
                             setUser(u => ({ 
                               ...u, 
                               dailyClaimed: true, 
-                              dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1 
+                              dailyDay: u.dailyDay >= 7 ? 1 : u.dailyDay + 1,
+                              dailyTasksDone: [...new Set([...u.dailyTasksDone, 'claim'])]
                             }));
                             trackMission('dailyClaimed');
                             trackMission('xpEarned', { amount: 20 });
@@ -6713,24 +7128,37 @@ export default function GamificationPlatform() {
                           }
                         }} 
                         disabled={!canClaim} 
-                        className={`p-3 rounded-2xl text-center transition-all duration-300 ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 glow-pulse shadow-lg shadow-cyan-500/50 hover:scale-105' : 'bg-cyan-500/15 border-2 border-cyan-500/40' : 'bg-black/40 border-2 border-gray-700/50'}`}
+                        className={`p-2.5 rounded-2xl text-center transition-all duration-300 relative ${
+                          isPast 
+                            ? 'bg-green-500/15 border-2 border-green-500/40' 
+                            : canClaim 
+                              ? 'bg-gradient-to-br from-cyan-500/30 to-blue-500/30 border-2 border-cyan-400/60 glow-pulse shadow-lg shadow-cyan-500/30 hover:scale-105' 
+                              : isCurrent 
+                                ? 'bg-cyan-500/10 border-2 border-cyan-500/30' 
+                                : 'bg-black/30 border-2 border-gray-700/40'
+                        }`}
                       >
-                        <div className="text-xs text-gray-400 mb-1">Day {day}</div>
-                        {isPast && (
-                          <div className="flex justify-center mb-1">
-                            <img src={`${IMG_BASE}/green_bubble.jpg`} alt="" className="w-10 h-10 object-cover rounded-full" style={{ mixBlendMode: "screen" }} />
+                        <div className="text-[10px] text-gray-400 mb-1">Day {day}</div>
+                        {isPast ? (
+                          <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-0.5" />
+                        ) : (
+                          <div className={`text-lg mb-0.5 ${isFuture ? 'opacity-30' : ''}`}>
+                            {r.diamonds ? '💎' : r.gems ? '💚' : '🪙'}
                           </div>
                         )}
-                        <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
-                        {r.gems && <div className="text-xs text-green-400">+{r.gems}g</div>}
-                        {r.diamonds && <div className="text-xs text-blue-400">+💎</div>}
+                        <div className={`font-bold text-xs ${isPast ? 'text-green-400' : isFuture ? 'text-gray-600' : 'text-yellow-400'}`}>{r.kwacha}</div>
+                        {r.gems && <div className={`text-[9px] ${isFuture ? 'text-gray-700' : 'text-green-400'}`}>+{r.gems}g</div>}
+                        {r.diamonds && <div className={`text-[9px] ${isFuture ? 'text-gray-700' : 'text-blue-400'}`}>+💎</div>}
+                        {canClaim && <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping" />}
                       </button>
                     );
                   })}
                 </div>
               </div>
+
             </div>
-          )}
+            );
+          })()}
 
           {/* ============================================================= */}
           {/* VIP TAB */}
