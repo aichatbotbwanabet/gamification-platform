@@ -4893,6 +4893,17 @@ export default function GamificationPlatform() {
         background: rgba(10,15,25,0.92);
         backdrop-filter: blur(12px);
       }
+      /* Contrast boost for content over animated gradient background */
+      .content-contrast h1,
+      .content-contrast h2,
+      .content-contrast > div > div > h1 {
+        text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
+      }
+      .content-contrast p,
+      .content-contrast span,
+      .content-contrast label {
+        text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      }
       .odds-btn {
         border: 2px solid rgba(255,255,255,0.15);
         border-radius: 14px;
@@ -5788,7 +5799,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <main className="content-contrast flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
         <header className="p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
