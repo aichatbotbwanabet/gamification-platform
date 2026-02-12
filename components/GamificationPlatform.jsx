@@ -258,6 +258,10 @@ const MINIGAMES = [
   { id: 'memory', name: 'Memory Match', desc: 'Match pairs to win!', free: 3, cost: 30, image: 'memoryCards' },
   { id: 'highlow', name: 'Higher or Lower', desc: 'Guess the next card!', free: 5, cost: 15, image: 'playingCards' },
   { id: 'katouch', name: 'Ka Touch Runner', desc: 'Endless runner — dodge & collect!', free: 99, cost: 10, image: 'runner' },
+  { id: 'plinko', name: 'Plinko Drop', desc: 'Drop balls for big multipliers!', free: 5, cost: 25, image: 'dice' },
+  { id: 'tapfrenzy', name: 'Tap Frenzy', desc: 'Tap as fast as you can!', free: 5, cost: 15, image: 'memoryCards' },
+  { id: 'stopclock', name: 'Stop the Clock', desc: 'Stop at the perfect moment!', free: 5, cost: 20, image: 'wheel' },
+  { id: 'treasure', name: 'Treasure Hunt', desc: 'Find hidden treasure!', free: 3, cost: 30, image: 'scratchCard' },
 ];
 
 const STORE_ITEMS = [
@@ -305,6 +309,129 @@ const getVIP = (deposits) => VIP_TIERS.reduce((curr, tier) => deposits >= tier.m
 // ============================================================================
 // TUTORIAL MODAL COMPONENT
 // ============================================================================
+
+// ===== THEME CSS =====
+const ThemeCSS = () => (
+  <style dangerouslySetInnerHTML={{ __html: `
+    .btn-3d { position:relative; display:inline-flex; align-items:center; justify-content:center; font-weight:900; text-shadow:0 1px 2px rgba(0,0,0,0.3); border:none; cursor:pointer; transition:all 0.15s cubic-bezier(0.25,0.46,0.45,0.94); transform:translateY(0); user-select:none; }
+    .btn-3d:hover { transform:translateY(-2px); }
+    .btn-3d:active { transform:translateY(3px); }
+    .btn-3d::after { content:''; position:absolute; top:2px; left:8%; width:84%; height:40%; background:linear-gradient(180deg,rgba(255,255,255,0.25) 0%,transparent 100%); border-radius:inherit; pointer-events:none; }
+    .btn-3d-purple { background:linear-gradient(180deg,#22D3EE 0%,#06B6D4 40%,#0891B2 100%); color:#000; text-shadow:none; box-shadow:0 4px 0 #0E7490,0 6px 20px rgba(6,182,212,0.4),0 0 20px rgba(34,211,238,0.15),inset 0 1px 0 rgba(255,255,255,0.3),inset 0 -1px 0 rgba(0,0,0,0.2); }
+    .btn-3d-purple:hover { box-shadow:0 6px 0 #0E7490,0 10px 30px rgba(6,182,212,0.5),0 0 30px rgba(34,211,238,0.25),inset 0 1px 0 rgba(255,255,255,0.35); }
+    .btn-3d-purple:active { box-shadow:0 1px 0 #0E7490,0 2px 8px rgba(6,182,212,0.3),inset 0 2px 4px rgba(0,0,0,0.3); }
+    .btn-3d-green { background:linear-gradient(180deg,#34D399 0%,#10B981 40%,#059669 100%); color:#000; text-shadow:none; box-shadow:0 4px 0 #047857,0 6px 20px rgba(16,185,129,0.35),inset 0 1px 0 rgba(255,255,255,0.25),inset 0 -1px 0 rgba(0,0,0,0.2); }
+    .btn-3d-green:hover { box-shadow:0 6px 0 #047857,0 10px 30px rgba(16,185,129,0.5),inset 0 1px 0 rgba(255,255,255,0.3); }
+    .btn-3d-green:active { box-shadow:0 1px 0 #047857,0 2px 8px rgba(16,185,129,0.3),inset 0 2px 4px rgba(0,0,0,0.3); }
+    .btn-3d-blue { background:linear-gradient(180deg,#38BDF8 0%,#0EA5E9 40%,#0284C7 100%); color:#000; text-shadow:none; box-shadow:0 4px 0 #075985,0 6px 20px rgba(14,165,233,0.4),inset 0 1px 0 rgba(255,255,255,0.3); }
+    .btn-3d-blue:hover { box-shadow:0 6px 0 #075985,0 10px 30px rgba(14,165,233,0.5),inset 0 1px 0 rgba(255,255,255,0.35); }
+    .btn-3d-pink { background:linear-gradient(180deg,#F472B6 0%,#EC4899 40%,#DB2777 100%); box-shadow:0 4px 0 #9D174D,0 6px 20px rgba(236,72,153,0.35),inset 0 1px 0 rgba(255,255,255,0.2); }
+    .card-interactive { border:2px solid rgba(6,182,212,0.35); border-radius:20px; background:rgba(3,8,16,0.5); backdrop-filter:blur(8px); box-shadow:0 0 15px rgba(6,182,212,0.1),0 4px 24px rgba(0,0,0,0.5); transition:all 0.25s cubic-bezier(0.22,1,0.36,1); }
+    .card-interactive:hover { border-color:rgba(34,211,238,0.7); box-shadow:0 0 20px rgba(6,182,212,0.3),0 8px 32px rgba(0,0,0,0.5); transform:translateY(-4px); }
+    .match-card { border:2px solid rgba(6,182,212,0.3); border-radius:20px; box-shadow:0 0 15px rgba(6,182,212,0.08),0 4px 24px rgba(0,0,0,0.5); background:rgba(3,8,16,0.5); backdrop-filter:blur(8px); }
+    .odds-btn { border:2px solid rgba(6,182,212,0.35); border-radius:14px; background:rgba(6,182,212,0.08); box-shadow:0 2px 0 rgba(0,0,0,0.4); transition:all 0.2s ease; }
+    .odds-btn:hover { border-color:rgba(34,211,238,0.8); background:rgba(6,182,212,0.2); box-shadow:0 0 20px rgba(6,182,212,0.4); transform:translateY(-2px); }
+    .tab-btn-active { background:linear-gradient(180deg,#22D3EE 0%,#06B6D4 40%,#0891B2 100%); color:#000; font-weight:900; box-shadow:0 4px 0 #0E7490,0 6px 20px rgba(6,182,212,0.35); border:none; border-radius:14px; }
+    .tab-btn-inactive { background:transparent; border:2px solid rgba(6,182,212,0.2); border-radius:14px; transition:all 0.2s ease; }
+    .tab-btn-inactive:hover { border-color:rgba(34,211,238,0.5); background:rgba(6,182,212,0.08); }
+    .hover-lift { transition:all 0.3s cubic-bezier(0.22,1,0.36,1); }
+    .hover-lift:hover { transform:translateY(-6px); box-shadow:0 16px 40px rgba(0,0,0,0.5),0 0 20px rgba(6,182,212,0.15); }
+    .btn-glow { position:relative; overflow:hidden; }
+    .btn-glow::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.15) 50%,transparent 60%); animation:shimmer 3s ease-in-out infinite; }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-30px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+    @keyframes shimmer { 0%,100%{transform:translateX(-100%) rotate(25deg)} 50%{transform:translateX(100%) rotate(25deg)} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes coinBounce { 0%{transform:scale(1)} 30%{transform:scale(1.3)} 60%{transform:scale(0.9)} 100%{transform:scale(1)} }
+    @keyframes pulseGlow { 0%,100%{box-shadow:0 0 8px rgba(6,182,212,0.4)} 50%{box-shadow:0 0 24px rgba(6,182,212,0.7),0 0 48px rgba(6,182,212,0.3)} }
+    @keyframes borderGlow { 0%,100%{border-color:rgba(6,182,212,0.08)} 50%{border-color:rgba(6,182,212,0.3)} }
+    @keyframes progressFill { from{width:0} }
+    @keyframes confettiDrop { 0%{transform:translateY(-20px) rotate(0);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+    @keyframes confettiFall { 0%{transform:translateY(-10px) rotate(0) scale(1);opacity:1} 100%{transform:translateY(60px) rotate(360deg) scale(0);opacity:0} }
+    @keyframes modalScaleOut { to{opacity:0;transform:scale(0.85)} }
+    @keyframes backdropFadeOut { to{opacity:0} }
+    @keyframes checkPop { 0%{transform:scale(0)} 50%{transform:scale(1.3)} 100%{transform:scale(1)} }
+    @keyframes resultZoom { 0%{transform:scale(0.5);opacity:0} 60%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+    @keyframes screenFlash { 0%{opacity:0.8} 100%{opacity:0} }
+    @keyframes wiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(-5deg)} 75%{transform:rotate(5deg)} }
+    @keyframes sparkleFloat { 0%{transform:translateY(0) scale(1);opacity:1} 100%{transform:translateY(-30px) scale(0);opacity:0} }
+    @keyframes lightPulse { 0%,100%{opacity:0.3;transform:scale(0.95)} 50%{opacity:1;transform:scale(1.05)} }
+    .anim-fade-up { animation:fadeInUp 0.4s ease-out both; }
+    .anim-fade-in { animation:fadeInUp 0.3s ease-out both; }
+    .anim-scale-in { animation:scaleIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .anim-slide-down { animation:slideDown 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .anim-float { animation:float 3s ease-in-out infinite; }
+    .anim-coin-bounce { animation:coinBounce 0.5s ease-out; }
+    .glow-pulse { animation:pulseGlow 2s ease-in-out infinite; }
+    .glow-border { animation:borderGlow 2s ease-in-out infinite; }
+    .progress-animated { animation:progressFill 1s ease-out both; }
+    .anim-modal-close { animation:modalScaleOut 0.25s ease-in both; }
+    .anim-backdrop-close { animation:backdropFadeOut 0.25s ease-in both; }
+    .anim-check-pop { animation:checkPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .anim-result-zoom { animation:resultZoom 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .anim-wiggle { animation:wiggle 0.5s ease-in-out; }
+    .anim-sparkle { animation:sparkleFloat 0.8s ease-out both; }
+    .anim-correct { animation:correctPulse 0.6s ease-out; }
+    .anim-wrong { animation:wrongShake 0.5s ease-in-out; }
+
+    @keyframes bgDrift1 { 0%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} 100%{transform:translate(0,0)} }
+    @keyframes bgDrift2 { 0%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} 100%{transform:translate(0,0)} }
+    @keyframes bgDrift3 { 0%{transform:translate(0,0)} 50%{transform:translate(20px,35px)} 100%{transform:translate(0,0)} }
+    @keyframes bgDrift4 { 0%{transform:translate(0,0)} 50%{transform:translate(-25px,-30px)} 100%{transform:translate(0,0)} }
+    @keyframes lightChase { 0%,100%{opacity:0.2} 50%{opacity:1} }
+    @keyframes pointerBounce { 0%,100%{transform:translateY(0) rotate(180deg)} 50%{transform:translateY(-6px) rotate(180deg)} }
+    @keyframes correctPulse { 0%{box-shadow:0 0 0 0 rgba(34,197,94,0.6)} 100%{box-shadow:0 0 0 20px rgba(34,197,94,0)} }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+  ` }} />
+);
+
+// ===== ORANGE GRAINIENT WEBGL BACKGROUND =====
+function Grainient() {
+  const canvasRef = React.useRef(null);
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2', { alpha: false, antialias: false });
+    if (!gl) return;
+    const vs = `#version 300 es
+    in vec2 a_position; out vec2 vUv;
+    void main() { vUv = a_position * 0.5 + 0.5; gl_Position = vec4(a_position, 0.0, 1.0); }`;
+    const fs = `#version 300 es
+    precision highp float; in vec2 vUv; out vec4 fragColor;
+    uniform float u_time; uniform vec2 u_resolution; uniform vec3 u_color1, u_color2, u_color3;
+    uniform float u_noiseScale, u_warpStrength, u_warpFreq, u_grainAmount;
+    vec3 mod289(vec3 x){return x-floor(x*(1./289.))*289.;}
+    vec4 mod289(vec4 x){return x-floor(x*(1./289.))*289.;}
+    vec4 permute(vec4 x){return mod289((x*34.+10.)*x);}
+    vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-.85373472095314*r;}
+    float snoise(vec3 v){const vec2 C=vec2(1./6.,1./3.);vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.-g;vec3 i1=min(g,l.zxy);vec3 i2=max(g,l.zxy);vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-.5;i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.,i1.z,i2.z,1.))+i.y+vec4(0.,i1.y,i2.y,1.))+i.x+vec4(0.,i1.x,i2.x,1.));vec4 j=p-49.*floor(p/49.);vec4 x_=floor(j/7.);vec4 y_=floor(j-7.*x_);vec4 x=x_/7.-.5;vec4 y=y_/7.-.5;vec4 h=1.-abs(x)-abs(y);vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);vec4 s0=floor(b0)*2.+1.;vec4 s1=floor(b1)*2.+1.;vec4 sh=-step(h,vec4(0));vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;vec3 g0=vec3(a0.xy,h.x);vec3 g1=vec3(a0.zw,h.y);vec3 g2=vec3(a1.xy,h.z);vec3 g3=vec3(a1.zw,h.w);vec4 norm=taylorInvSqrt(vec4(dot(g0,g0),dot(g1,g1),dot(g2,g2),dot(g3,g3)));g0*=norm.x;g1*=norm.y;g2*=norm.z;g3*=norm.w;vec4 m=max(.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.);m=m*m;return 42.*dot(m*m,vec4(dot(g0,x0),dot(g1,x1),dot(g2,x2),dot(g3,x3)));}
+    float fbm(vec3 p){float v=0.;float a=.5;for(int i=0;i<5;i++){v+=a*snoise(p);p*=2.;a*=.5;}return v;}
+    void main(){vec2 uv=vUv;float t=u_time*0.25;vec2 warp=vec2(snoise(vec3(uv*u_warpFreq,t*0.8)),snoise(vec3(uv*u_warpFreq+5.,t*0.8)))*u_warpStrength*0.01;uv+=warp;float n=fbm(vec3(uv*u_noiseScale,t));n=n*0.5+0.5;n=pow(n,1.5)*1.3;vec3 col=mix(u_color2,u_color1,n);float n2=fbm(vec3(uv*u_noiseScale*1.5+10.,t*1.2));n2=n2*0.5+0.5;col=mix(col,u_color3,n2*0.4);float grain=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453+t*100.)-.5)*u_grainAmount;col+=grain;col=clamp(col,0.,1.);fragColor=vec4(col,1.);}`;
+    const compile=(src,type)=>{const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;};
+    const prog=gl.createProgram();gl.attachShader(prog,compile(vs,gl.VERTEX_SHADER));gl.attachShader(prog,compile(fs,gl.FRAGMENT_SHADER));gl.linkProgram(prog);gl.useProgram(prog);
+    const verts=new Float32Array([-1,-1,3,-1,-1,3]);const buf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buf);gl.bufferData(gl.ARRAY_BUFFER,verts,gl.STATIC_DRAW);
+    const pos=gl.getAttribLocation(prog,'a_position');gl.enableVertexAttribArray(pos);gl.vertexAttribPointer(pos,2,gl.FLOAT,false,0,0);
+    const uTime=gl.getUniformLocation(prog,'u_time'),uRes=gl.getUniformLocation(prog,'u_resolution');
+    const hex=(h)=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
+    gl.uniform3fv(gl.getUniformLocation(prog,'u_color1'),hex('#FF8C00'));
+    gl.uniform3fv(gl.getUniformLocation(prog,'u_color2'),hex('#1a0a00'));
+    gl.uniform3fv(gl.getUniformLocation(prog,'u_color3'),hex('#F97316'));
+    gl.uniform1f(gl.getUniformLocation(prog,'u_noiseScale'),2.0);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_warpStrength'),1.6);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_warpFreq'),5.0);
+    gl.uniform1f(gl.getUniformLocation(prog,'u_grainAmount'),0.08);
+    let animId; const start=performance.now();
+    const resize=()=>{canvas.width=canvas.clientWidth;canvas.height=canvas.clientHeight;gl.viewport(0,0,canvas.width,canvas.height);gl.uniform2fv(uRes,[canvas.width,canvas.height]);};
+    const ro=new ResizeObserver(resize);ro.observe(canvas);resize();
+    const render=()=>{gl.uniform1f(uTime,(performance.now()-start)/1000);gl.drawArrays(gl.TRIANGLES,0,3);animId=requestAnimationFrame(render);};
+    render();
+    return()=>{cancelAnimationFrame(animId);ro.disconnect();};
+  },[]);
+  return <canvas ref={canvasRef} style={{position:'fixed',top:0,left:0,width:'100vw',height:'100vh',zIndex:0,opacity:0.85}} />;
+}
+
+
 function TutorialModal({ tutorialKey, onClose }) {
   const tutorial = TUTORIALS[tutorialKey];
   const [step, setStep] = useState(0);
@@ -313,11 +440,11 @@ function TutorialModal({ tutorialKey, onClose }) {
   
   return (
     <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4">
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-lg w-full overflow-hidden border border-purple-500/10 shadow-2xl">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-lg w-full overflow-hidden border border-cyan-500/30 shadow-2xl">
         {/* Header Image */}
         <div className="relative h-44">
           <img src={IMAGES[tutorial.image]} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1a1333] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a1828] via-transparent to-transparent" />
           <button 
             type="button" 
             onClick={onClose} 
@@ -339,13 +466,13 @@ function TutorialModal({ tutorialKey, onClose }) {
                 key={i} 
                 type="button" 
                 onClick={() => setStep(i)} 
-                className={`h-2 rounded-full transition-all ${step === i ? 'w-8 bg-purple-500' : 'w-2 bg-gray-600 hover:bg-gray-500'}`} 
+                className={`h-2 rounded-full transition-all ${step === i ? 'w-8 bg-cyan-500' : 'w-2 bg-gray-600 hover:bg-gray-500'}`} 
               />
             ))}
           </div>
           
           {/* Step Content */}
-          <div className="bg-white/[0.05] rounded-2xl p-5 mb-6 min-h-[120px]">
+          <div className="bg-[#030810] rounded-2xl p-5 mb-6 min-h-[120px]">
             <div className="text-4xl mb-3">{tutorial.steps[step].icon}</div>
             <h3 className="font-bold text-lg mb-2">{tutorial.steps[step].title}</h3>
             <p className="text-gray-300">{tutorial.steps[step].desc}</p>
@@ -357,7 +484,7 @@ function TutorialModal({ tutorialKey, onClose }) {
               type="button" 
               onClick={() => setStep(s => Math.max(0, s - 1))} 
               disabled={step === 0} 
-              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-700 opacity-50' : 'bg-white/[0.05] hover:bg-white/[0.06]'}`}
+              className={`flex-1 py-3 rounded-xl font-bold transition-all ${step === 0 ? 'bg-gray-700 opacity-50' : 'bg-[#030810] hover:bg-white/[0.06]'}`}
             >
               ← Back
             </button>
@@ -365,7 +492,7 @@ function TutorialModal({ tutorialKey, onClose }) {
               <button 
                 type="button" 
                 onClick={() => setStep(s => s + 1)} 
-                className="flex-1 py-3 rounded-2xl font-black btn-3d btn-3d-purple"
+                className="flex-1 py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-purple"
               >
                 Next →
               </button>
@@ -373,7 +500,7 @@ function TutorialModal({ tutorialKey, onClose }) {
               <button 
                 type="button" 
                 onClick={onClose} 
-                className="flex-1 py-3 rounded-2xl font-black btn-3d btn-3d-green flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green flex items-center justify-center gap-2"
               >
                 <Play className="w-5 h-5" /> Got it!
               </button>
@@ -391,8 +518,8 @@ function TutorialModal({ tutorialKey, onClose }) {
           </div>
           
           {/* Tips */}
-          <div className="bg-purple-500/10 rounded-xl p-4 border border-purple-500/20">
-            <h4 className="text-sm font-bold text-purple-400 mb-2">💡 Pro Tips</h4>
+          <div className="bg-cyan-500/10 rounded-xl p-4 border border-cyan-500/20">
+            <h4 className="text-sm font-bold text-cyan-400 mb-2">💡 Pro Tips</h4>
             {tutorial.tips.map((t, i) => (
               <div key={i} className="flex items-center gap-2 text-sm text-gray-300 mb-1">
                 <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
@@ -409,119 +536,6 @@ function TutorialModal({ tutorialKey, onClose }) {
 // ============================================================================
 // WHEEL GAME COMPONENT
 // ============================================================================
-
-// ============================================================================
-// GRAINIENT — Animated WebGL gradient background with film grain
-// ============================================================================
-function Grainient({
-  color1 = '#2D1B69', color2 = '#0f0a1f', color3 = '#6B21A8',
-  timeSpeed = 0.15, warpStrength = 0.8, warpFrequency = 3.0,
-  noiseScale = 1.5, grainAmount = 0.08, contrast = 1.3, saturation = 1.1,
-}) {
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-  const startTime = useRef(Date.now());
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const gl = canvas.getContext('webgl', { alpha: false, antialias: false });
-    if (!gl) return;
-
-    const vertSrc = `attribute vec2 a_pos;varying vec2 v_uv;void main(){v_uv=(a_pos+1.0)*0.5;gl_Position=vec4(a_pos,0,1);}`;
-    const fragSrc = `
-precision mediump float;
-varying vec2 v_uv;
-uniform float u_time;
-uniform vec2 u_res;
-uniform vec3 u_c1,u_c2,u_c3;
-uniform float u_warpStr,u_warpFreq,u_noiseScale,u_grain,u_contrast,u_saturation;
-
-float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-float noise(vec2 p){
-  vec2 i=floor(p),f=fract(p);
-  f=f*f*(3.0-2.0*f);
-  return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);
-}
-float fbm(vec2 p){
-  float v=0.0,a=0.5;
-  mat2 rot=mat2(cos(0.5),sin(0.5),-sin(0.5),cos(0.5));
-  for(int i=0;i<4;i++){v+=a*noise(p);p=rot*p*2.0;a*=0.5;}
-  return v;
-}
-
-void main(){
-  vec2 uv=v_uv;
-  float aspect=u_res.x/u_res.y;
-  vec2 p=(uv-0.5)*vec2(aspect,1.0);
-  float t=u_time;
-  vec2 warp=vec2(fbm(p*u_warpFreq+t*0.3),fbm(p*u_warpFreq+t*0.2+100.0));
-  p+=warp*u_warpStr*0.15;
-  float n1=fbm(p*u_noiseScale+t*0.1);
-  float n2=fbm(p*u_noiseScale*1.5-t*0.15+50.0);
-  float n3=fbm(p*u_noiseScale*0.7+t*0.08+200.0);
-  vec3 col=u_c1*n1+u_c2*(1.0-n2)+u_c3*n3;
-  col/=max(n1+(1.0-n2)+n3,0.001);
-  float blend=smoothstep(-0.5,1.5,p.y+n1*0.6);
-  col=mix(col,u_c2,blend*0.4);
-  col=mix(vec3(dot(col,vec3(0.299,0.587,0.114))),col,u_saturation);
-  col=((col-0.5)*u_contrast)+0.5;
-  float grain=hash(uv*u_res+fract(t*100.0))*u_grain;
-  col+=grain-u_grain*0.5;
-  gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);
-}`;
-
-    const compile = (type, src) => {
-      const s = gl.createShader(type);
-      gl.shaderSource(s, src); gl.compileShader(s); return s;
-    };
-    const prog = gl.createProgram();
-    gl.attachShader(prog, compile(gl.VERTEX_SHADER, vertSrc));
-    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fragSrc));
-    gl.linkProgram(prog); gl.useProgram(prog);
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,1,1]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, 'a_pos');
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-    const hex2rgb = (h) => [parseInt(h.slice(1,3),16)/255, parseInt(h.slice(3,5),16)/255, parseInt(h.slice(5,7),16)/255];
-    const c1 = hex2rgb(color1), c2 = hex2rgb(color2), c3 = hex2rgb(color3);
-    gl.uniform3f(gl.getUniformLocation(prog,'u_c1'),c1[0],c1[1],c1[2]);
-    gl.uniform3f(gl.getUniformLocation(prog,'u_c2'),c2[0],c2[1],c2[2]);
-    gl.uniform3f(gl.getUniformLocation(prog,'u_c3'),c3[0],c3[1],c3[2]);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_warpStr'),warpStrength);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_warpFreq'),warpFrequency);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_noiseScale'),noiseScale);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_grain'),grainAmount);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_contrast'),contrast);
-    gl.uniform1f(gl.getUniformLocation(prog,'u_saturation'),saturation);
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = canvas.clientHeight * dpr;
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniform2f(gl.getUniformLocation(prog,'u_res'),canvas.width,canvas.height);
-    };
-    resize(); window.addEventListener('resize', resize);
-
-    const render = () => {
-      const elapsed = (Date.now() - startTime.current) * 0.001 * timeSpeed;
-      gl.uniform1f(gl.getUniformLocation(prog,'u_time'), elapsed);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      animRef.current = requestAnimationFrame(render);
-    };
-    animRef.current = requestAnimationFrame(render);
-
-    return () => { cancelAnimationFrame(animRef.current); window.removeEventListener('resize', resize); };
-  }, []);
-
-  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />;
-}
-
 function WheelGame({ onClose, onWin, playsLeft }) {
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -551,13 +565,13 @@ function WheelGame({ onClose, onWin, playsLeft }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
       {showTutorial && <TutorialModal tutorialKey="wheel" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-purple-400" />
+            <HelpCircle className="w-6 h-6 text-cyan-400" />
           </button>
-          <h2 className="text-2xl font-bold">🎡 Wheel of Fortune</h2>
+          <h2 className="text-3xl font-black tracking-tight">🎡 Wheel of Fortune</h2>
           <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
             <X className="w-6 h-6" />
           </button>
@@ -666,7 +680,7 @@ function WheelGame({ onClose, onWin, playsLeft }) {
             <button 
               type="button" 
               onClick={() => { onWin(result.prize, result.label); setResult(null); }} 
-              className="px-8 py-3 rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
+              className="px-8 py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
             >
               🎉 Claim Prize!
             </button>
@@ -757,12 +771,12 @@ function ScratchGame({ onClose, onWin }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
       {showTutorial && <TutorialModal tutorialKey="scratch" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-purple-400" />
+            <HelpCircle className="w-6 h-6 text-cyan-400" />
           </button>
-          <h2 className="text-2xl font-bold">🎫 Scratch & Win</h2>
+          <h2 className="text-3xl font-black tracking-tight">🎫 Scratch & Win</h2>
           <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
             <X className="w-6 h-6" />
           </button>
@@ -770,7 +784,7 @@ function ScratchGame({ onClose, onWin }) {
         
         <p className="text-center text-gray-400 mb-4">Scratch the card to reveal your prize!</p>
         
-        <div className="relative mx-auto rounded-3xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
+        <div className="relative mx-auto rounded-2xl overflow-hidden border-4 border-yellow-500 shadow-2xl" style={{ width: 300, height: 180 }}>
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 flex items-center justify-center">
             <div className="text-center">
               <div className="text-6xl mb-2">🎁</div>
@@ -800,7 +814,7 @@ function ScratchGame({ onClose, onWin }) {
           </div>
           <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 transition-all" 
+              className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-yellow-500 transition-all" 
               style={{ width: `${Math.min(percent * 2, 100)}%` }} 
             />
           </div>
@@ -813,7 +827,7 @@ function ScratchGame({ onClose, onWin }) {
           <button 
             type="button" 
             onClick={onClose} 
-            className="w-full mt-4 py-4 rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
+            className="w-full mt-4 py-4 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green text-lg shadow-lg"
           >
             💰 Collect {prize} Coins!
           </button>
@@ -876,7 +890,7 @@ function DiceGame({ onClose, onWin }) {
     
     return (
       <div 
-        className={`w-24 h-24 rounded-2xl shadow-2xl ${rolling ? 'animate-bounce' : ''}`} 
+        className={`w-24 h-24 rounded-2xl shadow-2xl ${rolling ? 'anim-slide-down' : ''}`} 
         style={{ background: color === 'red' ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #3b82f6, #2563eb)' }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full p-2">
@@ -892,12 +906,12 @@ function DiceGame({ onClose, onWin }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
       {showTutorial && <TutorialModal tutorialKey="dice" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-purple-400" />
+            <HelpCircle className="w-6 h-6 text-cyan-400" />
           </button>
-          <h2 className="text-2xl font-bold">🎲 Lucky Dice</h2>
+          <h2 className="text-3xl font-black tracking-tight">🎲 Lucky Dice</h2>
           <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
             <X className="w-6 h-6" />
           </button>
@@ -920,7 +934,7 @@ function DiceGame({ onClose, onWin }) {
                   type="button" 
                   onClick={() => setGuess(n)} 
                   disabled={rolling} 
-                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-purple-500 to-pink-500 scale-110 shadow-lg shadow-purple-500/50' : 'bg-white/[0.05] hover:bg-white/[0.06] hover:scale-105'}`}
+                  className={`py-3 rounded-xl font-bold text-lg transition-all ${guess === n ? 'bg-gradient-to-br from-cyan-400 to-blue-500 scale-110 shadow-lg shadow-cyan-500/50' : 'bg-[#030810] hover:bg-white/[0.06] hover:scale-105'}`}
                 >
                   {n}
                 </button>
@@ -943,13 +957,13 @@ function DiceGame({ onClose, onWin }) {
             <p className="text-xl mb-2">
               Total: <span className="text-4xl text-yellow-400 font-black">{result.total}</span>
             </p>
-            <p className={`text-2xl font-bold mb-6 ${result.won ? 'text-green-400' : result.close ? 'text-yellow-400' : 'text-gray-400'}`}>
+            <p className={`text-3xl font-black tracking-tight mb-6 ${result.won ? 'text-green-400' : result.close ? 'text-yellow-400' : 'text-gray-400'}`}>
               {result.won ? `🎉 EXACT! +${result.prize} Coins!` : result.close ? `Close! +${result.prize} Coins` : 'Better luck next time!'}
             </p>
             <button 
               type="button" 
               onClick={() => { setResult(null); setGuess(null); }} 
-              className="px-8 py-3 rounded-2xl font-black btn-3d btn-3d-purple text-lg"
+              className="px-8 py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-purple text-lg"
             >
               Play Again 🎲
             </button>
@@ -1009,28 +1023,28 @@ function MemoryGame({ onClose, onWin }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
       {showTutorial && <TutorialModal tutorialKey="memory" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-purple-400" />
+            <HelpCircle className="w-6 h-6 text-cyan-400" />
           </button>
-          <h2 className="text-2xl font-bold">🧠 Memory Match</h2>
+          <h2 className="text-3xl font-black tracking-tight">🧠 Memory Match</h2>
           <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
             <X className="w-6 h-6" />
           </button>
         </div>
         
         <div className="flex justify-center gap-6 mb-4">
-          <div className="text-center px-4 py-2 bg-white/[0.05] rounded-xl">
-            <div className="text-2xl font-black tracking-tight text-yellow-400">{moves}</div>
+          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+            <div className="text-xl font-bold text-yellow-400">{moves}</div>
             <div className="text-xs text-gray-400">Moves</div>
           </div>
-          <div className="text-center px-4 py-2 bg-white/[0.05] rounded-xl">
-            <div className="text-2xl font-black tracking-tight text-green-400">{matched.length/2}/{symbols.length}</div>
+          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+            <div className="text-xl font-bold text-green-400">{matched.length/2}/{symbols.length}</div>
             <div className="text-xs text-gray-400">Pairs</div>
           </div>
-          <div className="text-center px-4 py-2 bg-white/[0.05] rounded-xl">
-            <div className="text-2xl font-black tracking-tight text-purple-400">{prize}</div>
+          <div className="text-center px-4 py-2 bg-[#030810] rounded-xl">
+            <div className="text-xl font-bold text-cyan-400">{prize}</div>
             <div className="text-xs text-gray-400">Prize</div>
           </div>
         </div>
@@ -1046,7 +1060,7 @@ function MemoryGame({ onClose, onWin }) {
                 type="button" 
                 onClick={() => flip(card.id)} 
                 disabled={isFlipped} 
-                className={`aspect-square rounded-xl text-3xl flex items-center justify-center font-bold transition-all ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-yellow-400 to-orange-500') : 'bg-gradient-to-br from-purple-600 to-pink-600 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/50'}`}
+                className={`aspect-square rounded-xl text-3xl flex items-center justify-center font-bold transition-all ${isFlipped ? (isMatched ? 'bg-green-500/30 border-2 border-green-400' : 'bg-gradient-to-br from-yellow-400 to-orange-500') : 'bg-gradient-to-br from-cyan-500 to-blue-500 hover:scale-105 hover:shadow-lg hover:shadow-cyan-500/50'}`}
               >
                 {isFlipped ? card.symbol : '?'}
               </button>
@@ -1057,7 +1071,7 @@ function MemoryGame({ onClose, onWin }) {
         {complete && (
           <div className="text-center p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl border border-green-500/50">
             <div className="text-5xl mb-2">🎉</div>
-            <div className="text-2xl font-bold text-green-400 mb-1">Complete!</div>
+            <div className="text-3xl font-black tracking-tight text-green-400 mb-1">Complete!</div>
             <p className="text-gray-300">Finished in {moves} moves</p>
             <p className="text-yellow-400 font-bold text-xl">+{prize} Coins</p>
           </div>
@@ -1114,7 +1128,7 @@ function HighLowGame({ onClose, onWin }) {
         <span className="text-4xl">🎴</span>
       ) : (
         <div className="text-center">
-          <div className="text-2xl font-bold">{display(value)}</div>
+          <div className="text-3xl font-black tracking-tight">{display(value)}</div>
           <div className="text-4xl">{suit}</div>
         </div>
       )}
@@ -1125,12 +1139,12 @@ function HighLowGame({ onClose, onWin }) {
     <div className="fixed inset-0 bg-black/95 flex items-center justify-center z-[70] p-4">
       {showTutorial && <TutorialModal tutorialKey="highlow" onClose={() => setShowTutorial(false)} />}
       
-      <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+      <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
         <div className="flex items-center justify-between mb-4">
           <button type="button" onClick={() => setShowTutorial(true)} className="p-2 hover:bg-white/10 rounded-full">
-            <HelpCircle className="w-6 h-6 text-purple-400" />
+            <HelpCircle className="w-6 h-6 text-cyan-400" />
           </button>
-          <h2 className="text-2xl font-bold">🃏 Higher or Lower</h2>
+          <h2 className="text-3xl font-black tracking-tight">🃏 Higher or Lower</h2>
           <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-full">
             <X className="w-6 h-6" />
           </button>
@@ -1188,13 +1202,13 @@ function HighLowGame({ onClose, onWin }) {
         )}
         
         {revealing && !gameOver && (
-          <p className="text-center text-xl text-purple-400 animate-pulse">Revealing...</p>
+          <p className="text-center text-xl text-cyan-400 animate-pulse">Revealing...</p>
         )}
         
         {gameOver && (
           <div className="text-center p-4 bg-red-500/20 rounded-xl border border-red-500/50">
             <div className="text-5xl mb-2">💔</div>
-            <div className="text-2xl font-bold text-red-400 mb-2">Game Over!</div>
+            <div className="text-3xl font-black tracking-tight text-red-400 mb-2">Game Over!</div>
             <p className="text-gray-300 mb-4">
               {streak > 0 ? `You won ${streak * 25} Coins!` : 'Better luck next time!'}
             </p>
@@ -1207,7 +1221,7 @@ function HighLowGame({ onClose, onWin }) {
                 setRevealing(false);
                 setCurrent({ v: Math.floor(Math.random() * 13) + 1, s: '♠' });
               }} 
-              className="px-8 py-3 rounded-2xl font-black btn-3d btn-3d-purple"
+              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-bold"
             >
               Play Again 🃏
             </button>
@@ -1252,7 +1266,7 @@ function KaTouchGame({ onClose, onWin }) {
     img.onerror = () => setImgLoaded(true);
     img.src = `${IMG_BASE}/npc-tagger.png`;
     const logo = new Image();
-    logo.crossOrigin = 'anonymous'; logo.crossOrigin = 'anonymous'; logo.onload = () => { logoImgRef.current = logo; };
+    logo.crossOrigin = 'anonymous'; logo.onload = () => { logoImgRef.current = logo; };
     logo.src = `${IMG_BASE}/ka-touch-logo.png`;
     // Biome background images
     ['city', 'village', 'university', 'jungle', 'stadium'].forEach(key => {
@@ -2327,10 +2341,441 @@ function KaTouchGame({ onClose, onWin }) {
 // ============================================================================
 // MAIN APP COMPONENT
 // ============================================================================
+
+// ===== TRIVIA QUESTION BANK =====
+const TRIVIA_QUESTIONS = [
+  { q: "What year did Zambia gain independence?", a: "1964", opts: ["1960", "1964", "1968", "1972"], cat: "history" },
+  { q: "What is the capital of Zambia?", a: "Lusaka", opts: ["Lusaka", "Ndola", "Kitwe", "Livingstone"], cat: "geography" },
+  { q: "Victoria Falls is shared with which country?", a: "Zimbabwe", opts: ["Mozambique", "Zimbabwe", "Botswana", "Malawi"], cat: "geography" },
+  { q: "What is Zambia's national animal?", a: "Fish Eagle", opts: ["Lion", "Elephant", "Fish Eagle", "Leopard"], cat: "nature" },
+  { q: "What currency does Zambia use?", a: "Kwacha", opts: ["Kwacha", "Rand", "Shilling", "Dollar"], cat: "general" },
+  { q: "Which river forms Victoria Falls?", a: "Zambezi", opts: ["Congo", "Zambezi", "Nile", "Limpopo"], cat: "geography" },
+  { q: "Zambia has how many provinces?", a: "10", opts: ["8", "10", "12", "14"], cat: "general" },
+  { q: "Who was Zambia's first president?", a: "Kenneth Kaunda", opts: ["Kenneth Kaunda", "Frederick Chiluba", "Levy Mwanawasa", "Michael Sata"], cat: "history" },
+  { q: "What is Zambia's largest city?", a: "Lusaka", opts: ["Lusaka", "Kitwe", "Ndola", "Kabwe"], cat: "geography" },
+  { q: "Which lake borders Zambia to the north?", a: "Lake Tanganyika", opts: ["Lake Victoria", "Lake Malawi", "Lake Tanganyika", "Lake Chad"], cat: "geography" },
+  { q: "What does 'Kwacha' mean?", a: "Dawn", opts: ["Freedom", "Dawn", "Unity", "Strength"], cat: "general" },
+  { q: "Which sport is most popular in Zambia?", a: "Football", opts: ["Cricket", "Rugby", "Football", "Basketball"], cat: "sport" },
+  { q: "In what year did Zambia win the Africa Cup?", a: "2012", opts: ["2010", "2012", "2014", "2016"], cat: "sport" },
+  { q: "What is the Zambian national motto?", a: "One Zambia, One Nation", opts: ["Unity and Freedom", "One Zambia, One Nation", "Strength in Unity", "Forward Together"], cat: "history" },
+  { q: "Which metal is Zambia famous for mining?", a: "Copper", opts: ["Gold", "Copper", "Diamond", "Iron"], cat: "general" },
+  { q: "Kafue National Park is one of the largest in...", a: "Africa", opts: ["The World", "Africa", "Southern Africa", "Zambia"], cat: "nature" },
+  { q: "What is the national dish of Zambia?", a: "Nshima", opts: ["Nshima", "Ugali", "Sadza", "Fufu"], cat: "general" },
+  { q: "Which Zambian footballer played for Arsenal?", a: "Christopher Katongo", opts: ["Kalusha Bwalya", "Christopher Katongo", "Patson Daka", "Enoch Mwepu"], cat: "sport" },
+  { q: "The Copperbelt is in which part of Zambia?", a: "North", opts: ["North", "South", "East", "West"], cat: "geography" },
+  { q: "What year was the 2nd Republic established?", a: "1972", opts: ["1970", "1972", "1975", "1980"], cat: "history" },
+  { q: "Who scored the winning penalty in AFCON 2012?", a: "Stoppila Sunzu", opts: ["Christopher Katongo", "Stoppila Sunzu", "Rainford Kalaba", "James Chamanga"], cat: "sport" },
+  { q: "Zambia borders how many countries?", a: "8", opts: ["6", "7", "8", "9"], cat: "geography" },
+  { q: "What tree appears on the Zambian flag?", a: "None (Eagle only)", opts: ["Baobab", "Mopane", "None (Eagle only)", "Marula"], cat: "general" },
+  { q: "South Luangwa is famous for which animal?", a: "Leopard", opts: ["Elephant", "Leopard", "Lion", "Hippo"], cat: "nature" },
+];
+
+// ===== PLINKO GAME =====
+function PlinkoGame({ onClose, onWin }) {
+  const canvasRef = React.useRef(null);
+  const [dropping, setDropping] = React.useState(false);
+  const [result, setResult] = React.useState(null);
+  const [balls, setBalls] = React.useState([]);
+  const pegs = React.useMemo(() => {
+    const p = [];
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col <= row; col++) {
+        p.push({ x: 200 + (col - row/2) * 40, y: 60 + row * 40, r: 4 });
+      }
+    }
+    return p;
+  }, []);
+  const slots = [0.1, 0.3, 0.5, 1, 2, 5, 2, 1, 0.5, 0.3, 0.1];
+  const slotColors = ['#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#8B5CF6','#06B6D4','#22C55E','#EAB308','#F97316','#EF4444'];
+
+  const drop = () => {
+    if (dropping) return;
+    setDropping(true); setResult(null);
+    let x = 200 + (Math.random() - 0.5) * 20, y = 10, vx = 0, vy = 0;
+    const path = [{x, y}];
+    for (let i = 0; i < 300; i++) {
+      vy += 0.3; x += vx; y += vy;
+      for (const peg of pegs) {
+        const dx = x - peg.x, dy = y - peg.y, dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < peg.r + 6) {
+          const nx = dx/dist, ny = dy/dist;
+          x = peg.x + nx*(peg.r+6); y = peg.y + ny*(peg.r+6);
+          const dot = vx*nx + vy*ny;
+          vx = (vx - 2*dot*nx)*0.6 + (Math.random()-0.5)*1.5;
+          vy = (vy - 2*dot*ny)*0.6;
+        }
+      }
+      if (x < 20) { x = 20; vx = Math.abs(vx)*0.6; }
+      if (x > 380) { x = 380; vx = -Math.abs(vx)*0.6; }
+      if (y > 390) { y = 390; break; }
+      path.push({x, y});
+    }
+    const slotIdx = Math.min(slots.length-1, Math.max(0, Math.floor((x-20)/(360/slots.length))));
+    const mult = slots[slotIdx], prize = Math.round(mult * 50);
+    setBalls([{path, current: 0}]);
+    const anim = setInterval(() => {
+      setBalls(prev => prev.map(b => {
+        if (b.current >= b.path.length - 1) {
+          clearInterval(anim);
+          setResult({ multiplier: mult, prize, slot: slotIdx });
+          setDropping(false);
+          if (prize > 0) onWin({ kwacha: prize });
+          return {...b, done: true};
+        }
+        return {...b, current: Math.min(b.current + 3, b.path.length - 1)};
+      }));
+    }, 16);
+  };
+
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let id;
+    const draw = () => {
+      ctx.clearRect(0, 0, 400, 420);
+      pegs.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fillStyle = 'rgba(6,182,212,0.6)'; ctx.fill(); });
+      slots.forEach((s, i) => {
+        const sw = 360/slots.length, sx = 20 + i*sw;
+        ctx.fillStyle = result?.slot === i ? slotColors[i] : 'rgba(255,255,255,0.08)';
+        ctx.fillRect(sx, 395, sw-2, 25);
+        ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(s+'x', sx+sw/2, 412);
+      });
+      balls.forEach(b => {
+        const pos = b.path[b.current] || b.path[b.path.length-1];
+        ctx.beginPath(); ctx.arc(pos.x, pos.y, 8, 0, Math.PI*2);
+        ctx.fillStyle = '#FBBF24'; ctx.shadowColor = '#FBBF24'; ctx.shadowBlur = 10;
+        ctx.fill(); ctx.shadowBlur = 0;
+      });
+      id = requestAnimationFrame(draw);
+    };
+    id = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(id);
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-md anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-2xl font-black tracking-tight">🎯 Plinko</h2>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="flex justify-center">
+              <canvas ref={canvasRef} width={400} height={420} className="rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }} />
+            </div>
+            {result && (
+              <div className="text-center mt-3 anim-result-zoom">
+                <div className="text-3xl font-black" style={{color: slotColors[result.slot]}}>{result.multiplier}x</div>
+                <div className="text-yellow-400 font-bold">+{result.prize} Coins!</div>
+              </div>
+            )}
+            <button type="button" onClick={drop} disabled={dropping} className={`w-full mt-3 py-3 rounded-xl font-black text-lg transition-all ${dropping ? 'opacity-50' : 'btn-3d btn-3d-purple hover:scale-[1.02] active:scale-95'}`}>
+              {dropping ? '⏳ Dropping...' : '🎯 Drop Ball'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== TAP FRENZY GAME =====
+function TapFrenzyGame({ onClose, onWin }) {
+  const [phase, setPhase] = React.useState('ready');
+  const [taps, setTaps] = React.useState(0);
+  const [timeLeft, setTimeLeft] = React.useState(10);
+  const [result, setResult] = React.useState(null);
+  const timerRef = React.useRef(null);
+  const start = () => {
+    setPhase('playing'); setTaps(0); setTimeLeft(10);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => { if (prev <= 1) { clearInterval(timerRef.current); setPhase('done'); return 0; } return prev - 1; });
+    }, 1000);
+  };
+  React.useEffect(() => { if (phase === 'done') { const prize = taps >= 50 ? 150 : taps >= 30 ? 75 : taps >= 15 ? 30 : 10; setResult({ taps, prize }); onWin({ kwacha: prize }); } }, [phase]);
+  React.useEffect(() => () => clearInterval(timerRef.current), []);
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-sm anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-6 text-center">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-black tracking-tight">⚡ Tap Frenzy</h2>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            {phase === 'ready' && (<div><div className="text-6xl mb-4 anim-float">👆</div><p className="text-gray-400 mb-4">Tap as fast as you can in 10 seconds!</p><button type="button" onClick={start} className="w-full py-4 rounded-xl font-black text-lg btn-3d btn-3d-purple">START!</button></div>)}
+            {phase === 'playing' && (<div><div className="text-5xl font-black text-cyan-400 mb-2">{timeLeft}s</div><button type="button" onClick={() => setTaps(t => t + 1)} className="w-48 h-48 mx-auto rounded-full font-black text-4xl transition-transform active:scale-90 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #22D3EE 0%, #0891B2 100%)', boxShadow: '0 6px 0 #0E7490, 0 0 30px rgba(6,182,212,0.3)' }}>{taps}</button><div className="mt-3 h-2 bg-cyan-900/30 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all" style={{ width: `${(10-timeLeft)/10*100}%` }} /></div></div>)}
+            {phase === 'done' && result && (<div className="anim-result-zoom"><div className="text-6xl mb-3">🎉</div><div className="text-4xl font-black text-cyan-400 mb-1">{result.taps} Taps!</div><div className="text-xl text-yellow-400 font-bold mb-4">+{result.prize} Coins</div><button type="button" onClick={onClose} className="w-full py-3 rounded-xl font-black btn-3d btn-3d-green">Collect</button></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== STOP THE CLOCK GAME =====
+function StopClockGame({ onClose, onWin }) {
+  const [phase, setPhase] = React.useState('ready');
+  const [angle, setAngle] = React.useState(0);
+  const [targetZone, setTargetZone] = React.useState({ start: 60, end: 120 });
+  const [result, setResult] = React.useState(null);
+  const animRef = React.useRef(null);
+  const angleRef = React.useRef(0);
+  const start = () => {
+    setPhase('spinning'); setResult(null);
+    const zone = { start: Math.random() * 300, end: 0 }; zone.end = zone.start + 40 + Math.random() * 20;
+    setTargetZone(zone);
+    const speed = 4 + Math.random() * 2;
+    const spin = () => { angleRef.current = (angleRef.current + speed) % 360; setAngle(angleRef.current); animRef.current = requestAnimationFrame(spin); };
+    animRef.current = requestAnimationFrame(spin);
+  };
+  const stop = () => {
+    cancelAnimationFrame(animRef.current); setPhase('done');
+    const a = angleRef.current;
+    const inZone = (a >= targetZone.start && a <= targetZone.end) || (targetZone.end > 360 && (a >= targetZone.start || a <= targetZone.end - 360));
+    const prize = inZone ? 200 : 0;
+    setResult({ angle: a, inZone, prize });
+    if (prize > 0) onWin({ kwacha: prize });
+  };
+  React.useEffect(() => () => cancelAnimationFrame(animRef.current), []);
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-sm anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-6 text-center">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-black tracking-tight">⏱️ Stop the Clock</h2>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="relative w-48 h-48 mx-auto mb-4">
+              <svg viewBox="0 0 200 200" className="w-full h-full">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(6,182,212,0.2)" strokeWidth="8" />
+                <path d={`M 100 100 L ${100+85*Math.cos((targetZone.start-90)*Math.PI/180)} ${100+85*Math.sin((targetZone.start-90)*Math.PI/180)} A 85 85 0 ${targetZone.end-targetZone.start>180?1:0} 1 ${100+85*Math.cos((targetZone.end-90)*Math.PI/180)} ${100+85*Math.sin((targetZone.end-90)*Math.PI/180)} Z`} fill="rgba(34,197,94,0.3)" stroke="rgba(34,197,94,0.6)" strokeWidth="2" />
+                <line x1="100" y1="100" x2={100+75*Math.cos((angle-90)*Math.PI/180)} y2={100+75*Math.sin((angle-90)*Math.PI/180)} stroke={result?(result.inZone?'#22C55E':'#EF4444'):'#22D3EE'} strokeWidth="3" strokeLinecap="round" />
+                <circle cx="100" cy="100" r="6" fill="#22D3EE" />
+              </svg>
+            </div>
+            {phase === 'ready' && <button type="button" onClick={start} className="w-full py-3 rounded-xl font-black text-lg btn-3d btn-3d-purple">Start Spinning</button>}
+            {phase === 'spinning' && <button type="button" onClick={stop} className="w-full py-3 rounded-xl font-black text-lg btn-3d btn-3d-green anim-wiggle">STOP!</button>}
+            {phase === 'done' && result && (<div className="anim-result-zoom"><div className="text-4xl font-black mb-2" style={{color:result.inZone?'#22C55E':'#EF4444'}}>{result.inZone?'🎯 PERFECT!':'❌ Missed!'}</div>{result.prize>0&&<div className="text-xl text-yellow-400 font-bold mb-3">+{result.prize} Coins!</div>}<button type="button" onClick={onClose} className="w-full py-3 rounded-xl font-black btn-3d btn-3d-purple">{result.inZone?'Collect!':'Try Again'}</button></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== TREASURE HUNT GAME =====
+function TreasureHuntGame({ onClose, onWin }) {
+  const gridSize = 5;
+  const [grid, setGrid] = React.useState(() => {
+    const treasurePos = Math.floor(Math.random() * 25);
+    const bombs = new Set();
+    while (bombs.size < 5) { const p = Math.floor(Math.random() * 25); if (p !== treasurePos) bombs.add(p); }
+    return Array.from({length: 25}, (_, i) => ({
+      revealed: false,
+      content: i === treasurePos ? 'treasure' : bombs.has(i) ? 'bomb' : 'empty',
+      distance: Math.abs(Math.floor(i/5) - Math.floor(treasurePos/5)) + Math.abs(i%5 - treasurePos%5)
+    }));
+  });
+  const [gameOver, setGameOver] = React.useState(false);
+  const [won, setWon] = React.useState(false);
+  const [digs, setDigs] = React.useState(0);
+  const dig = (idx) => {
+    if (gameOver || grid[idx].revealed) return;
+    setDigs(d => d + 1);
+    setGrid(g => g.map((c, i) => i === idx ? {...c, revealed: true} : c));
+    if (grid[idx].content === 'treasure') { setGameOver(true); setWon(true); onWin({ kwacha: Math.max(50, 300 - digs * 30) }); }
+    else if (grid[idx].content === 'bomb') { setGameOver(true); }
+  };
+  const getHint = (d) => d <= 1 ? '🔥' : d <= 2 ? '🟡' : '🔵';
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-sm anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-black tracking-tight">🗺️ Treasure Hunt</h2>
+              <button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="text-sm text-gray-400 mb-3">Digs: {digs} | 🔥 Hot | 🟡 Warm | 🔵 Cold</div>
+            <div className="grid grid-cols-5 gap-2 mb-4">
+              {grid.map((cell, i) => (
+                <button key={i} type="button" onClick={() => dig(i)} disabled={gameOver || cell.revealed}
+                  className={`aspect-square rounded-xl text-xl flex items-center justify-center font-bold transition-all ${cell.revealed ? cell.content==='treasure'?'bg-yellow-500/30 border-2 border-yellow-400 anim-result-zoom':cell.content==='bomb'?'bg-red-500/30 border-2 border-red-400':'bg-cyan-500/10 border border-cyan-500/20' : 'bg-white/[0.06] border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:scale-105 active:scale-95'}`}
+                >{cell.revealed ? (cell.content==='treasure'?'💎':cell.content==='bomb'?'💣':getHint(cell.distance)) : '❓'}</button>
+              ))}
+            </div>
+            {gameOver && (<div className="text-center anim-result-zoom"><div className="text-3xl font-black mb-2">{won?'💎 FOUND IT!':'💣 BOOM!'}</div>{won&&<div className="text-yellow-400 font-bold mb-2">+{Math.max(50,300-digs*30)} Coins!</div>}<button type="button" onClick={onClose} className="w-full py-3 rounded-xl font-black btn-3d btn-3d-purple">{won?'Collect!':'Try Again'}</button></div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== CLASSIC QUIZ =====
+function ClassicQuiz({ onClose, onWin }) {
+  const [questions] = React.useState(() => [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 10));
+  const [current, setCurrent] = React.useState(0);
+  const [score, setScore] = React.useState(0);
+  const [selected, setSelected] = React.useState(null);
+  const [feedback, setFeedback] = React.useState(null);
+  const [done, setDone] = React.useState(false);
+  const answer = (opt) => {
+    if (selected) return; setSelected(opt);
+    const correct = opt === questions[current].a;
+    setFeedback(correct ? 'correct' : 'wrong');
+    if (correct) setScore(s => s + 1);
+    setTimeout(() => {
+      if (current + 1 >= questions.length) { setDone(true); const prize = (score + (correct?1:0)) * 20; if (prize > 0) onWin({ kwacha: prize }); }
+      else { setCurrent(c => c + 1); setSelected(null); setFeedback(null); }
+    }, 1200);
+  };
+  const q = questions[current];
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-lg anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-black tracking-tight">📚 Classic Quiz</h2>
+              <div className="flex items-center gap-3"><span className="text-cyan-400 font-bold">{current+1}/{questions.length}</span><button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button></div>
+            </div>
+            {!done ? (<>
+              <div className="h-1.5 bg-cyan-900/30 rounded-full mb-4 overflow-hidden"><div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500" style={{width:`${(current/questions.length)*100}%`}} /></div>
+              <div className="match-card p-5 mb-4 min-h-[80px] flex items-center"><p className="text-lg font-bold">{q.q}</p></div>
+              <div className="grid grid-cols-2 gap-3">
+                {q.opts.map((opt, i) => (
+                  <button key={i} type="button" onClick={() => answer(opt)} disabled={!!selected}
+                    className={`p-4 rounded-xl font-bold text-left transition-all ${selected===opt ? feedback==='correct'?'bg-green-500/30 border-2 border-green-400 scale-105':'bg-red-500/30 border-2 border-red-400 scale-95' : selected&&opt===q.a?'bg-green-500/20 border-2 border-green-400':'bg-white/[0.06] border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:scale-[1.02] active:scale-[0.98]'}`}
+                  >{opt}</button>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm"><span className="text-gray-400">Score: <strong className="text-cyan-400">{score}</strong></span><span className="text-gray-500">{q.cat}</span></div>
+            </>) : (
+              <div className="text-center anim-result-zoom py-6"><div className="text-5xl mb-3">{score>=8?'🏆':score>=5?'⭐':'📖'}</div><div className="text-3xl font-black text-cyan-400 mb-1">{score}/{questions.length}</div><div className="text-yellow-400 font-bold mb-4">+{score*20} Coins!</div><button type="button" onClick={onClose} className="px-8 py-3 rounded-xl font-black btn-3d btn-3d-green">Collect</button></div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== SPEED ROUND =====
+function SpeedRound({ onClose, onWin }) {
+  const [questions] = React.useState(() => [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 15));
+  const [current, setCurrent] = React.useState(0);
+  const [score, setScore] = React.useState(0);
+  const [timeLeft, setTimeLeft] = React.useState(5);
+  const [done, setDone] = React.useState(false);
+  const [feedback, setFeedback] = React.useState(null);
+  const timerRef = React.useRef(null);
+  React.useEffect(() => {
+    if (done) return; setTimeLeft(5);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(t => { if (t <= 1) { setCurrent(c => { if (c+1>=questions.length){setDone(true);return c;} return c+1; }); return 5; } return t-1; });
+    }, 1000);
+    return () => clearInterval(timerRef.current);
+  }, [current, done]);
+  React.useEffect(() => { if (done && score > 0) onWin({ kwacha: score * 15 }); }, [done]);
+  const answer = (opt) => {
+    if (feedback) return; clearInterval(timerRef.current);
+    const correct = opt === questions[current].a;
+    setFeedback(correct ? 'correct' : 'wrong');
+    if (correct) setScore(s => s + 1);
+    setTimeout(() => { setFeedback(null); if (current+1>=questions.length) setDone(true); else setCurrent(c=>c+1); }, 600);
+  };
+  if (done) return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-md anim-scale-in text-center" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl p-8" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="text-5xl mb-3 anim-result-zoom">⚡</div><div className="text-3xl font-black text-cyan-400">{score}/{questions.length}</div>
+          <div className="text-yellow-400 font-bold mb-4">+{score*15} Coins!</div><button type="button" onClick={onClose} className="px-8 py-3 rounded-xl font-black btn-3d btn-3d-green">Collect</button>
+        </div>
+      </div>
+    </div>
+  );
+  const q = questions[current];
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-lg anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3"><h2 className="text-xl font-black">⚡ Speed Round</h2><div className="flex items-center gap-3"><span className={`text-2xl font-black ${timeLeft<=2?'text-red-400 anim-wiggle':'text-cyan-400'}`}>{timeLeft}s</span><button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button></div></div>
+            <div className="h-1.5 bg-cyan-900/30 rounded-full mb-4 overflow-hidden"><div className="h-full bg-gradient-to-r from-red-500 to-yellow-500 rounded-full transition-all duration-1000" style={{width:`${(timeLeft/5)*100}%`}} /></div>
+            <div className={`match-card p-5 mb-4 transition-colors ${feedback==='correct'?'bg-green-900/20':feedback==='wrong'?'bg-red-900/20':''}`}><p className="text-lg font-bold">{q.q}</p></div>
+            <div className="grid grid-cols-2 gap-2">{q.opts.map((opt, i) => (<button key={i} type="button" onClick={() => answer(opt)} className="p-3 rounded-xl font-bold text-sm text-left bg-white/[0.06] border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 transition-all active:scale-95">{opt}</button>))}</div>
+            <div className="mt-3 text-center text-sm text-gray-400">Score: <strong className="text-cyan-400">{score}</strong> | Q{current+1}/{questions.length}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== STREAK TRIVIA =====
+function StreakTrivia({ onClose, onWin }) {
+  const [questions] = React.useState(() => [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5));
+  const [current, setCurrent] = React.useState(0);
+  const [streak, setStreak] = React.useState(0);
+  const [bestStreak, setBestStreak] = React.useState(0);
+  const [done, setDone] = React.useState(false);
+  const [feedback, setFeedback] = React.useState(null);
+  const answer = (opt) => {
+    if (feedback) return;
+    const correct = opt === questions[current].a;
+    setFeedback(correct ? 'correct' : 'wrong');
+    if (correct) { const ns = streak+1; setStreak(ns); if (ns>bestStreak) setBestStreak(ns); }
+    setTimeout(() => {
+      if (!correct) { setDone(true); const prize = bestStreak*25; if (prize>0) onWin({kwacha:prize}); }
+      else if (current+1>=questions.length) { setDone(true); onWin({kwacha:(streak+1)*25}); }
+      else { setCurrent(c=>c+1); setFeedback(null); }
+    }, 800);
+  };
+  if (done) return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-md anim-scale-in text-center" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl p-8" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="text-5xl mb-3 anim-result-zoom">🔥</div><div className="text-3xl font-black text-cyan-400 mb-1">{bestStreak} Streak!</div>
+          <div className="text-yellow-400 font-bold mb-4">+{bestStreak*25} Coins!</div><button type="button" onClick={onClose} className="px-8 py-3 rounded-xl font-black btn-3d btn-3d-green">Collect</button>
+        </div>
+      </div>
+    </div>
+  );
+  const q = questions[current];
+  return (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 anim-fade-in" onClick={onClose}>
+      <div className="w-full max-w-lg anim-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-3"><h2 className="text-xl font-black">🔥 Streak Trivia</h2><div className="flex items-center gap-3"><span className="text-xl font-black text-orange-400">🔥{streak}</span><button type="button" onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button></div></div>
+            <div className="text-center mb-3"><span className="text-sm text-gray-400">Multiplier: </span><span className="text-cyan-400 font-black">{streak+1}x</span><span className="text-sm text-gray-400"> — one wrong answer ends the game!</span></div>
+            <div className={`match-card p-5 mb-4 transition-colors ${feedback==='correct'?'bg-green-900/20':feedback==='wrong'?'bg-red-900/20':''}`}><p className="text-lg font-bold">{q.q}</p></div>
+            <div className="grid grid-cols-2 gap-3">
+              {q.opts.map((opt, i) => (
+                <button key={i} type="button" onClick={() => answer(opt)} disabled={!!feedback}
+                  className={`p-4 rounded-xl font-bold text-left transition-all ${feedback&&opt===q.a?'bg-green-500/30 border-2 border-green-400':feedback==='wrong'&&opt!==q.a?'opacity-50':'bg-white/[0.06] border border-white/10 hover:bg-cyan-500/10 hover:border-cyan-500/30 hover:scale-[1.02] active:scale-[0.98]'}`}
+                >{opt}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 export default function GamificationPlatform() {
   const [tab, setTab] = useState('overview');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
+  const [activeTrivia, setActiveTrivia] = useState(null);
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [notif, setNotif] = useState(null);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
@@ -2346,121 +2791,8 @@ export default function GamificationPlatform() {
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
-      * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; }
       .scrollbar-hide::-webkit-scrollbar { display: none; }
       .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      
-      /* ===== 3D BUTTON SYSTEM ===== */
-      .btn-3d {
-        position: relative; border: none; border-radius: 16px;
-        font-weight: 800; letter-spacing: 0.02em;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        box-shadow: 0 4px 0 rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.25),
-          inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15);
-        transition: all 0.15s cubic-bezier(0.22, 1, 0.36, 1);
-        overflow: hidden; transform: translateY(0);
-      }
-      .btn-3d:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 0 rgba(0,0,0,0.35), 0 10px 30px rgba(0,0,0,0.3),
-          inset 0 1px 0 rgba(255,255,255,0.25);
-      }
-      .btn-3d:active {
-        transform: translateY(3px);
-        box-shadow: 0 1px 0 rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2),
-          inset 0 2px 4px rgba(0,0,0,0.2);
-      }
-      .btn-3d::after {
-        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 50%;
-        background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
-        border-radius: 16px 16px 0 0; pointer-events: none;
-      }
-      .btn-3d-purple {
-        background: linear-gradient(180deg, #9333EA 0%, #7C3AED 40%, #6D28D9 100%);
-        box-shadow: 0 4px 0 #4C1D95, 0 6px 20px rgba(124,58,237,0.35),
-          inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2);
-      }
-      .btn-3d-purple:hover { box-shadow: 0 6px 0 #4C1D95, 0 10px 30px rgba(124,58,237,0.5), inset 0 1px 0 rgba(255,255,255,0.25); }
-      .btn-3d-purple:active { box-shadow: 0 1px 0 #4C1D95, 0 2px 8px rgba(124,58,237,0.3), inset 0 2px 4px rgba(0,0,0,0.3); }
-      .btn-3d-green {
-        background: linear-gradient(180deg, #22C55E 0%, #16A34A 40%, #15803D 100%);
-        box-shadow: 0 4px 0 #166534, 0 6px 20px rgba(34,197,94,0.35),
-          inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2);
-      }
-      .btn-3d-green:hover { box-shadow: 0 6px 0 #166534, 0 10px 30px rgba(34,197,94,0.5), inset 0 1px 0 rgba(255,255,255,0.25); }
-      .btn-3d-green:active { box-shadow: 0 1px 0 #166534, 0 2px 8px rgba(34,197,94,0.3), inset 0 2px 4px rgba(0,0,0,0.3); }
-      .btn-3d-blue {
-        background: linear-gradient(180deg, #3B82F6 0%, #2563EB 40%, #1D4ED8 100%);
-        box-shadow: 0 4px 0 #1E3A8A, 0 6px 20px rgba(59,130,246,0.35),
-          inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2);
-      }
-      .btn-3d-blue:hover { box-shadow: 0 6px 0 #1E3A8A, 0 10px 30px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.25); }
-      .btn-3d-pink {
-        background: linear-gradient(180deg, #EC4899 0%, #DB2777 40%, #BE185D 100%);
-        box-shadow: 0 4px 0 #9D174D, 0 6px 20px rgba(236,72,153,0.35),
-          inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.2);
-      }
-      .btn-3d-pink:hover { box-shadow: 0 6px 0 #9D174D, 0 10px 30px rgba(236,72,153,0.5), inset 0 1px 0 rgba(255,255,255,0.25); }
-
-      .hover-lift {
-        transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
-      }
-      .hover-lift:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 16px 40px rgba(0,0,0,0.5), 0 0 20px rgba(168,85,247,0.1);
-      }
-      .btn-glow { position: relative; overflow: hidden; }
-      .btn-glow::after {
-        content: ''; position: absolute; inset: -2px;
-        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
-        background-size: 200% 200%; animation: shimmer 2.5s infinite;
-        border-radius: inherit; pointer-events: none;
-      }
-
-      @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes scaleIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-      @keyframes slideDown { from { opacity: 0; transform: translateY(-100%); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes slideOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-100%); } }
-      @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
-      @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-      @keyframes coinBounce { 0% { transform: scale(1); } 50% { transform: scale(1.12); } 100% { transform: scale(1); } }
-      @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 8px rgba(168,85,247,0.4); } 50% { box-shadow: 0 0 24px rgba(168,85,247,0.7), 0 0 48px rgba(168,85,247,0.3); } }
-      @keyframes borderGlow { 0%, 100% { border-color: rgba(168,85,247,0.08); } 50% { border-color: rgba(168,85,247,0.25); } }
-      @keyframes progressFill { from { width: 0%; } }
-      @keyframes confettiDrop { 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); } 100% { opacity: 0; transform: translateY(120px) rotate(720deg) scale(0.3); } }
-      @keyframes modalScaleOut { 0% { opacity: 1; transform: scale(1); } 30% { opacity: 1; transform: scale(1.03); } 100% { opacity: 0; transform: scale(0.85); } }
-      @keyframes backdropFadeOut { 0% { opacity: 1; } 100% { opacity: 0; } }
-      @keyframes checkPop { 0% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.25); } 70% { transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
-      @keyframes resultZoom { 0% { opacity: 0; transform: scale(0.3) rotate(-10deg); } 60% { transform: scale(1.1) rotate(2deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
-      @keyframes screenFlash { 0% { opacity: 0.7; } 100% { opacity: 0; } }
-      @keyframes wiggle { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
-      @keyframes pointerBounce { 0%, 100% { transform: translateX(-50%) translateY(-2px) rotate(0deg); } 50% { transform: translateX(-50%) translateY(4px) rotate(2deg); } }
-      @keyframes sparkleFloat { 0% { opacity: 1; transform: translate(0, 0) scale(1); } 100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(0); } }
-      @keyframes confettiFall {
-        0% { opacity: 1; transform: translateY(0) translateX(0) rotate(0deg) scale(1); }
-        25% { transform: translateY(25vh) translateX(var(--drift)) rotate(180deg) scale(0.95); }
-        50% { transform: translateY(50vh) translateX(calc(var(--drift) * -0.5)) rotate(360deg) scale(0.9); }
-        75% { transform: translateY(75vh) translateX(var(--drift)) rotate(540deg) scale(0.8); }
-        100% { opacity: 0; transform: translateY(105vh) translateX(calc(var(--drift) * -1)) rotate(720deg) scale(0.5); }
-      }
-      @keyframes lightPulse { 0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.8); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } }
-      @keyframes lightChase { 0%, 100% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); } 15%, 35% { opacity: 1; transform: translate(-50%, -50%) scale(1.3); } 50% { opacity: 0.15; transform: translate(-50%, -50%) scale(0.6); } }
-
-      .anim-fade-up { animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-      .anim-fade-in { animation: fadeIn 0.4s ease both; }
-      .anim-scale-in { animation: scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
-      .anim-slide-down { animation: slideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
-      .anim-slide-out { animation: slideOut 0.3s ease-in both; }
-      .anim-float { animation: float 3s ease-in-out infinite; }
-      .anim-coin-bounce { animation: coinBounce 0.4s ease; }
-      .glow-pulse { animation: pulseGlow 2.5s ease-in-out infinite; }
-      .glow-border { animation: borderGlow 3s ease-in-out infinite; }
-      .progress-animated { animation: progressFill 1s cubic-bezier(0.22, 1, 0.36, 1) both; }
-      .anim-modal-close { animation: modalScaleOut 0.25s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-      .anim-backdrop-close { animation: backdropFadeOut 0.25s ease forwards; }
-      .anim-check-pop { animation: checkPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-      .card-gradient { background: linear-gradient(145deg, #1e1545 0%, #150f2e 100%); }
     `;
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
@@ -2483,7 +2815,7 @@ export default function GamificationPlatform() {
     dailyDay: 1,
     dailyClaimed: false,
     referrals: 0,
-    gamePlays: { wheel: 3, scratch: 5, dice: 5, memory: 3, highlow: 5, katouch: 99 },
+    gamePlays: { wheel: 3, scratch: 5, dice: 5, memory: 3, highlow: 5, katouch: 99, plinko: 5, tapfrenzy: 5, stopclock: 5, treasure: 3 },
   });
 
   const level = getLevel(user.xp);
@@ -2542,27 +2874,20 @@ export default function GamificationPlatform() {
     { id: 'leaderboard', icon: Medal, label: 'Leaders' },
     { id: 'profile', icon: User, label: 'Profile' },
   ];
+  const triviaGames = [
+    { id: 'classic', name: 'Classic Quiz', desc: '10 questions, no timer', icon: '📚', color: 'cyan' },
+    { id: 'speed', name: 'Speed Round', desc: '5 seconds per question!', icon: '⚡', color: 'yellow' },
+    { id: 'streak', name: 'Streak Trivia', desc: 'One wrong = game over', icon: '🔥', color: 'orange' },
+  ];
+
 
   return (
-    <div className="flex h-screen bg-white/[0.03] text-white overflow-hidden">
-      {/* Animated gradient background */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, opacity: 0.85 }}>
-        <Grainient
-          color1="#4C1D95"
-          color2="#0f0520"
-          color3="#7C3AED"
-          timeSpeed={0.25}
-          warpStrength={1.6}
-          warpFrequency={5.0}
-          noiseScale={2.0}
-          grainAmount={0.08}
-          contrast={1.5}
-          saturation={1.3}
-        />
-      </div>
+    <div className="flex h-screen bg-[#030810] text-white overflow-hidden relative">
+      <Grainient />
+      <ThemeCSS />
       {/* Notification Toast */}
       {notif && (
-        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-xl shadow-2xl animate-bounce ${notif.type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-rose-600'}`}>
+        <div className={`fixed top-4 right-4 z-[100] px-6 py-3 rounded-xl shadow-2xl anim-slide-down ${notif.type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-rose-600'}`}>
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
             <span className="font-bold">{notif.msg}</span>
@@ -2571,6 +2896,42 @@ export default function GamificationPlatform() {
       )}
 
       {/* Tutorial Modal */}
+      
+      {showBuyModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[80] p-4 anim-fade-in" onClick={() => setShowBuyModal(null)}>
+          <div className="w-full max-w-md anim-scale-in" onClick={e => e.stopPropagation()}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #030810 100%)', border: '2px solid rgba(6,182,212,0.25)' }}>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-black">Buy {showBuyModal === 'coins' ? 'Coins' : showBuyModal === 'gems' ? 'Gems' : 'Diamonds'}</h2>
+                  <button type="button" onClick={() => setShowBuyModal(null)} className="p-2 hover:bg-white/10 rounded-lg"><X className="w-5 h-5" /></button>
+                </div>
+                <div className="space-y-3">
+                  {(showBuyModal === 'coins' ? [{a:500,p:'K50',b:''},{a:2000,p:'K150',b:'+200 bonus'},{a:5000,p:'K300',b:'+800 bonus',best:true},{a:15000,p:'K750',b:'+3000 bonus'}]
+                  : showBuyModal === 'gems' ? [{a:50,p:'K100',b:''},{a:150,p:'K250',b:'+20 bonus'},{a:500,p:'K600',b:'+100 bonus',best:true}]
+                  : [{a:10,p:'K200',b:''},{a:30,p:'K500',b:'+5 bonus'},{a:100,p:'K1500',b:'+25 bonus',best:true}]
+                  ).map((pkg,i) => {
+                    const col = showBuyModal==='coins'?{b:'rgba(234,179,8,0.3)',bg:'rgba(234,179,8,0.06)',t:'text-yellow-400'}:showBuyModal==='gems'?{b:'rgba(16,185,129,0.3)',bg:'rgba(16,185,129,0.06)',t:'text-emerald-400'}:{b:'rgba(59,130,246,0.3)',bg:'rgba(59,130,246,0.06)',t:'text-blue-400'};
+                    return (
+                      <button key={i} type="button" onClick={()=>{const k=showBuyModal==='coins'?'kwacha':showBuyModal;setUser(u=>({...u,[k]:u[k]+pkg.a}));showNotif(`+${pkg.a.toLocaleString()} ${showBuyModal}!`);setShowBuyModal(null);}}
+                        className="w-full flex items-center justify-between p-4 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] relative"
+                        style={{border:`1.5px solid ${pkg.best?'rgba(6,182,212,0.6)':col.b}`,background:pkg.best?'rgba(6,182,212,0.08)':col.bg}}>
+                        {pkg.best && <span className="absolute -top-2.5 right-3 px-2 py-0.5 bg-cyan-500 text-black text-xs font-black rounded-md">BEST VALUE</span>}
+                        <div className="flex items-center gap-3">
+                          <img src={CURRENCY_ICONS[showBuyModal==='coins'?'coin':showBuyModal==='gems'?'gem':'diamond']} alt="" className="w-10 h-10 object-contain" />
+                          <div className="text-left"><div className={`font-black text-xl ${col.t}`}>{pkg.a.toLocaleString()}</div>{pkg.b && <div className="text-xs text-cyan-400 font-bold">{pkg.b}</div>}</div>
+                        </div>
+                        <div className="px-4 py-2 rounded-lg font-black text-sm btn-3d btn-3d-green">{pkg.p}</div>
+                      </button>);
+                  })}
+                </div>
+                <p className="text-center text-xs text-gray-500 mt-4">Demo mode &#8212; credits are free</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTutorial && <TutorialModal tutorialKey={activeTutorial} onClose={() => setActiveTutorial(null)} />}
 
       {/* Game Modals */}
@@ -2633,13 +2994,20 @@ export default function GamificationPlatform() {
           }} 
         />
       )}
+      {activeGame === 'plinko' && <PlinkoGame onClose={() => setActiveGame(null)} onWin={(p) => handleWin(p, 'Plinko Drop')} />}
+      {activeGame === 'tapfrenzy' && <TapFrenzyGame onClose={() => setActiveGame(null)} onWin={(p) => handleWin(p, 'Tap Frenzy')} />}
+      {activeGame === 'stopclock' && <StopClockGame onClose={() => setActiveGame(null)} onWin={(p) => handleWin(p, 'Stop the Clock')} />}
+      {activeGame === 'treasure' && <TreasureHuntGame onClose={() => setActiveGame(null)} onWin={(p) => handleWin(p, 'Treasure Hunt')} />}
+      {activeTrivia === 'classic' && <ClassicQuiz onClose={() => setActiveTrivia(null)} onWin={(p) => handleWin(p, 'Classic Quiz')} />}
+      {activeTrivia === 'speed' && <SpeedRound onClose={() => setActiveTrivia(null)} onWin={(p) => handleWin(p, 'Speed Round')} />}
+      {activeTrivia === 'streak' && <StreakTrivia onClose={() => setActiveTrivia(null)} onWin={(p) => handleWin(p, 'Streak Trivia')} />}
 
       {/* Avatar Selector Modal */}
       {showAvatarSelector && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[80] p-4">
-          <div className="bg-gradient-to-b from-[#1e1445]/95 via-[#150e2e]/95 to-[#0a0618]/95 backdrop-blur-xl rounded-3xl max-w-md w-full p-6 border border-purple-500/10">
+          <div className="bg-gradient-to-b from-[#0a1828] to-[#030810] rounded-3xl max-w-md w-full p-6 border border-cyan-500/30">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Choose Avatar</h2>
+              <h2 className="text-3xl font-black tracking-tight">Choose Avatar</h2>
               <button 
                 type="button" 
                 onClick={() => setShowAvatarSelector(false)} 
@@ -2651,7 +3019,7 @@ export default function GamificationPlatform() {
             
             {/* Current Avatar */}
             <div className="flex justify-center mb-6">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-5xl shadow-lg shadow-purple-500/50">
+              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-5xl shadow-lg shadow-cyan-500/50">
                 {user.avatar}
               </div>
             </div>
@@ -2667,7 +3035,7 @@ export default function GamificationPlatform() {
                     showNotif('Avatar updated!');
                     setShowAvatarSelector(false);
                   }}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-purple-500 to-pink-500 ring-2 ring-purple-400' : 'bg-white/[0.05] hover:bg-white/[0.06]'}`}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all hover:scale-110 ${user.avatar === avatar ? 'bg-gradient-to-br from-cyan-400 to-blue-500 ring-2 ring-cyan-400' : 'bg-[#030810] hover:bg-white/[0.06]'}`}
                 >
                   {avatar}
                 </button>
@@ -2682,7 +3050,7 @@ export default function GamificationPlatform() {
       )}
 
       {/* Sidebar */}
-      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-transparent relative h-full md:h-screen flex-shrink-0 transition-transform overflow-y-auto`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <aside className={`${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:sticky md:top-0 top-0 left-0 z-40 w-64 bg-[#030810] h-full md:h-screen flex-shrink-0 transition-transform overflow-y-auto`} style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', borderRight: '1px solid rgba(6,182,212,0.1)', scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
         <div className="p-4">
           {/* Logo */}
           <div className="flex items-center gap-3 mb-6">
@@ -2691,17 +3059,17 @@ export default function GamificationPlatform() {
             </div>
             <div>
               <div className="font-bold text-lg">100xBet</div>
-              <div className="text-xs text-purple-400">REWARDS</div>
+              <div className="text-xs text-cyan-400">REWARDS</div>
             </div>
           </div>
 
           {/* User Profile Card */}
-          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-purple-600/30 to-pink-600/30 border border-purple-500/10">
+          <div className="mb-6 p-3 rounded-xl bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/30">
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setShowAvatarSelector(true)}
-                className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl hover:scale-105 transition-transform group"
+                className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-xl hover:scale-105 transition-transform group"
               >
                 {user.avatar}
                 <div className="absolute inset-0 bg-black/50 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -2714,12 +3082,12 @@ export default function GamificationPlatform() {
                 className="flex-1 text-left"
               >
                 <div className="font-bold">Player1</div>
-                <div className="text-xs text-purple-300">{level.icon} {level.name}</div>
+                <div className="text-xs text-cyan-300">{level.icon} {level.name}</div>
               </button>
             </div>
-            <div className="mt-2 h-2 bg-purple-900/50 rounded-full overflow-hidden">
+            <div className="mt-2 h-2 bg-cyan-900/30 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500" 
+                className="h-full bg-gradient-to-r from-cyan-400 to-blue-500" 
                 style={{ width: `${xpProgress}%` }} 
               />
             </div>
@@ -2738,7 +3106,16 @@ export default function GamificationPlatform() {
                   key={t.id} 
                   type="button" 
                   onClick={() => { setTab(t.id); setMobileMenuOpen(false); }} 
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 relative overflow-hidden ${active ? 'btn-3d btn-3d-purple text-white' : 'hover:bg-white/[0.06] text-gray-400 hover:text-white'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl text-left transition-all duration-200 ${active ? 'text-black font-black' : 'text-gray-300 hover:text-white'}`}
+                  style={active ? {
+                    background: 'linear-gradient(180deg, #22D3EE 0%, #06B6D4 40%, #0891B2 100%)',
+                    boxShadow: '0 4px 0 #0E7490, 0 6px 20px rgba(6,182,212,0.35), 0 0 20px rgba(34,211,238,0.15)',
+                    border: '2px solid rgba(34,211,238,0.5)'
+                  } : {
+                    background: 'rgba(0,0,0,0.7)',
+                    border: '2px solid rgba(255,255,255,0.12)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  }}
                 >
                   <Icon className="w-5 h-5" />
                   <span className="font-bold text-[15px]">{t.label}</span>
@@ -2748,8 +3125,8 @@ export default function GamificationPlatform() {
           </nav>
 
           {/* Demo Controls */}
-          <div className="mt-6 p-4 bg-slate-700/30 rounded-2xl border border-slate-600/50">
-            <div className="flex items-center gap-2 text-xs text-purple-400 mb-3">
+          <div className="mt-6 p-4 rounded-2xl" style={{ background: 'rgba(0,0,0,0.6)', border: '2px solid rgba(6,182,212,0.15)' }}>
+            <div className="flex items-center gap-2 text-xs text-cyan-400 mb-3">
               <Sparkles className="w-4 h-4" />
               <span className="font-bold">DEMO CONTROLS</span>
             </div>
@@ -2762,7 +3139,7 @@ export default function GamificationPlatform() {
                   setUser(u => ({ ...u, deposits: u.deposits + 100 }));
                   showNotif('+100K + 50XP!');
                 }} 
-                className="py-2 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-bold"
+                className="py-2 rounded-lg text-xs font-black btn-3d btn-3d-green"
               >
                 +Deposit
               </button>
@@ -2773,7 +3150,7 @@ export default function GamificationPlatform() {
                   setUser(u => ({ ...u, bets: u.bets + 1 }));
                   showNotif('+1 Bet!');
                 }} 
-                className="py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-bold"
+                className="py-2 rounded-lg text-xs font-black btn-3d btn-3d-blue"
               >
                 +Bet
               </button>
@@ -2795,7 +3172,7 @@ export default function GamificationPlatform() {
                   addXP(100);
                   showNotif('+100 XP!');
                 }} 
-                className="py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-xs font-bold"
+                className="py-2 bg-cyan-600 hover:bg-cyan-700 rounded-lg text-xs font-bold"
               >
                 +100 XP
               </button>
@@ -2807,7 +3184,7 @@ export default function GamificationPlatform() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden" 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden anim-fade-in" 
           onClick={() => setMobileMenuOpen(false)} 
         />
       )}
@@ -2815,13 +3192,13 @@ export default function GamificationPlatform() {
       {/* Main Content */}
       <main className="flex-1 min-w-0 h-full overflow-y-auto relative z-10" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
-        <header className="bg-transparent border-b border-transparent p-4 sticky top-0 z-20">
+        <header className="p-4 sticky top-0 z-20">
           <div className="flex items-center justify-between max-w-7xl mx-auto">
             {/* Mobile Menu Button */}
             <button 
               type="button" 
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)} 
-              className="md:hidden p-2 hover:bg-purple-500/20 rounded-lg"
+              className="md:hidden p-2 hover:bg-cyan-500/15 rounded-lg"
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -2831,21 +3208,21 @@ export default function GamificationPlatform() {
 
             {/* Currency Display - Centered */}
             <div className="flex items-center justify-center gap-6 flex-1 md:flex-none">
-              <div className="flex items-center gap-4 px-6 py-4 bg-white/[0.05] rounded-2xl border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
+              <div className="flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-yellow-500/30 shadow-lg shadow-yellow-500/10">
                 <img src={CURRENCY_ICONS.coin} alt="Coins" className="w-14 h-14 object-contain" />
                 <div>
                   <div className="font-black text-3xl text-yellow-400">{user.kwacha.toLocaleString()}</div>
                   <div className="text-sm text-gray-400">Coins</div>
                 </div>
               </div>
-              <div className="flex items-center gap-4 px-6 py-4 bg-white/[0.05] rounded-2xl border border-green-500/30 shadow-lg shadow-green-500/10">
+              <div className="flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-green-500/30 shadow-lg shadow-green-500/10">
                 <img src={CURRENCY_ICONS.gem} alt="Gems" className="w-14 h-14 object-contain" />
                 <div>
                   <div className="font-black text-3xl text-green-400">{user.gems}</div>
                   <div className="text-sm text-gray-400">Gems</div>
                 </div>
               </div>
-              <div className="hidden sm:flex items-center gap-4 px-6 py-4 bg-white/[0.05] rounded-2xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
+              <div className="hidden sm:flex items-center gap-4 px-6 py-4 bg-[#030810] rounded-2xl border border-blue-500/30 shadow-lg shadow-blue-500/10">
                 <img src={CURRENCY_ICONS.diamond} alt="Diamonds" className="w-14 h-14 object-contain" />
                 <div>
                   <div className="font-black text-3xl text-blue-400">{user.diamonds}</div>
@@ -2859,11 +3236,11 @@ export default function GamificationPlatform() {
               <div className="hidden lg:flex items-center gap-2">
                 <div className="text-right">
                   <div className="text-xs text-gray-400">Level {level.level}</div>
-                  <div className="font-bold text-purple-400">{level.name}</div>
+                  <div className="font-bold text-cyan-400">{level.name}</div>
                 </div>
                 <div className="text-3xl">{level.icon}</div>
               </div>
-              <button type="button" className="relative p-2 hover:bg-purple-500/20 rounded-lg">
+              <button type="button" className="relative p-2 hover:bg-cyan-500/15 rounded-lg">
                 <Bell className="w-6 h-6" />
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-bold">
                   3
@@ -2885,7 +3262,7 @@ export default function GamificationPlatform() {
                 <img src={IMAGES.welcomeBanner} alt="" className="w-full h-52 object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex items-center p-8">
                   <div>
-                    <h1 className="text-4xl font-black mb-2 tracking-tight">Welcome back! 👋</h1>
+                    <h1 className="text-3xl font-black mb-2">Welcome back! 👋</h1>
                     <p className="text-white/80 mb-4">Ready to win big today?</p>
                     <div className="flex items-center gap-3 flex-wrap">
                       <div className="flex items-center gap-2 px-4 py-2 bg-white/20 rounded-xl backdrop-blur-sm">
@@ -2904,7 +3281,7 @@ export default function GamificationPlatform() {
               {/* Quick Actions - 3 Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Daily Reward Card */}
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05] hover:border-green-500/20 transition-all hover-lift">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-green-500/50 transition-all">
                   <div className="relative h-44">
                     <img src={IMAGES.dailyGift} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -2946,7 +3323,7 @@ export default function GamificationPlatform() {
                           }));
                           showNotif(`🎉 +${r.kwacha} Coins!`);
                         }} 
-                        className="w-full py-3 rounded-2xl font-black btn-3d btn-3d-green"
+                        className="w-full py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green"
                       >
                         Claim!
                       </button>
@@ -2955,7 +3332,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05] hover:border-white/10 transition-all">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
                   <div className="relative h-44">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -2966,7 +3343,7 @@ export default function GamificationPlatform() {
                       <HelpCircle className="w-5 h-5" />
                     </button>
                     {user.gamePlays.wheel > 0 && (
-                      <span className="absolute top-3 right-3 px-3 py-1 bg-purple-500 rounded-full text-sm font-bold">
+                      <span className="absolute top-3 right-3 px-3 py-1 bg-cyan-500 rounded-full text-sm font-bold">
                         {user.gamePlays.wheel} FREE
                       </span>
                     )}
@@ -2977,7 +3354,7 @@ export default function GamificationPlatform() {
                     <button 
                       type="button" 
                       onClick={() => playGame('wheel')} 
-                      className="w-full py-3 rounded-2xl font-black btn-3d btn-3d-purple"
+                      className="w-full py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-purple"
                     >
                       Play!
                     </button>
@@ -2985,7 +3362,7 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Predictions Card */}
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05] hover:border-blue-500/20 transition-all hover-lift">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-blue-500/50 transition-all">
                   <div className="relative h-44">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover" />
                     <button 
@@ -3017,7 +3394,7 @@ export default function GamificationPlatform() {
               <button 
                 type="button" 
                 onClick={() => setTab('minigames')} 
-                className="w-full rounded-3xl overflow-hidden hover:opacity-90 transition-opacity"
+                className="w-full rounded-2xl overflow-hidden hover:opacity-90 transition-opacity"
               >
                 <img src={IMAGES.jackpotBanner} alt="" className="w-full h-44 object-cover" />
               </button>
@@ -3026,26 +3403,26 @@ export default function GamificationPlatform() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-black tracking-tight">Missions</h2>
+                    <h2 className="text-xl font-bold">Missions</h2>
                     <button 
                       type="button" 
                       onClick={() => setActiveTutorial('missions')} 
                       className="p-1 hover:bg-white/10 rounded-full"
                     >
-                      <HelpCircle className="w-5 h-5 text-purple-400" />
+                      <HelpCircle className="w-5 h-5 text-cyan-400" />
                     </button>
                   </div>
                   <button 
                     type="button" 
                     onClick={() => setTab('missions')} 
-                    className="text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                    className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
                   >
                     All <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {MISSIONS.filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <div key={m.id} className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05] hover:border-white/10 transition-all">
+                    <div key={m.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && (
@@ -3073,26 +3450,26 @@ export default function GamificationPlatform() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-black tracking-tight">Featured Store</h2>
+                    <h2 className="text-xl font-bold">Featured Store</h2>
                     <button 
                       type="button" 
                       onClick={() => setActiveTutorial('store')} 
                       className="p-1 hover:bg-white/10 rounded-full"
                     >
-                      <HelpCircle className="w-5 h-5 text-purple-400" />
+                      <HelpCircle className="w-5 h-5 text-cyan-400" />
                     </button>
                   </div>
                   <button 
                     type="button" 
                     onClick={() => setTab('store')} 
-                    className="text-purple-400 hover:text-purple-300 flex items-center gap-1"
+                    className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
                   >
                     All <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {STORE_ITEMS.filter(i => i.featured || i.isNew).slice(0, 4).map(item => (
-                    <div key={item.id} className="bg-white/[0.04] backdrop-blur-sm rounded-xl overflow-hidden border border-white/[0.05]">
+                    <div key={item.id} className="bg-[#030810] rounded-xl overflow-hidden border border-cyan-500/20">
                       <div className="relative h-32">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
                         {item.isNew && (
@@ -3123,12 +3500,12 @@ export default function GamificationPlatform() {
           {tab === 'minigames' && (
             <div className="space-y-6">
               <div>
-                <h1 className="text-2xl font-bold">Minigames</h1>
+                <h1 className="text-3xl font-black tracking-tight">Minigames</h1>
                 <p className="text-gray-400">Play games and win prizes!</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {MINIGAMES.map(game => (
-                  <div key={game.id} className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05] hover:border-white/10 transition-all hover-lift cursor-pointer" onClick={() => playGame(game.id)}>
+                  <div key={game.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer" onClick={() => playGame(game.id)}>
                     <div className="relative h-44">
                       <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover" />
                       {user.gamePlays[game.id] > 0 && (
@@ -3145,18 +3522,32 @@ export default function GamificationPlatform() {
                       </button>
                     </div>
                     <div className="p-4">
-                      <div className="font-black text-xl mb-1">{game.name}</div>
+                      <div className="font-bold text-lg mb-1">{game.name}</div>
                       <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
                       <button 
                         type="button" 
                         onClick={() => playGame(game.id)} 
-                        className={`w-full py-3.5 rounded-2xl font-black text-lg tracking-wide transition-all ${user.gamePlays[game.id] > 0 ? 'btn-3d btn-3d-purple' : 'bg-gray-700/60 text-gray-400'}`}
+                        className={`w-full py-3 rounded-xl font-bold transition-all ${user.gamePlays[game.id] > 0 ? 'bg-gradient-to-r btn-3d btn-3d-purple' : 'bg-gray-700'}`}
                       >
                         {user.gamePlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
                       </button>
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Trivia Games */}
+              <div className="mt-8">
+                <h3 className="text-3xl font-black tracking-tight mb-4">🧠 Trivia</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {triviaGames.map(game => (
+                    <button key={game.id} type="button" onClick={() => setActiveTrivia(game.id)} className="card-interactive p-5 text-left transition-all hover:scale-[1.02] active:scale-[0.98]">
+                      <div className="text-3xl mb-2">{game.icon}</div>
+                      <div className="font-black text-lg">{game.name}</div>
+                      <div className="text-sm text-gray-400 mt-1">{game.desc}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -3169,13 +3560,13 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.target} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Missions</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Missions</h1>
                   <p className="text-gray-400">{user.missionsComplete.length}/{MISSIONS.length} completed</p>
                 </div>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('missions')} 
-                  className="ml-auto p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
@@ -3185,7 +3576,7 @@ export default function GamificationPlatform() {
                   const done = user.missionsComplete.includes(m.id);
                   const progress = user.missionProgress[m.id] || 0;
                   return (
-                    <div key={m.id} className={`bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border ${done ? 'border-green-500/50' : 'border-white/[0.05] hover:border-purple-500/50'} transition-all`}>
+                    <div key={m.id} className={`bg-[#030810] rounded-2xl overflow-hidden border ${done ? 'border-green-500/50' : 'border-cyan-500/20 hover:border-cyan-500/50'} transition-all`}>
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && !done && (
@@ -3207,11 +3598,11 @@ export default function GamificationPlatform() {
                         <div className="flex items-center gap-3 mb-3">
                           <span className="text-yellow-400 font-bold">🪙 {m.reward.kwacha}</span>
                           {m.reward.gems && <span className="text-green-400 font-bold">💚 {m.reward.gems}</span>}
-                          <span className="text-purple-400 font-bold">⚡ {m.xp} XP</span>
+                          <span className="text-cyan-400 font-bold">⚡ {m.xp} XP</span>
                         </div>
-                        <div className="h-2 bg-white/[0.05] rounded-full overflow-hidden">
+                        <div className="h-2 bg-[#030810] rounded-full overflow-hidden">
                           <div 
-                            className={`h-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-purple-500 to-pink-500'}`} 
+                            className={`h-full ${done ? 'bg-green-500' : 'bg-gradient-to-r from-cyan-400 to-blue-500'}`} 
                             style={{ width: `${(progress / m.target) * 100}%` }} 
                           />
                         </div>
@@ -3231,21 +3622,21 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.dailyGift} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Daily Rewards</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Daily Rewards</h1>
                   <p className="text-gray-400">Login every day for bigger rewards!</p>
                 </div>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('daily')} 
-                  className="ml-auto p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="bg-white/[0.04] backdrop-blur-sm rounded-2xl p-6 border border-white/[0.05]">
+              <div className="bg-[#030810] rounded-2xl p-6 border border-cyan-500/20">
                 <div className="flex items-center justify-center gap-2 mb-6">
                   <Flame className="w-6 h-6 text-orange-500" />
-                  <span className="text-2xl font-bold">{user.streak} Day Streak</span>
+                  <span className="text-3xl font-black tracking-tight">{user.streak} Day Streak</span>
                 </div>
                 <div className="grid grid-cols-7 gap-2">
                   {DAILY_REWARDS.map((r, i) => {
@@ -3272,7 +3663,7 @@ export default function GamificationPlatform() {
                           }
                         }} 
                         disabled={!canClaim} 
-                        className={`p-3 rounded-2xl text-center transition-all ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-purple-600 to-pink-600 animate-pulse shadow-lg shadow-purple-500/50' : 'bg-purple-500/20 border-2 border-purple-500/50' : 'bg-white/[0.05] border-2 border-gray-700/50'}`}
+                        className={`p-3 rounded-2xl text-center transition-all ${isPast ? 'bg-green-500/20 border-2 border-green-500/50' : isCurrent ? canClaim ? 'bg-gradient-to-br from-cyan-500 to-blue-500 animate-pulse shadow-lg shadow-cyan-500/50' : 'bg-cyan-500/15 border-2 border-cyan-500/50' : 'bg-[#030810] border-2 border-gray-700/50'}`}
                       >
                         <div className="text-xs text-gray-400 mb-1">Day {day}</div>
                         <div className={`font-bold ${isPast ? 'text-green-400' : 'text-yellow-400'}`}>{r.kwacha}</div>
@@ -3294,29 +3685,29 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.crown} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">VIP Club</h1>
+                  <h1 className="text-3xl font-black tracking-tight">VIP Club</h1>
                   <p className="text-gray-400">Exclusive benefits for loyal players</p>
                 </div>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('vip')} 
-                  className="ml-auto p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-2xl p-6 border border-purple-500/50">
+              <div className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-2xl p-6 border border-cyan-500/50">
                 <div className="flex items-center gap-4">
                   <div className="text-5xl">{vip.icon}</div>
                   <div>
                     <div className="text-2xl font-black">{vip.name}</div>
-                    <div className="text-purple-300">{vip.cashback}% Cashback on losses</div>
+                    <div className="text-cyan-300">{vip.cashback}% Cashback on losses</div>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {VIP_TIERS.map(tier => (
-                  <div key={tier.name} className={`bg-white/[0.04] backdrop-blur-sm rounded-2xl p-4 border ${tier.name === vip.name ? 'border-purple-500/50 bg-purple-500/10' : 'border-white/[0.05]'}`}>
+                  <div key={tier.name} className={`bg-[#030810] rounded-2xl p-4 border ${tier.name === vip.name ? 'border-cyan-500/50 bg-cyan-500/10' : 'border-cyan-500/20'}`}>
                     <div className="text-4xl mb-2">{tier.icon}</div>
                     <div className="font-bold">{tier.name}</div>
                     <div className="text-sm text-gray-400">K{tier.min}+ deposits</div>
@@ -3333,23 +3724,23 @@ export default function GamificationPlatform() {
           {tab === 'store' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold">Store</h1>
+                <h1 className="text-3xl font-black tracking-tight">Store</h1>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('store')} 
-                  className="p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="rounded-3xl overflow-hidden">
+              <div className="rounded-2xl overflow-hidden">
                 <img src={IMAGES.newArrivals} alt="" className="w-full h-44 object-cover" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {STORE_ITEMS.map(item => {
                   const canBuy = user.kwacha >= item.price.kwacha && (!item.price.gems || user.gems >= item.price.gems);
                   return (
-                    <div key={item.id} className={`bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border ${item.featured ? 'border-amber-500/50' : 'border-white/[0.05]'}`}>
+                    <div key={item.id} className={`bg-[#030810] rounded-2xl overflow-hidden border ${item.featured ? 'border-amber-500/50' : 'border-cyan-500/20'}`}>
                       <div className="relative h-44">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
                         {item.featured && (
@@ -3393,13 +3784,13 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.soccerBall} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Match Predictions</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Match Predictions</h1>
                   <p className="text-gray-400">Predict outcomes and win Coins!</p>
                 </div>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('predictions')} 
-                  className="ml-auto p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="ml-auto p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
@@ -3408,7 +3799,7 @@ export default function GamificationPlatform() {
                 {MATCHES.map(m => {
                   const pred = user.predictions.find(p => p.id === m.id);
                   return (
-                    <div key={m.id} className={`bg-white/[0.04] backdrop-blur-sm rounded-2xl p-5 border ${m.featured ? 'border-amber-500/50' : 'border-white/[0.05]'}`}>
+                    <div key={m.id} className={`bg-[#030810] rounded-2xl p-5 border ${m.featured ? 'border-amber-500/50' : 'border-cyan-500/20'}`}>
                       {m.featured && (
                         <div className="text-xs text-amber-400 font-bold mb-2">⭐ FEATURED MATCH</div>
                       )}
@@ -3427,14 +3818,14 @@ export default function GamificationPlatform() {
                         <div className="text-center flex-1">
                           <div className="font-bold text-lg">{m.home}</div>
                         </div>
-                        <div className="text-2xl font-bold text-gray-500 px-4">VS</div>
+                        <div className="text-3xl font-black tracking-tight text-gray-500 px-4">VS</div>
                         <div className="text-center flex-1">
                           <div className="font-bold text-lg">{m.away}</div>
                         </div>
                       </div>
                       {pred ? (
-                        <div className="text-center p-3 bg-purple-500/20 rounded-xl">
-                          <span className="text-purple-300">
+                        <div className="text-center p-3 bg-cyan-500/15 rounded-xl">
+                          <span className="text-cyan-300">
                             Your prediction: <strong>{pred.choice === 'home' ? m.home : pred.choice === 'away' ? m.away : 'Draw'}</strong>
                           </span>
                         </div>
@@ -3449,7 +3840,7 @@ export default function GamificationPlatform() {
                                 addXP(5);
                                 showNotif('+5 XP!');
                               }} 
-                              className="p-3 bg-white/[0.05] hover:bg-purple-600/30 border border-transparent hover:border-purple-500 rounded-xl transition-all"
+                              className="p-3 bg-[#030810] hover:bg-cyan-600/20 border border-transparent hover:border-cyan-500 rounded-xl transition-all"
                             >
                               <div className="font-bold text-lg">
                                 {choice === 'home' ? m.h : choice === 'draw' ? m.d : m.a}
@@ -3474,12 +3865,12 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.questMap} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Quests</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Quests</h1>
                   <p className="text-gray-400">Multi-step adventures for bigger rewards!</p>
                 </div>
               </div>
               {QUESTS.map(q => (
-                <div key={q.id} className="bg-white/[0.04] backdrop-blur-sm rounded-3xl overflow-hidden border border-white/[0.05]">
+                <div key={q.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20">
                   <div className="flex flex-col md:flex-row">
                     <div className="md:w-72 h-48 md:h-auto">
                       <img src={IMAGES[q.image]} alt="" className="w-full h-full object-cover" />
@@ -3489,13 +3880,13 @@ export default function GamificationPlatform() {
                       <p className="text-gray-400 mb-3">{q.desc}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {q.steps.map((s, i) => (
-                          <span key={i} className="px-3 py-1 bg-white/[0.05] rounded-lg text-xs text-gray-400">{s}</span>
+                          <span key={i} className="px-3 py-1 bg-[#030810] rounded-lg text-xs text-gray-400">{s}</span>
                         ))}
                       </div>
                       <div className="flex items-center gap-4">
                         <span className="text-yellow-400 font-bold">🪙 {q.reward.kwacha}</span>
                         <span className="text-green-400 font-bold">💚 {q.reward.gems}</span>
-                        <span className="text-purple-400 font-bold">⚡ {q.xp} XP</span>
+                        <span className="text-cyan-400 font-bold">⚡ {q.xp} XP</span>
                       </div>
                     </div>
                   </div>
@@ -3510,43 +3901,43 @@ export default function GamificationPlatform() {
           {tab === 'referrals' && (
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold">Referrals</h1>
+                <h1 className="text-3xl font-black tracking-tight">Referrals</h1>
                 <button 
                   type="button" 
                   onClick={() => setActiveTutorial('referrals')} 
-                  className="p-2 bg-purple-600/30 hover:bg-purple-600/50 rounded-xl"
+                  className="p-2 bg-cyan-600/20 hover:bg-cyan-600/40 rounded-xl"
                 >
                   <HelpCircle className="w-5 h-5" />
                 </button>
               </div>
-              <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-2xl p-6 border border-purple-500/50">
+              <div className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-2xl p-6 border border-cyan-500/50">
                 <div className="text-center mb-4">
-                  <h3 className="text-2xl font-black tracking-tight mb-2">Your Referral Code</h3>
+                  <h3 className="text-xl font-bold mb-2">Your Referral Code</h3>
                   <p className="text-gray-400">Earn 500 Coins + 50 Gems per referral!</p>
                 </div>
                 <div className="flex gap-2 mb-6">
-                  <div className="flex-1 bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
+                  <div className="flex-1 bg-[#030810] rounded-xl p-4 font-mono text-2xl text-center">PLAYER1X</div>
                   <button 
                     type="button" 
                     onClick={() => {
                       navigator.clipboard.writeText('PLAYER1X');
                       showNotif('Code copied!');
                     }} 
-                    className="px-6 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold"
+                    className="px-6 bg-cyan-600 hover:bg-cyan-700 rounded-xl font-bold"
                   >
                     <Copy className="w-6 h-6" />
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
-                    <div className="text-3xl font-black text-purple-400">{user.referrals}</div>
+                  <div className="bg-[#030810] rounded-xl p-4 text-center">
+                    <div className="text-3xl font-black text-cyan-400">{user.referrals}</div>
                     <div className="text-gray-400">Referrals</div>
                   </div>
-                  <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
+                  <div className="bg-[#030810] rounded-xl p-4 text-center">
                     <div className="text-3xl font-black text-yellow-400">{user.referrals * 500}</div>
                     <div className="text-gray-400">Coins</div>
                   </div>
-                  <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
+                  <div className="bg-[#030810] rounded-xl p-4 text-center">
                     <div className="text-3xl font-black text-green-400">{user.referrals * 50}</div>
                     <div className="text-gray-400">Gems</div>
                   </div>
@@ -3560,7 +3951,7 @@ export default function GamificationPlatform() {
                     addXP(200);
                     showNotif('🎉 +500 Coins + 50 Gems!');
                   }} 
-                  className="w-full py-4 rounded-2xl font-black btn-3d btn-3d-green"
+                  className="w-full py-4 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-green"
                 >
                   Simulate Referral (Demo)
                 </button>
@@ -3576,7 +3967,7 @@ export default function GamificationPlatform() {
               <div className="flex items-center gap-4">
                 <img src={IMAGES.trophy} alt="" className="w-14 h-14 rounded-xl object-cover" />
                 <div>
-                  <h1 className="text-2xl font-bold">Leaderboard</h1>
+                  <h1 className="text-3xl font-black tracking-tight">Leaderboard</h1>
                   <p className="text-gray-400">Top players this week</p>
                 </div>
               </div>
@@ -3605,8 +3996,8 @@ export default function GamificationPlatform() {
                   { r: 4, n: 'Player1', k: user.kwacha, u: true },
                   { r: 5, n: 'WinMaster', k: 700 }
                 ].map(p => (
-                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl ${p.u ? 'bg-purple-500/20 border border-purple-500/50' : 'bg-white/[0.04] backdrop-blur-sm'}`}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-white/[0.05]'}`}>
+                  <div key={p.r} className={`flex items-center gap-4 p-4 rounded-xl ${p.u ? 'bg-cyan-500/15 border border-cyan-500/50' : 'bg-[#030810]'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${p.r === 1 ? 'bg-yellow-500' : p.r === 2 ? 'bg-gray-400' : p.r === 3 ? 'bg-amber-700' : 'bg-[#030810]'}`}>
                       {p.r}
                     </div>
                     <div className="flex-1 font-bold">{p.n}</div>
@@ -3622,12 +4013,12 @@ export default function GamificationPlatform() {
           {/* ============================================================= */}
           {tab === 'profile' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-2xl p-6 border border-purple-500/50">
+              <div className="bg-gradient-to-r from-cyan-600/20 to-blue-600/20 rounded-2xl p-6 border border-cyan-500/50">
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
                     onClick={() => setShowAvatarSelector(true)}
-                    className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-4xl hover:scale-105 transition-transform group"
+                    className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-4xl hover:scale-105 transition-transform group"
                   >
                     {user.avatar}
                     <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -3636,29 +4027,29 @@ export default function GamificationPlatform() {
                   </button>
                   <div>
                     <h2 className="text-2xl font-black">Player1</h2>
-                    <div className="text-purple-300">{level.icon} {level.name} • {user.xp.toLocaleString()} XP</div>
+                    <div className="text-cyan-300">{level.icon} {level.name} • {user.xp.toLocaleString()} XP</div>
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-yellow-400">{user.bets}</div>
+                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="text-3xl font-black tracking-tight text-yellow-400">{user.bets}</div>
                   <div className="text-gray-400">Bets Placed</div>
                 </div>
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-green-400">{user.wins}</div>
+                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="text-3xl font-black tracking-tight text-green-400">{user.wins}</div>
                   <div className="text-gray-400">Bets Won</div>
                 </div>
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-400">{user.gamesPlayed}</div>
+                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="text-3xl font-black tracking-tight text-cyan-400">{user.gamesPlayed}</div>
                   <div className="text-gray-400">Games Played</div>
                 </div>
-                <div className="bg-white/[0.04] backdrop-blur-sm rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-pink-400">{user.missionsComplete.length}</div>
+                <div className="bg-[#030810] rounded-xl p-4 text-center">
+                  <div className="text-3xl font-black tracking-tight text-cyan-300">{user.missionsComplete.length}</div>
                   <div className="text-gray-400">Missions Done</div>
                 </div>
               </div>
-              <div className="bg-white/[0.04] backdrop-blur-sm rounded-2xl p-5 border border-white/[0.05]">
+              <div className="bg-[#030810] rounded-2xl p-5 border border-cyan-500/20">
                 <h3 className="font-bold text-lg mb-4">Wallet</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
