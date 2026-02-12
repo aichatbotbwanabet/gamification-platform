@@ -2776,6 +2776,8 @@ export default function GamificationPlatform() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeGame, setActiveGame] = useState(null);
   const [activeTrivia, setActiveTrivia] = useState(null);
+  const [showBuyModal, setShowBuyModal] = useState(null);
+  const [coinBounce, setCoinBounce] = useState(false);
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [notif, setNotif] = useState(null);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
@@ -2855,10 +2857,10 @@ export default function GamificationPlatform() {
   const playGame = (gameId) => {
     if (user.gamePlays[gameId] > 0) {
       useGamePlay(gameId);
-      setActiveGame(gameId);
-    } else {
-      showNotif('No free plays!', 'error');
+    } else if (user.kwacha >= (MINIGAMES.find(g => g.id === gameId)?.cost || 0)) {
+      addCoins(-(MINIGAMES.find(g => g.id === gameId)?.cost || 0));
     }
+    setActiveGame(gameId);
   };
 
   const tabs = [
@@ -3281,12 +3283,12 @@ export default function GamificationPlatform() {
               {/* Quick Actions - 3 Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Daily Reward Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-green-500/50 transition-all">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-green-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('daily')}>
                   <div className="relative h-44">
                     <img src={IMAGES.dailyGift} alt="" className="w-full h-full object-cover" />
                     <button 
                       type="button" 
-                      onClick={() => setActiveTutorial('daily')} 
+                      onClick={(e) => { e.stopPropagation(); setActiveTutorial('daily'); }} 
                       className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                     >
                       <HelpCircle className="w-5 h-5" />
@@ -3310,7 +3312,7 @@ export default function GamificationPlatform() {
                     {!user.dailyClaimed && (
                       <button 
                         type="button" 
-                        onClick={() => {
+                        onClick={(e) => { e.stopPropagation();
                           const r = DAILY_REWARDS[user.dailyDay - 1];
                           addCoins(r.kwacha);
                           if (r.gems) addGems(r.gems);
@@ -3332,12 +3334,12 @@ export default function GamificationPlatform() {
                 </div>
 
                 {/* Wheel Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => playGame('wheel')}>
                   <div className="relative h-44">
                     <img src={IMAGES.wheel} alt="" className="w-full h-full object-cover" />
                     <button 
                       type="button" 
-                      onClick={() => setActiveTutorial('wheel')} 
+                      onClick={(e) => { e.stopPropagation(); setActiveTutorial('wheel'); }} 
                       className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                     >
                       <HelpCircle className="w-5 h-5" />
@@ -3349,25 +3351,23 @@ export default function GamificationPlatform() {
                     )}
                   </div>
                   <div className="p-4">
-                    <div className="font-bold text-lg mb-1">Spin Wheel</div>
-                    <div className="text-sm text-gray-400 mb-3">{user.gamePlays.wheel} spins left</div>
-                    <button 
-                      type="button" 
-                      onClick={() => playGame('wheel')} 
-                      className="w-full py-3 bg-gradient-to-r rounded-2xl font-black btn-3d btn-3d-purple"
-                    >
-                      Play!
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-black text-lg mb-1">Spin Wheel</div>
+                        <div className="text-sm text-gray-400">{user.gamePlays.wheel} spins left</div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-cyan-400" />
+                    </div>
                   </div>
                 </div>
 
                 {/* Predictions Card */}
-                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-blue-500/50 transition-all">
+                <div className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-blue-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]" onClick={() => setTab('predictions')}>
                   <div className="relative h-44">
                     <img src={IMAGES.soccerBall} alt="" className="w-full h-full object-cover" />
                     <button 
                       type="button" 
-                      onClick={() => setActiveTutorial('predictions')} 
+                      onClick={(e) => { e.stopPropagation(); setActiveTutorial('predictions'); }} 
                       className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                     >
                       <HelpCircle className="w-5 h-5" />
@@ -3377,15 +3377,13 @@ export default function GamificationPlatform() {
                     </span>
                   </div>
                   <div className="p-4">
-                    <div className="font-bold text-lg mb-1">Predictions</div>
-                    <div className="text-sm text-gray-400 mb-3">{MATCHES.length} matches available</div>
-                    <button 
-                      type="button" 
-                      onClick={() => setTab('predictions')} 
-                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 rounded-xl font-bold"
-                    >
-                      Predict!
-                    </button>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-black text-lg mb-1">Predictions</div>
+                        <div className="text-sm text-gray-400">{MATCHES.length} matches available</div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-cyan-400" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3422,7 +3420,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {MISSIONS.filter(m => !user.missionsComplete.includes(m.id)).slice(0, 3).map(m => (
-                    <div key={m.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all">
+                    <div key={m.id} onClick={() => setTab('missions')} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]">
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && (
@@ -3469,7 +3467,7 @@ export default function GamificationPlatform() {
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {STORE_ITEMS.filter(i => i.featured || i.isNew).slice(0, 4).map(item => (
-                    <div key={item.id} className="bg-[#030810] rounded-xl overflow-hidden border border-cyan-500/20">
+                    <div key={item.id} onClick={() => setTab('store')} className="bg-[#030810] rounded-xl overflow-hidden border border-cyan-500/20 cursor-pointer hover:scale-[1.02] active:scale-[0.98] hover:border-cyan-500/50 transition-all">
                       <div className="relative h-32">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
                         {item.isNew && (
@@ -3515,22 +3513,21 @@ export default function GamificationPlatform() {
                       )}
                       <button 
                         type="button" 
-                        onClick={() => setActiveTutorial(game.id)} 
+                        onClick={(e) => { e.stopPropagation(); setActiveTutorial(game.id); }} 
                         className="absolute top-3 left-3 p-2 bg-black/50 hover:bg-black/70 rounded-full"
                       >
                         <HelpCircle className="w-5 h-5" />
                       </button>
                     </div>
                     <div className="p-4">
-                      <div className="font-bold text-lg mb-1">{game.name}</div>
-                      <div className="text-sm text-gray-400 mb-4">{game.desc}</div>
-                      <button 
-                        type="button" 
-                        onClick={() => playGame(game.id)} 
-                        className={`w-full py-3 rounded-xl font-bold transition-all ${user.gamePlays[game.id] > 0 ? 'bg-gradient-to-r btn-3d btn-3d-purple' : 'bg-gray-700'}`}
-                      >
-                        {user.gamePlays[game.id] > 0 ? 'Play Free' : `${game.cost} Coins`}
-                      </button>
+                      <div className="font-black text-lg mb-1">{game.name}</div>
+                      <div className="text-sm text-gray-400 mb-2">{game.desc}</div>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-sm font-bold ${user.gamePlays[game.id] > 0 ? 'text-cyan-400' : 'text-gray-500'}`}>
+                          {user.gamePlays[game.id] > 0 ? `${user.gamePlays[game.id]} Free Plays` : `${game.cost} Coins`}
+                        </span>
+                        <ChevronRight className="w-5 h-5 text-cyan-400" />
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -3576,7 +3573,17 @@ export default function GamificationPlatform() {
                   const done = user.missionsComplete.includes(m.id);
                   const progress = user.missionProgress[m.id] || 0;
                   return (
-                    <div key={m.id} className={`bg-[#030810] rounded-2xl overflow-hidden border ${done ? 'border-green-500/50' : 'border-cyan-500/20 hover:border-cyan-500/50'} transition-all`}>
+                    <div key={m.id} 
+                      onClick={() => {
+                        if (!done) {
+                          addCoins(m.reward.kwacha);
+                          if (m.reward.gems) addGems(m.reward.gems);
+                          addXP(m.xp);
+                          setUser(u => ({ ...u, missionsComplete: [...u.missionsComplete, m.id] }));
+                          showNotif(`✅ ${m.name} completed! +${m.reward.kwacha} Coins`);
+                        }
+                      }}
+                      className={`bg-[#030810] rounded-2xl overflow-hidden border cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${done ? 'border-green-500/50 opacity-70' : 'border-cyan-500/20 hover:border-cyan-500/50'} transition-all`}>
                       <div className="relative h-40">
                         <img src={IMAGES[m.image]} alt="" className="w-full h-full object-cover" />
                         {m.hot && !done && (
@@ -3740,7 +3747,19 @@ export default function GamificationPlatform() {
                 {STORE_ITEMS.map(item => {
                   const canBuy = user.kwacha >= item.price.kwacha && (!item.price.gems || user.gems >= item.price.gems);
                   return (
-                    <div key={item.id} className={`bg-[#030810] rounded-2xl overflow-hidden border ${item.featured ? 'border-amber-500/50' : 'border-cyan-500/20'}`}>
+                    <div 
+                      key={item.id} 
+                      onClick={() => {
+                        if (canBuy) {
+                          addCoins(-item.price.kwacha);
+                          if (item.price.gems) addGems(-item.price.gems);
+                          showNotif(`Purchased ${item.name}!`);
+                        } else {
+                          showNotif('Not enough currency!', 'error');
+                        }
+                      }}
+                      className={`bg-[#030810] rounded-2xl overflow-hidden border cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] ${item.featured ? 'border-amber-500/50 hover:border-amber-400' : 'border-cyan-500/20 hover:border-cyan-500/50'}`}
+                    >
                       <div className="relative h-44">
                         <img src={IMAGES[item.image]} alt="" className="w-full h-full object-cover" />
                         {item.featured && (
@@ -3751,23 +3770,15 @@ export default function GamificationPlatform() {
                         )}
                       </div>
                       <div className="p-4">
-                        <div className="font-bold text-lg mb-1">{item.name}</div>
-                        <div className="text-sm text-gray-400 mb-4">{item.desc}</div>
-                        <button 
-                          type="button" 
-                          onClick={() => {
-                            if (canBuy) {
-                              addCoins(-item.price.kwacha);
-                              if (item.price.gems) addGems(-item.price.gems);
-                              showNotif(`Purchased ${item.name}!`);
-                            }
-                          }} 
-                          disabled={!canBuy} 
-                          className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 ${canBuy ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600' : 'bg-gray-700 opacity-50'}`}
-                        >
-                          🪙 {item.price.kwacha}
-                          {item.price.gems && <><span>+</span>💚 {item.price.gems}</>}
-                        </button>
+                        <div className="font-black text-lg mb-1">{item.name}</div>
+                        <div className="text-sm text-gray-400 mb-3">{item.desc}</div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-yellow-400 font-bold">🪙 {item.price.kwacha}</span>
+                            {item.price.gems && <span className="text-green-400 font-bold">💚 {item.price.gems}</span>}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-cyan-400" />
+                        </div>
                       </div>
                     </div>
                   );
@@ -3870,17 +3881,22 @@ export default function GamificationPlatform() {
                 </div>
               </div>
               {QUESTS.map(q => (
-                <div key={q.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20">
+                <div key={q.id} className="bg-[#030810] rounded-2xl overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+                  onClick={() => showNotif(`🗺️ Quest "${q.name}" — coming soon!`)}
+                >
                   <div className="flex flex-col md:flex-row">
                     <div className="md:w-72 h-48 md:h-auto">
                       <img src={IMAGES[q.image]} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 p-5">
-                      <div className="font-bold text-xl mb-2">{q.name}</div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-black text-xl">{q.name}</div>
+                        <ChevronRight className="w-5 h-5 text-cyan-400" />
+                      </div>
                       <p className="text-gray-400 mb-3">{q.desc}</p>
                       <div className="flex flex-wrap gap-2 mb-4">
                         {q.steps.map((s, i) => (
-                          <span key={i} className="px-3 py-1 bg-[#030810] rounded-lg text-xs text-gray-400">{s}</span>
+                          <span key={i} className="px-3 py-1 bg-[#030810] border border-cyan-500/15 rounded-lg text-xs text-gray-400">{s}</span>
                         ))}
                       </div>
                       <div className="flex items-center gap-4">
