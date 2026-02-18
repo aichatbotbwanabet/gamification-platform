@@ -5,7 +5,8 @@ import {
   Trophy, Star, Gift, Target, Crown, Gem, Diamond, Gamepad2, Store, Medal, 
   Zap, ChevronRight, Check, X, Users, Award, Sparkles, 
   Bell, Flame, ChevronDown, ChevronUp, User, Home, Menu, Copy, 
-  Map, HelpCircle, Play, RotateCcw, Clock, CheckCircle
+  Map, HelpCircle, Play, RotateCcw, Clock, CheckCircle,
+  Lock, Timer, ArrowRight, XCircle, TrendingUp, Calendar, CircleDollarSign, Dices, Music, Brain, Globe
 } from 'lucide-react';
 
 // ============================================================================
@@ -363,7 +364,7 @@ const getQuestions = (category, count = 10) => {
 // Get daily challenge question (same for everyone each day)
 // Category rotation by day of week: Mon=sports, Tue=general, Wed=music, Thu=african, Fri=sports, Sat=music, Sun=general
 const DAILY_CAT_ROTATION = ['sports', 'general', 'music', 'african', 'sports', 'music', 'general'];
-const DAILY_CAT_INFO = { sports: { name: 'Sports', icon: '⚽', color: '#22c55e' }, general: { name: 'General Knowledge', icon: '🧠', color: '#22D3EE' }, music: { name: 'Music', icon: '🎵', color: '#ec4899' }, african: { name: 'African Culture', icon: '🌍', color: '#f59e0b' } };
+const DAILY_CAT_INFO = { sports: { name: 'Sports', icon: '⚽', Icon: Target, color: '#22c55e' }, general: { name: 'General Knowledge', icon: '🧠', Icon: Brain, color: '#22D3EE' }, music: { name: 'Music', icon: '🎵', Icon: Music, color: '#ec4899' }, african: { name: 'African Culture', icon: '🌍', Icon: Globe, color: '#f59e0b' } };
 const DAILY_DIFFICULTY = [
   { label: 'Easy', color: '#22c55e', bg: 'rgba(34,197,94,.1)', border: 'rgba(34,197,94,.25)', reward: 100, time: 20 },
   { label: 'Medium', color: '#f59e0b', bg: 'rgba(245,158,11,.1)', border: 'rgba(245,158,11,.25)', reward: 200, time: 15 },
@@ -4678,33 +4679,45 @@ function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
     const baseReward = finalResults.reduce((sum, r, i) => sum + (r ? DAILY_DIFFICULTY[i].reward : 0), 0);
     const totalCoins = Math.floor((baseReward + (finalPerfect ? DAILY_PERFECT_BONUS.coins : 0)) * streakMult);
     return (
-      <div className="match-card overflow-hidden" style={{ border: finalPerfect ? '1.5px solid rgba(255,215,0,.3)' : '1.5px solid rgba(6,182,212,.15)' }}>
-        <style>{`@keyframes dtConfetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-60px) rotate(360deg);opacity:0}}`}</style>
+      <div className="dh-hero-card overflow-hidden" style={{ border: finalPerfect ? '1.5px solid rgba(255,215,0,.3)' : '1.5px solid rgba(6,182,212,.2)' }}>
         <div className="p-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${finalPerfect ? 'bg-amber-500/20' : 'bg-cyan-500/15'}`}>
-              {finalPerfect ? '🏆' : finalCorrect > 0 ? '🎯' : '😅'}
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${finalPerfect ? 'bg-amber-500/15' : 'bg-cyan-500/10'}`}>
+              {finalPerfect ? <Trophy className="w-6 h-6 text-amber-400" /> : finalCorrect > 0 ? <Target className="w-6 h-6 text-cyan-400" /> : <XCircle className="w-6 h-6 text-gray-500" />}
             </div>
             <div className="flex-1">
-              <div className="font-bold text-base">Daily Trivia Complete!</div>
-              <div className={`text-sm ${finalPerfect ? 'text-amber-400' : 'text-gray-400'}`}>
-                {finalPerfect ? `Perfect! +${totalCoins} Coins + ${DAILY_PERFECT_BONUS.gems} Gems` : `${finalCorrect}/3 Correct — +${totalCoins} Coins`}
+              <div className="font-bold text-sm">
+                {finalPerfect ? 'Perfect Score!' : finalCorrect > 0 ? 'Today\'s Trivia — Done' : 'Today\'s Trivia — Done'}
+              </div>
+              <div className={`text-xs ${finalPerfect ? 'text-amber-400' : finalCorrect > 0 ? 'text-cyan-400' : 'text-gray-500'}`}>
+                {finalPerfect 
+                  ? `+${totalCoins} Coins + ${DAILY_PERFECT_BONUS.gems} Gems earned` 
+                  : finalCorrect > 0 
+                    ? `${finalCorrect}/3 Correct — +${totalCoins} Coins earned`
+                    : '0/3 — Better luck tomorrow!'
+                }
                 {streakMult > 1 && <span className="text-cyan-400 ml-1">({streakMult}x streak)</span>}
               </div>
             </div>
           </div>
           <div className="flex gap-2 mb-3">
             {finalResults.map((r, i) => (
-              <div key={i} className={`flex-1 p-2.5 rounded-xl text-center border ${r ? 'bg-green-500/10 border-green-500/25' : 'bg-red-500/8 border-red-500/20'}`}>
-                <div className="text-xs font-bold mb-1" style={{ color: DAILY_DIFFICULTY[i].color }}>{DAILY_DIFFICULTY[i].label}</div>
-                <div className="text-lg">{r ? '✅' : '❌'}</div>
+              <div key={i} className={`flex-1 p-2.5 rounded-xl text-center border ${r ? 'bg-green-500/8 border-green-500/20' : 'bg-red-500/5 border-red-500/15'}`}>
+                <div className="text-[10px] font-bold mb-1" style={{ color: DAILY_DIFFICULTY[i].color }}>{DAILY_DIFFICULTY[i].label}</div>
+                {r ? <CheckCircle className="w-5 h-5 text-green-400 mx-auto" /> : <XCircle className="w-5 h-5 text-red-400/60 mx-auto" />}
               </div>
             ))}
           </div>
           {(user.dailyTriviaStreak || 0) > 1 && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/8 border border-amber-500/15">
-              <span className="text-lg">🔥</span>
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-500/6 border border-amber-500/12">
+              <Flame className="w-4 h-4 text-amber-400" />
               <span className="text-xs font-bold text-amber-400">{user.dailyTriviaStreak} Day Streak — {streakMult}x Multiplier!</span>
+            </div>
+          )}
+          {finalCorrect === 0 && (
+            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[.02] border border-white/[.04] mt-2">
+              <Timer className="w-3.5 h-3.5 text-gray-500" />
+              <span className="text-[10px] text-gray-500">New questions drop at midnight — come back stronger!</span>
             </div>
           )}
         </div>
@@ -4718,7 +4731,7 @@ function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
   if (!q) return null;
 
   return (
-    <div className="match-card overflow-hidden" style={{ border: `1.5px solid ${diff.border}` }}>
+    <div className="dh-hero-card overflow-hidden" style={{ border: `1.5px solid ${diff.border}`, animation: 'dhGlowBorder 3s ease-in-out infinite' }}>
       <style>{`
         @keyframes dtPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
         @keyframes dtShake{0%,100%{transform:translateX(0)}15%{transform:translateX(-6px)}30%{transform:translateX(5px)}45%{transform:translateX(-4px)}60%{transform:translateX(3px)}75%{transform:translateX(-2px)}}
@@ -4732,12 +4745,12 @@ function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
       {/* Header with category + progress */}
       <div className="px-5 pt-4 pb-3 flex items-center justify-between" style={{ borderBottom: `1px solid ${diff.border}` }}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: diff.bg }}>
-            {catInfo.icon}
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: diff.bg }}>
+            {catInfo.Icon ? <catInfo.Icon className="w-5 h-5" style={{ color: catInfo.color }} /> : <Target className="w-5 h-5 text-cyan-400" />}
           </div>
           <div>
             <div className="font-bold text-sm flex items-center gap-2">
-              🎯 Daily Trivia
+              <Target className="w-3.5 h-3.5 text-cyan-400" /> Daily Trivia
               <span className="px-2 py-0.5 rounded-md text-[10px] font-black tracking-wider" style={{ background: diff.bg, color: diff.color, border: `1px solid ${diff.border}` }}>
                 {diff.label.toUpperCase()}
               </span>
@@ -4758,7 +4771,7 @@ function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
           {/* Timer */}
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold font-mono ${timer <= 5 ? 'bg-red-500/20 text-red-400' : 'text-white'}`}
             style={{ background: timer > 5 ? diff.bg : undefined, animation: countdownAnim ? 'dtTimerPulse .5s ease infinite' : 'none' }}>
-            ⏱️ {timer}s
+            <Clock className="w-3.5 h-3.5" /> {timer}s
           </div>
         </div>
       </div>
@@ -4772,7 +4785,7 @@ function DailyTriviaChallenge({ user, onAnswer, onNavigate }) {
         {/* Reward preview */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-[10px] font-bold text-gray-500 tracking-widest">PICK YOUR ANSWER</span>
-          <span className="text-xs font-bold" style={{ color: diff.color }}>+{diff.reward} 🪙</span>
+          <span className="text-xs font-bold flex items-center gap-1" style={{ color: diff.color }}>+{diff.reward} <Medal className="w-3 h-3 text-yellow-500" /></span>
         </div>
 
         {/* Options */}
@@ -6485,18 +6498,19 @@ export default function GamificationPlatform() {
                   ].filter(Boolean).length;
                   const dtAll = dtCount >= 3;
                   const todayCat = DAILY_CAT_INFO[DAILY_CAT_ROTATION[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1]] || DAILY_CAT_INFO.general;
+                  const CatIcon = todayCat.Icon || Target;
                   return (
                     <div 
                       onClick={() => setTab('daily')} 
                       className="match-card p-4 cursor-pointer hover:border-cyan-500/30 transition-all group"
-                      style={{ border: dtAll ? '1px solid rgba(34,197,94,0.25)' : '1px solid rgba(251,191,36,0.25)' }}
+                      style={{ border: dtAll ? '1px solid rgba(34,197,94,0.25)' : '1px solid rgba(6,182,212,0.2)' }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${dtAll ? 'bg-green-500/15' : 'bg-amber-500/15'}`}>
-                          {dtAll ? '🎉' : '🎯'}
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${dtAll ? 'bg-green-500/12' : 'bg-cyan-500/10'}`}>
+                          {dtAll ? <CheckCircle className="w-6 h-6 text-green-400" /> : <Gift className="w-6 h-6 text-cyan-400" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-bold text-base">Daily Hub</div>
+                          <div className="font-bold text-sm">Daily Hub</div>
                           <div className="flex items-center gap-2 mt-0.5">
                             {['trivia','freespin','coinbonus'].map((t, i) => (
                               <div key={t} className={`w-2 h-2 rounded-full transition-colors ${[
@@ -6505,8 +6519,8 @@ export default function GamificationPlatform() {
                                 (user.dailyCoinBonusClaims || 0) > 0,
                               ][i] ? 'bg-green-400' : 'bg-gray-600'}`} />
                             ))}
-                            <span className={`text-xs font-bold ml-1 ${dtAll ? 'text-green-400' : 'text-amber-400'}`}>
-                              {dtAll ? 'All done! Claim bonus →' : !user.dailyTasksDone.includes('trivia') ? `${todayCat.icon} ${todayCat.name} trivia + free spins + bonus` : `${dtCount}/3 tasks — earn bonus rewards`}
+                            <span className={`text-xs font-bold ml-1 ${dtAll ? 'text-green-400' : 'text-cyan-400'}`}>
+                              {dtAll ? 'All done! Claim bonus' : !user.dailyTasksDone.includes('trivia') ? <span className="flex items-center gap-1"><CatIcon className="w-3 h-3" /> {todayCat.name} trivia + free spins</span> : `${dtCount}/3 tasks — earn bonus rewards`}
                             </span>
                           </div>
                         </div>
@@ -6515,7 +6529,7 @@ export default function GamificationPlatform() {
                       <div className="h-1.5 bg-black/40 rounded-full overflow-hidden mt-3">
                         <div className="h-full rounded-full transition-all duration-700" style={{
                           width: `${(dtCount / 3) * 100}%`,
-                          background: dtAll ? 'linear-gradient(90deg,#22c55e,#10b981)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
+                          background: dtAll ? 'linear-gradient(90deg,#22c55e,#10b981)' : 'linear-gradient(90deg,#22D3EE,#06B6D4)',
                         }} />
                       </div>
                     </div>
@@ -6907,88 +6921,119 @@ export default function GamificationPlatform() {
             const dtAll = dtCount >= 3;
             const dtPct = (dtCount / 3) * 100;
             const DAILY_TASKS = [
-              { id: 'trivia', icon: '🎯', title: 'Daily Trivia', desc: 'Answer 3 questions (Easy→Hard)', done: user.dailyTasksDone.includes('trivia'), reward: 'Up to 600 🪙' },
-              { id: 'freespin', icon: '🎰', title: 'Free Spin', desc: 'Use a daily free game play', done: dtFreeSpinsUsed.length > 0, reward: 'Free Play' },
-              { id: 'coinbonus', icon: '💰', title: 'Coin Bonus', desc: 'Claim your 4-hourly bonus', done: dtCoinClaims > 0, reward: '50 🪙' },
+              { id: 'trivia', Icon: Target, title: 'Daily Trivia', desc: 'Answer 3 questions (Easy→Hard)', done: user.dailyTasksDone.includes('trivia'), reward: 'Up to 600', scrollTo: 'dh-trivia' },
+              { id: 'freespin', Icon: Gamepad2, title: 'Free Spins', desc: 'Play a daily free game', done: dtFreeSpinsUsed.length > 0, reward: 'Free Play', scrollTo: 'dh-freespins' },
+              { id: 'coinbonus', Icon: CircleDollarSign, title: 'Coin Bonus', desc: 'Claim up to 3× daily', done: dtCoinClaims > 0, reward: '50+', scrollTo: 'dh-coinbonus' },
             ];
+            const scrollToSection = (id) => {
+              const el = document.getElementById(id);
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
             return (
             <div className="space-y-5">
-              {/* Header */}
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-3xl">🎁</div>
-                <div className="flex-1">
-                  <h1 className="text-3xl font-black tracking-tight">Daily Hub</h1>
-                  <p className="text-gray-400 text-sm">Complete tasks for bonus rewards!</p>
+              <style>{`
+                @keyframes dhPulseRing{0%{box-shadow:0 0 0 0 rgba(6,182,212,.4)}70%{box-shadow:0 0 0 10px rgba(6,182,212,0)}100%{box-shadow:0 0 0 0 rgba(6,182,212,0)}}
+                @keyframes dhShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+                @keyframes dhFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+                @keyframes dhCoinSpin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+                @keyframes dhGlowBorder{0%,100%{border-color:rgba(6,182,212,.25)}50%{border-color:rgba(6,182,212,.55)}}
+                .dh-card{border:1.5px solid rgba(255,255,255,.08);border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.5);background:rgba(10,15,25,.92);backdrop-filter:blur(12px);transition:all .3s ease}
+                .dh-card:hover{border-color:rgba(6,182,212,.2);box-shadow:0 4px 30px rgba(0,0,0,.6),0 0 20px rgba(6,182,212,.05)}
+                .dh-hero-card{border:1.5px solid rgba(6,182,212,.3);border-radius:20px;box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 40px rgba(6,182,212,.06);background:linear-gradient(135deg,rgba(10,15,25,.95),rgba(6,30,50,.9));backdrop-filter:blur(12px)}
+                .dh-glow-btn{position:relative;overflow:hidden}
+                .dh-glow-btn::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);transition:none}
+                .dh-glow-btn:hover::after{left:100%;transition:left .6s ease}
+                .dh-go-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700;color:#22D3EE;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);transition:all .2s;cursor:pointer;white-space:nowrap}
+                .dh-go-btn:hover{background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.4);transform:translateX(2px)}
+                .dh-segment{height:8px;border-radius:99px;transition:all .5s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden}
+                .dh-segment-filled{background:linear-gradient(90deg,#22D3EE,#06B6D4)}
+                .dh-segment-filled::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 40%,rgba(255,255,255,.2) 50%,transparent 60%);background-size:200% 100%;animation:dhShimmer 2s linear infinite}
+                .dh-segment-empty{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.05)}
+              `}</style>
+
+              {/* ===== HEADER (Slim) ===== */}
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,.15), rgba(59,130,246,.15))', border: '1.5px solid rgba(6,182,212,.25)' }}>
+                  <Gift className="w-6 h-6 text-cyan-400" />
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>Resets in</span>
+                <div className="flex-1">
+                  <h1 className="text-2xl font-black tracking-tight">Daily Hub</h1>
+                  <p className="text-gray-500 text-xs mt-0.5">Complete tasks for bonus rewards</p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(0,0,0,.3)', border: '1px solid rgba(255,255,255,.06)' }}>
+                  <Timer className="w-3.5 h-3.5 text-gray-500" />
+                  <div>
+                    <div className="text-[9px] text-gray-500 font-medium uppercase tracking-wider">Resets in</div>
+                    <div className="text-cyan-400 font-bold text-xs font-mono leading-tight">{dailyCountdown}</div>
                   </div>
-                  <div className="text-amber-400 font-bold text-sm font-mono">{dailyCountdown}</div>
                 </div>
               </div>
 
-              {/* ===== DAILY PROGRESS ===== */}
-              <div className="match-card p-5" style={{ animation: dtAll && !user.dailyBonusClaimed ? 'bonusGlow 2s ease-in-out infinite' : 'none' }}>
-                <style>{`@keyframes bonusGlow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.2)}50%{box-shadow:0 0 25px 5px rgba(251,191,36,.12)}}`}</style>
+              {/* ===== COMPACT PROGRESS STRIP ===== */}
+              <div className="dh-card p-4" style={{ animation: dtAll && !user.dailyBonusClaimed ? 'dhGlowBorder 2s ease-in-out infinite' : 'none', borderColor: dtAll && !user.dailyBonusClaimed ? 'rgba(251,191,36,.3)' : undefined }}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-amber-400" />
-                    <span className="font-bold text-base">Daily Progress</span>
+                    <Zap className="w-4 h-4 text-cyan-400" />
+                    <span className="font-bold text-sm">Progress</span>
                   </div>
-                  <span className="text-sm font-bold text-cyan-400">{dtCount}/3</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${dtAll ? 'bg-green-500/15 text-green-400' : 'bg-cyan-500/10 text-cyan-400'}`}>{dtCount}/3</span>
                 </div>
-                <div className="h-3 bg-black/40 rounded-full overflow-hidden mb-4 border border-white/5">
+                {/* Progress bar */}
+                <div className="h-2 bg-black/40 rounded-full overflow-hidden mb-3.5" style={{ border: '1px solid rgba(255,255,255,.04)' }}>
                   <div className="h-full rounded-full transition-all duration-700 ease-out" style={{
                     width: `${dtPct}%`,
-                    background: dtAll ? 'linear-gradient(90deg,#fbbf24,#f59e0b,#d97706)' : 'linear-gradient(90deg,#22D3EE,#06B6D4)',
+                    background: dtAll ? 'linear-gradient(90deg,#22c55e,#10b981)' : 'linear-gradient(90deg,#22D3EE,#06B6D4)',
+                    boxShadow: dtAll ? '0 0 12px rgba(34,197,94,.3)' : '0 0 12px rgba(6,182,212,.2)',
                   }} />
                 </div>
-
-                {/* Task checklist */}
-                <div className="space-y-2.5">
+                {/* Task list with GO buttons */}
+                <div className="space-y-2">
                   {DAILY_TASKS.map(task => (
-                    <div key={task.id} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${task.done ? 'bg-green-500/8 border border-green-500/15' : 'bg-black/20 border border-white/5'}`}>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg ${task.done ? 'bg-green-500/20' : 'bg-black/30'}`}>
-                        {task.done ? <CheckCircle className="w-5 h-5 text-green-400" /> : <span>{task.icon}</span>}
+                    <div key={task.id} className={`flex items-center gap-2.5 p-2.5 rounded-xl transition-all duration-300 ${task.done ? 'bg-green-500/5 border border-green-500/10' : 'bg-black/15 border border-white/[.03]'}`}>
+                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${task.done ? 'bg-green-500/15' : 'bg-cyan-500/8'}`}>
+                        {task.done ? <CheckCircle className="w-4 h-4 text-green-400" /> : <task.Icon className="w-3.5 h-3.5 text-cyan-400" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className={`font-bold text-sm ${task.done ? 'text-green-400 line-through opacity-70' : ''}`}>{task.title}</div>
-                        <div className="text-xs text-gray-500">{task.desc}</div>
+                        <div className={`font-bold text-xs ${task.done ? 'text-green-400/70 line-through' : 'text-white'}`}>{task.title}</div>
+                        <div className="text-[10px] text-gray-600 leading-tight">{task.desc}</div>
                       </div>
-                      <div className={`text-xs font-bold px-2 py-1 rounded-lg ${task.done ? 'bg-green-500/15 text-green-400' : 'bg-amber-500/10 text-amber-400'}`}>
-                        {task.done ? '✓ Done' : task.reward}
-                      </div>
-                      {!task.done && (
-                        <div className="px-2 py-1 rounded-lg text-xs font-bold text-cyan-400 opacity-50">↓</div>
+                      {task.done ? (
+                        <span className="text-[10px] font-bold text-green-400/60 bg-green-500/8 px-2 py-1 rounded-md flex-shrink-0">Done</span>
+                      ) : (
+                        <button type="button" onClick={() => scrollToSection(task.scrollTo)} className="dh-go-btn flex-shrink-0">
+                          Go <ArrowRight className="w-3 h-3" />
+                        </button>
                       )}
                     </div>
                   ))}
                 </div>
-
                 {/* Completion bonus */}
-                <div className={`mt-4 p-3.5 rounded-xl border transition-all duration-500 ${
+                <div className={`mt-3.5 p-3 rounded-xl border transition-all duration-500 ${
                   dtAll && !user.dailyBonusClaimed
-                    ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-400/30'
+                    ? 'bg-gradient-to-r from-amber-500/8 to-orange-500/8 border-amber-400/25'
                     : user.dailyBonusClaimed
-                      ? 'bg-green-500/8 border-green-500/20'
-                      : 'bg-black/20 border-white/5 opacity-50'
+                      ? 'bg-green-500/6 border-green-500/15'
+                      : 'bg-black/15 border-white/[.04] opacity-40'
                 }`}>
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${dtAll ? 'bg-amber-500/20' : 'bg-black/30'}`}>
-                      {user.dailyBonusClaimed ? '🎉' : dtAll ? '🎁' : '🔒'}
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${dtAll ? 'bg-amber-500/15' : user.dailyBonusClaimed ? 'bg-green-500/15' : 'bg-black/30'}`}>
+                      {user.dailyBonusClaimed ? <CheckCircle className="w-5 h-5 text-green-400" /> : dtAll ? <Gift className="w-5 h-5 text-amber-400" /> : <Lock className="w-4 h-4 text-gray-600" />}
                     </div>
                     <div className="flex-1">
-                      <div className="font-bold text-sm">{user.dailyBonusClaimed ? 'Bonus Claimed!' : 'Complete All 3 Tasks'}</div>
-                      <div className="text-xs text-gray-500">{user.dailyBonusClaimed ? '+200 Coins, +5 Gems, +100 XP' : 'Bonus: 200 🪙 + 5 💚 + 100 XP'}</div>
+                      <div className="font-bold text-xs">{user.dailyBonusClaimed ? 'Bonus Claimed!' : 'Complete All 3 Tasks'}</div>
+                      <div className="text-[10px] text-gray-500">
+                        {user.dailyBonusClaimed 
+                          ? '+200 Coins, +5 Gems, +100 XP' 
+                          : <>Bonus: 200 <Medal className="w-3 h-3 text-yellow-500 inline" /> + 5 <Gem className="w-3 h-3 text-emerald-400 inline" /> + 100 XP</>
+                        }
+                      </div>
                     </div>
                     {dtAll && !user.dailyBonusClaimed && (
                       <button type="button" onClick={() => {
                         addCoins(200); addGems(5); addXP(100);
                         setUser(u => ({ ...u, dailyBonusClaimed: true }));
-                        showNotif('🎉 Daily Bonus: +200 Coins + 5 Gems + 100 XP!');
-                      }} className="px-4 py-2 rounded-xl font-bold text-sm text-black" style={{
+                        showNotif('Daily Bonus: +200 Coins + 5 Gems + 100 XP!');
+                      }} className="dh-glow-btn px-4 py-2 rounded-xl font-bold text-xs text-black flex-shrink-0" style={{
                         background: 'linear-gradient(180deg,#fbbf24 0%,#d97706 100%)',
                         boxShadow: '0 3px 0 #92400e, 0 4px 15px rgba(251,191,36,0.3)',
                       }}>
@@ -6999,21 +7044,19 @@ export default function GamificationPlatform() {
                 </div>
               </div>
 
-              {/* ===== DAILY TRIVIA (3 Questions) ===== */}
-              <DailyTriviaChallenge
-                user={user}
-                onAnswer={handleDailyChallenge}
-                onNavigate={setTab}
-              />
-
-              {/* ===== DAILY FREE SPINS ===== */}
-              <div className="match-card p-5">
+              {/* ===== DAILY FREE SPINS (TOP — draws players in) ===== */}
+              <div id="dh-freespins" className="dh-card p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🎰</span>
-                    <span className="font-bold text-base">Daily Free Spins</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-purple-500/12 border border-purple-500/20">
+                      <Dices className="w-4.5 h-4.5 text-purple-400" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-sm">Daily Free Spins</span>
+                      <div className="text-[10px] text-gray-500">Play today's featured games for free</div>
+                    </div>
                   </div>
-                  <span className="text-xs font-bold text-gray-500">{dtFreeSpinsUsed.length}/3 used</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${dtFreeSpinsUsed.length >= 3 ? 'bg-green-500/15 text-green-400' : 'bg-white/5 text-gray-500'}`}>{dtFreeSpinsUsed.length}/3</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {dtFreeSpinGames.map(gameId => {
@@ -7025,79 +7068,124 @@ export default function GamificationPlatform() {
                         setUser(u => ({ ...u, dailyFreeSpinsUsed: [...new Set([...(u.dailyFreeSpinsUsed || []), gameId])] }));
                         setTab('minigames');
                         setTimeout(() => setActiveGame(gameId), 300);
-                      }} className={`p-3 rounded-2xl text-center transition-all ${used ? 'bg-green-500/8 border border-green-500/20 opacity-60' : 'bg-black/30 border border-cyan-500/15 hover:border-cyan-500/40 hover:bg-cyan-500/8 hover:scale-[1.02] active:scale-95'}`}>
-                        <div className="relative w-12 h-12 mx-auto mb-2 rounded-xl overflow-hidden">
+                      }} className={`group relative p-3 rounded-2xl text-center transition-all duration-300 ${
+                        used 
+                          ? 'bg-green-500/5 border border-green-500/15 opacity-50' 
+                          : 'bg-gradient-to-b from-white/[.04] to-transparent border border-cyan-500/15 hover:border-cyan-400/40 hover:shadow-lg hover:shadow-cyan-500/10 hover:scale-[1.03] active:scale-95'
+                      }`} style={{ animation: !used ? 'dhPulseRing 2.5s ease-out infinite' : 'none', animationDelay: `${dtFreeSpinGames.indexOf(gameId) * 0.5}s` }}>
+                        <div className="relative w-16 h-16 mx-auto mb-2.5 rounded-xl overflow-hidden border border-white/10 shadow-lg">
                           <img src={IMAGES[game.image]} alt="" className="w-full h-full object-cover" />
-                          {used && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><CheckCircle className="w-6 h-6 text-green-400" /></div>}
+                          {used && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                              <CheckCircle className="w-7 h-7 text-green-400" />
+                            </div>
+                          )}
+                          {!used && (
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                          )}
                         </div>
-                        <div className="font-bold text-xs mb-0.5">{game.name}</div>
-                        <div className={`text-[10px] font-bold ${used ? 'text-green-400' : 'text-cyan-400'}`}>{used ? '✓ Played' : 'FREE'}</div>
+                        <div className="font-bold text-xs mb-1">{game.name}</div>
+                        {used ? (
+                          <span className="text-[10px] font-bold text-green-400/70">Played</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-black tracking-wider text-cyan-300" style={{ background: 'linear-gradient(135deg, rgba(6,182,212,.15), rgba(59,130,246,.15))', border: '1px solid rgba(6,182,212,.25)' }}>
+                            <Play className="w-2.5 h-2.5" /> FREE
+                          </span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* ===== DAILY COIN BONUS ===== */}
+              {/* ===== DAILY TRIVIA (Hero Card) ===== */}
+              <div id="dh-trivia">
+                <DailyTriviaChallenge
+                  user={user}
+                  onAnswer={handleDailyChallenge}
+                  onNavigate={setTab}
+                />
+              </div>
+
+              {/* ===== DAILY COIN BONUS (Middle) ===== */}
               {(() => {
                 const maxClaims = 3;
                 const claimed = user.dailyCoinBonusClaims || 0;
                 const canClaim = claimed < maxClaims;
-                const bonusAmount = 50 + (claimed * 25); // 50, 75, 100 escalating
+                const bonusAmount = 50 + (claimed * 25);
                 return (
-                  <div className="match-card p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">💰</span>
-                        <span className="font-bold text-base">Coin Bonus</span>
+                  <div id="dh-coinbonus" className="dh-card p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/10 border border-cyan-500/20">
+                          <CircleDollarSign className="w-4.5 h-4.5 text-cyan-400" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-sm">Coin Bonus</span>
+                          <div className="text-[10px] text-gray-500">Claim {maxClaims}× daily — amounts increase!</div>
+                        </div>
                       </div>
-                      <span className="text-xs font-bold text-gray-500">{claimed}/{maxClaims} claimed</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-md ${claimed >= maxClaims ? 'bg-green-500/15 text-green-400' : 'bg-white/5 text-gray-500'}`}>{claimed}/{maxClaims}</span>
                     </div>
-                    <div className="flex gap-2 mb-3">
-                      {[0, 1, 2].map(i => (
-                        <div key={i} className={`flex-1 h-2.5 rounded-full transition-all ${i < claimed ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 'bg-black/30 border border-white/5'}`} />
+                    {/* Claim segments */}
+                    <div className="flex gap-2.5 mb-4">
+                      {[50, 75, 100].map((amount, i) => (
+                        <div key={i} className="flex-1">
+                          <div className={`dh-segment ${i < claimed ? 'dh-segment-filled' : 'dh-segment-empty'}`} />
+                          <div className="flex items-center justify-center gap-0.5 mt-1.5">
+                            <Medal className={`w-3 h-3 ${i < claimed ? 'text-cyan-400' : 'text-gray-700'}`} />
+                            <span className={`text-[10px] font-bold ${i < claimed ? 'text-cyan-400' : 'text-gray-700'}`}>{amount}</span>
+                          </div>
+                        </div>
                       ))}
                     </div>
                     {canClaim ? (
                       <button type="button" onClick={() => {
                         addCoins(bonusAmount);
                         setUser(u => ({ ...u, dailyCoinBonusClaims: (u.dailyCoinBonusClaims || 0) + 1, dailyTasksDone: [...new Set([...u.dailyTasksDone, 'coinbonus'])] }));
-                        showNotif(`💰 +${bonusAmount} Coin Bonus!`);
+                        showNotif(`+${bonusAmount} Coin Bonus claimed!`);
                         trackMission('dailyClaimed');
                         trackQuest('dailyClaimed', {});
-                      }} className="w-full py-3.5 rounded-xl font-bold text-sm text-black transition-all hover:scale-[1.02] active:scale-95" style={{
-                        background: 'linear-gradient(180deg,#fbbf24 0%,#d97706 100%)',
-                        boxShadow: '0 3px 0 #92400e, 0 4px 15px rgba(251,191,36,0.25)',
+                      }} className="dh-glow-btn w-full py-3 rounded-xl font-bold text-sm transition-all hover:scale-[1.01] active:scale-[.98]" style={{
+                        background: 'linear-gradient(180deg,#22D3EE 0%,#0891b2 100%)',
+                        color: '#fff',
+                        boxShadow: '0 3px 0 #155e75, 0 4px 20px rgba(6,182,212,0.25)',
+                        textShadow: '0 1px 2px rgba(0,0,0,.3)',
                       }}>
-                        Claim {bonusAmount} 🪙 {claimed === 0 ? '' : `(Claim ${claimed + 1})`}
+                        <span className="flex items-center justify-center gap-2">
+                          <CircleDollarSign className="w-4 h-4" />
+                          Claim {bonusAmount} Coins {claimed > 0 && <span className="opacity-70 text-xs">({claimed + 1} of {maxClaims})</span>}
+                        </span>
                       </button>
                     ) : (
-                      <div className="w-full py-3 rounded-xl text-center text-sm font-bold text-green-400 bg-green-500/8 border border-green-500/15">
-                        ✅ All bonuses claimed today!
+                      <div className="w-full py-3 rounded-xl text-center text-sm font-bold text-green-400 bg-green-500/6 border border-green-500/12 flex items-center justify-center gap-2">
+                        <CheckCircle className="w-4 h-4" /> All bonuses claimed today!
                       </div>
-                    )}
-                    {canClaim && claimed > 0 && (
-                      <div className="text-center text-[10px] text-gray-500 mt-2">Each claim increases: 50 → 75 → 100 🪙</div>
                     )}
                   </div>
                 );
               })()}
 
               {/* ===== STREAK CALENDAR ===== */}
-              <div className="match-card p-5">
+              <div className="dh-card p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    <span className="font-bold text-base">{user.streak} Day Streak</span>
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-orange-500/12 border border-orange-500/20">
+                      <Flame className="w-4.5 h-4.5 text-orange-400" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-sm">{user.streak} Day Streak</span>
+                      <div className="text-[10px] text-gray-500">Login daily to earn rewards</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20">
-                    <Flame className="w-3.5 h-3.5 text-orange-400" />
-                    <span className="text-xs font-bold text-orange-400">
-                      {user.streak >= 7 ? 'MAX STREAK!' : `${7 - user.streak} to max`}
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-orange-500/8 border border-orange-500/15">
+                    <TrendingUp className="w-3 h-3 text-orange-400" />
+                    <span className="text-[10px] font-bold text-orange-400">
+                      {user.streak >= 7 ? 'MAX!' : `${7 - user.streak} to max`}
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-7 gap-2">
+                <div className="grid grid-cols-7 gap-1.5">
                   {DAILY_REWARDS.map((r, i) => {
                     const day = i + 1;
                     const isPast = day < user.dailyDay;
@@ -7124,32 +7212,32 @@ export default function GamificationPlatform() {
                             trackMission('xpEarned', { amount: 20 });
                             trackQuest('dailyClaimed', {});
                             trackQuest('xpEarned', { amount: 20 });
-                            showNotif(`🎉 +${r.kwacha} Coins!`);
+                            showNotif(`+${r.kwacha} Coins streak reward!`);
                           }
                         }} 
                         disabled={!canClaim} 
-                        className={`p-2.5 rounded-2xl text-center transition-all duration-300 relative ${
+                        className={`p-2 rounded-xl text-center transition-all duration-300 relative ${
                           isPast 
-                            ? 'bg-green-500/15 border-2 border-green-500/40' 
+                            ? 'bg-green-500/10 border border-green-500/25' 
                             : canClaim 
-                              ? 'bg-gradient-to-br from-cyan-500/30 to-blue-500/30 border-2 border-cyan-400/60 glow-pulse shadow-lg shadow-cyan-500/30 hover:scale-105' 
+                              ? 'bg-gradient-to-br from-cyan-500/25 to-blue-500/25 border-2 border-cyan-400/50 shadow-lg shadow-cyan-500/20 hover:scale-105' 
                               : isCurrent 
-                                ? 'bg-cyan-500/10 border-2 border-cyan-500/30' 
-                                : 'bg-black/30 border-2 border-gray-700/40'
+                                ? 'bg-cyan-500/8 border border-cyan-500/20' 
+                                : 'bg-black/20 border border-white/[.04]'
                         }`}
                       >
-                        <div className="text-[10px] text-gray-400 mb-1">Day {day}</div>
+                        <div className="text-[9px] text-gray-500 mb-0.5 font-medium">Day {day}</div>
                         {isPast ? (
-                          <CheckCircle className="w-5 h-5 text-green-400 mx-auto mb-0.5" />
+                          <CheckCircle className="w-4 h-4 text-green-400 mx-auto mb-0.5" />
                         ) : (
-                          <div className={`text-lg mb-0.5 ${isFuture ? 'opacity-30' : ''}`}>
-                            {r.diamonds ? '💎' : r.gems ? '💚' : '🪙'}
+                          <div className={`flex justify-center mb-0.5 ${isFuture ? 'opacity-25' : ''}`}>
+                            {r.diamonds ? <Diamond className="w-4 h-4 text-blue-400" /> : r.gems ? <Gem className="w-4 h-4 text-emerald-400" /> : <Medal className="w-4 h-4 text-yellow-500" />}
                           </div>
                         )}
-                        <div className={`font-bold text-xs ${isPast ? 'text-green-400' : isFuture ? 'text-gray-600' : 'text-yellow-400'}`}>{r.kwacha}</div>
-                        {r.gems && <div className={`text-[9px] ${isFuture ? 'text-gray-700' : 'text-green-400'}`}>+{r.gems}g</div>}
-                        {r.diamonds && <div className={`text-[9px] ${isFuture ? 'text-gray-700' : 'text-blue-400'}`}>+💎</div>}
-                        {canClaim && <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-ping" />}
+                        <div className={`font-bold text-[10px] ${isPast ? 'text-green-400' : isFuture ? 'text-gray-700' : 'text-yellow-400'}`}>{r.kwacha}</div>
+                        {r.gems && <div className={`text-[8px] ${isFuture ? 'text-gray-700' : 'text-emerald-400'}`}>+{r.gems}g</div>}
+                        {r.diamonds && <div className={`text-[8px] ${isFuture ? 'text-gray-700' : 'text-blue-400'}`}>+1d</div>}
+                        {canClaim && <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-cyan-400 rounded-full animate-ping" />}
                       </button>
                     );
                   })}
